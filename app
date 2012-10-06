@@ -2,6 +2,9 @@
 
 set -e
 
+mkdir -p .app
+export BASEDIR=`pwd`
+
 if [ -n "$APPSH_REPO" ]
 then
   repo="$APPSH_REPO"
@@ -62,11 +65,40 @@ download_artifact() {
   # TODO: download checksum. bash is too shady to trust
 }
 
-get_config() {
+get_conf() {
   key=$1
+  default=$2
 
-  file=$name/$instance/latest/etc/app.conf
+  file=$BASEDIR/$name/$instance/latest/etc/app.conf
+
+  if [ ! -r $file ]
+  then
+    echo "$default"
+    return 0
+  fi
+
   value=`sed -n "s,^${key}[ ]*=[ ]*\(.*\)$,\1,p" $file`
+
+  if [ -z "$value" ]
+  then
+    echo "$default"
+  fi
+
+  echo "$value"
+}
+
+get_conf_in_group() {
+  prefix=$1
+
+  file=$BASEDIR/$name/$instance/latest/etc/app.conf
+
+  if [ ! -r $file ]
+  then
+    echo "$default"
+    return 0
+  fi
+
+  sed -n "s,^${prefix}\.\([._a-zA-Z]*\)[ ]*=[ ]*\(.*\)$,\1=\2,p" $file
 }
 
 install_usage() {
@@ -206,7 +238,7 @@ method_install() {
 
   (
     cd $name/$instance/latest
-    find bin | xargs chmod +x
+    find bin -type f | xargs chmod +x
   )
 
   if [ -r apps.list ]
@@ -217,11 +249,78 @@ method_install() {
   mv apps.list.new apps.list
 }
 
+start_usage() {
+  if [ -n "$1" ]
+  then
+    echo "Error:" $@ >&2
+  fi
+
+  echo "usage: $0 start -n name -i instance" >&2
+  exit 1
+}
+
+# TODO: set ulimit
+# TODO: set umask
+# TODO: change group newgrp/sg
 method_start() {
-# TODO: set ulimit, newgrp/sg
+  while getopts "n:i:" opt
+  do
+    case $opt in
+      n)
+        name=$OPTARG
+        ;;
+      i)
+        instance=$OPTARG
+        ;;
+      \?)
+        start_usage "Invalid option: -$OPTARG" 
+        ;;
+    esac
+  done
+
+  if [ -z "$name" -o -z "$instance" ]
+  then
+    start_usage "Missing required option."
+  fi
+
+  if [ ! -d $name/$instance ]
+  then
+    echo "No such application/instance: $name/$instance."  >&2
+    exit 1
+  fi
+
+  if [ ! -e $name/$instance/latest ]
+  then
+    echo "Missing 'latest' link." >&2
+    exit 1
+  fi
+
   (
     cd $name/$instance/latest
-    find bin | xargs chmod +x
+
+    bin=`get_conf app.start`
+
+    if [ -z "$bin" ]
+    then
+      bin=`find bin -type f`
+
+      if [ ! -x "$bin" ]
+      then
+        echo "No app.start configured, couldn't detect an executable file to execute." >&2
+        exit 1
+      fi
+    elif [ ! -x "$bin" ]
+    then
+      echo "Invalid executable: $bin" >&2
+      exit 1
+    fi
+
+    e=`get_conf_in_group env`
+
+    env -i $e \
+      $bin &
+    PID=`echo $!`
+    echo $PID > $BASEDIR/.app/$name-$instance.pid
   )
 }
 
@@ -251,7 +350,7 @@ method_list_config() {
     echo $default
   fi
 
-  get_value port
+  get_conf port
 }
 
 method_usage() {
