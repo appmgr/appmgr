@@ -3,7 +3,9 @@
 set -e
 
 mkdir -p .app
-export BASEDIR=`pwd`
+BASEDIR=`dirname $0`
+BASEDIR=`cd $BASEDIR; pwd`
+export BASEDIR
 
 if [ -n "$APPSH_REPO" ]
 then
@@ -65,40 +67,33 @@ download_artifact() {
   # TODO: download checksum. bash is too shady to trust
 }
 
-get_conf() {
-  key=$1
-  default=$2
+assert_is_instance() {
+  usage=$1
+  name=$2
+  instance=$3
 
-  file=$BASEDIR/$name/$instance/latest/etc/app.conf
-
-  if [ ! -r $file ]
+  if [ -z "$name" ]
   then
-    echo "$default"
-    return 0
+    $usage "Missing required option -n."
   fi
 
-  value=`sed -n "s,^${key}[ ]*=[ ]*\(.*\)$,\1,p" $file`
-
-  if [ -z "$value" ]
+  if [ -z "$instance" ]
   then
-    echo "$default"
+    $usage "Missing required option -i."
   fi
 
-  echo "$value"
-}
-
-get_conf_in_group() {
-  prefix=$1
-
-  file=$BASEDIR/$name/$instance/latest/etc/app.conf
-
-  if [ ! -r $file ]
+  if [ ! -d $name/$instance ]
   then
-    echo "$default"
-    return 0
+    echo "No such application/instance: $name/$instance."  >&2
+    exit 1
   fi
 
-  sed -n "s,^${prefix}\.\([._a-zA-Z]*\)[ ]*=[ ]*\(.*\)$,\1=\2,p" $file
+  if [ ! -e $name/$instance/latest ]
+  then
+    echo "Missing 'latest' link." >&2
+    exit 1
+  fi
+
 }
 
 install_usage() {
@@ -241,12 +236,12 @@ method_install() {
     find bin -type f | xargs chmod +x
   )
 
-  if [ -r apps.list ]
+  if [ -r $BASEDIR/.app/var/list ]
   then
-    sed "/^$name:$instance/d" apps.list > apps.list.new
+    sed "/^$name:$instance/d" $BASEDIR/.app/var/list > $BASEDIR/.app/var/list.new
   fi
-  echo "$name:$instance:$version" >> apps.list.new
-  mv apps.list.new apps.list
+  echo "$name:$instance:$version" >> $BASEDIR/.app/var/list.new
+  mv $BASEDIR/.app/var/list.new $BASEDIR/.app/var/list
 }
 
 start_usage() {
@@ -278,22 +273,7 @@ method_start() {
     esac
   done
 
-  if [ -z "$name" -o -z "$instance" ]
-  then
-    start_usage "Missing required option."
-  fi
-
-  if [ ! -d $name/$instance ]
-  then
-    echo "No such application/instance: $name/$instance."  >&2
-    exit 1
-  fi
-
-  if [ ! -e $name/$instance/latest ]
-  then
-    echo "Missing 'latest' link." >&2
-    exit 1
-  fi
+  assert_is_instance start_usage "$name" "$instance"
 
   (
     cd $name/$instance/latest
@@ -320,37 +300,22 @@ method_start() {
     env -i $e \
       $bin &
     PID=`echo $!`
-    echo $PID > $BASEDIR/.app/$name-$instance.pid
+    echo $PID > $BASEDIR/.app/var/$name-$instance.pid
   )
 }
 
 method_list() {
   printf "%20s %20s %20s\n" "instance" "name" "version"
  
-  if [ ! -r apps.list ]
+  if [ ! -r $BASEDIR/.app/var/list ]
   then
     return
   fi
 
-  cat apps.list | (export IFS=:; while read instance name version
+  sort $BASEDIR/.app/var/list | (export IFS=:; while read instance name version
   do
     printf "%20s %20s %20s\n" "$instance" "$name" "$version"
   done)
-}
-
-method_list_config() {
-  name=$1
-  instance=$2
-  default=$3
-
-  conf=$name/$instance/etc/app.conf
-
-  if [ ! -r $conf ]
-  then
-    echo $default
-  fi
-
-  get_conf port
 }
 
 method_usage() {
@@ -362,6 +327,8 @@ method_usage() {
   echo "" >&2
   echo "Run '$0 <method>' to get more help" >&2
 }
+
+. $BASEDIR/.app/lib/app-conf
 
 if [ $# -gt 0 ]
 then
@@ -379,8 +346,8 @@ case "$method" in
   list)
     method_list $@
     ;;
-  list-config)
-    method_list_config $@
+  conf)
+    method_conf $@
     ;;
   *)
     method_usage $@

@@ -1,0 +1,138 @@
+#!/bin/bash
+
+key_expr="[a-zA-Z][_a-zA-Z0-9]*\.[a-zA-Z][_a-zA-Z0-9]*"
+
+get_conf() {
+  key=$1
+  default=$2
+
+  file=$BASEDIR/$name/$instance/latest/etc/app.conf
+
+  if [ ! -r $file ]
+  then
+    echo "$default"
+    return 0
+  fi
+
+  value=`sed -n "s,^${key}[ ]*=[ ]*\(.*\)$,\1,p" $file`
+
+  if [ -z "$value" ]
+  then
+    echo "$default"
+  fi
+
+  echo "$value"
+}
+
+get_conf_all() {
+  local file=$BASEDIR/$name/$instance/latest/etc/app.conf
+
+  if [ ! -r $file ]
+  then
+    return 0
+  fi
+
+  sed -n "s,^[ ]*\($key_expr\)[ ]*=[ ]*\(.*\)$,\1=\2,p" $file | sort
+}
+
+get_conf_in_group() {
+  prefix=$1
+
+  get_conf_all | sed -n "s,^[ ]*${prefix}\.\([._a-zA-Z]*\)=\(.*\)$,\1=\2,p"
+}
+
+assert_key() {
+  key=$1
+
+  local x=`echo $key | sed -n "/^$key_expr$/p"`
+  if [ -z "$x" ]
+  then
+    echo "Invalid key: $key" >&2
+    exit 1
+  fi
+}
+
+conf_set() {
+  key=$1
+  value=$2
+
+  local file=$BASEDIR/$name/$instance/latest/etc/app.conf
+
+  assert_key "$key"
+
+  sed "/^$key[ ]*=.*/d" $file > $file.tmp
+  echo "$key=$value" >> $file.tmp
+  mv $file.tmp $file
+}
+
+conf_delete() {
+  key=$1
+
+  local file=$BASEDIR/$name/$instance/latest/etc/app.conf
+
+  assert_key "$key"
+
+  sed "/^$key[ ]*=.*/d" $file > $file.tmp
+  mv $file.tmp $file
+}
+
+conf_usage() {
+  if [ -n "$1" ]
+  then
+    echo "Error:" $@ >&2
+  fi
+
+  echo "usage:" >&2
+  echo ""
+  echo "  $0 conf -n name -i instance" >&2
+  echo "  $0 conf -n name -i instance -s [group.key] [value]" >&2
+  exit 1
+}
+
+method_conf() {
+  local mode="list"
+
+  while getopts "n:i:s:d:" opt
+  do
+    case $opt in
+      n)
+        name=$OPTARG
+        ;;
+      i)
+        instance=$OPTARG
+        ;;
+      d)
+        mode="delete"
+        key=$OPTARG
+        ;;
+      s)
+        mode="set"
+        key=$OPTARG
+        # Remove all options so far
+        shift $((OPTIND-1))
+        value=$1
+        ;;
+      \?)
+        conf_usage "Invalid option: -$OPTARG" 
+        ;;
+    esac
+  done
+
+  assert_is_instance conf_usage "$name" "$instance"
+
+  case $mode in
+    list)
+      get_conf_all | (IFS==; while read key value
+      do
+        printf "%-20s %-20s" "$key" "$value"
+        echo
+      done)
+      ;;
+    set)
+      conf_set "$key" "$value"
+      ;;
+    delete)
+      conf_delete "$key"
+      ;;
+  esac
+}

@@ -2,4 +2,4 @@ apps.list
 downloads
 /app-*
 target
-.app
+.app/var
