@@ -350,17 +350,61 @@ method_stop() {
 
 
 method_list() {
-  printf "%-20s %-20s %-20s\n" "Name" "Instance" "Version"
+  local mode="pretty"
+
+  while getopts "P" opt
+  do
+    case $opt in
+      P)
+        mode="parseable"
+        shift
+        ;;
+      \?)
+        install_usage "Invalid option: -$OPTARG" 
+        ;;
+    esac
+  done
  
   if [ ! -r $BASEDIR/.app/var/list ]
   then
     return
   fi
 
-  sort $BASEDIR/.app/var/list | (export IFS=:; while read instance name version
-  do
-    printf "%-20s %-20s %-20s\n" "$name" "$instance" "$version"
-  done)
+  x="$@"
+  if [ -z "$x" ]
+  then
+    vars="name instance version"
+  else
+    vars="$@"
+  fi
+
+  if [ $mode = "pretty" ]
+  then
+    printf "%-20s %-20s %-20s\n" "Name" "Instance" "Version"
+  fi
+
+  sort $BASEDIR/.app/var/list | (
+    IFS=:; while read instance name version
+    do
+      if [ $mode = "pretty" ]
+      then
+        printf "%-20s %-20s %-20s\n" "$name" "$instance" "$version"
+      else
+        line=""
+        IFS=" "; for var in $vars
+        do
+          eval v=\$$var
+          if [ -z "$line" ]
+          then
+            line="$line$v"
+          else
+            line="$line:$v"
+          fi
+        done
+        echo $line
+      fi
+    done
+  )
 }
 
 method_usage() {
@@ -369,6 +413,9 @@ method_usage() {
   echo "Available methods:" >&2
   echo "  install - Installs an application" >&2
   echo "  list    - List all installed applications" >&2
+  echo "  start   - Starts an applications" >&2
+  echo "  stop    - Stops an applications" >&2
+  echo "  conf    - Application configuration management" >&2
   echo "" >&2
   echo "Run '$0 <method>' to get more help" >&2
 }
