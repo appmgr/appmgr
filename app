@@ -352,11 +352,15 @@ method_stop() {
 method_list() {
   local mode="pretty"
 
-  while getopts "P" opt
+  while getopts "Pn:" opt
   do
     case $opt in
       P)
         mode="parseable"
+        shift
+        ;;
+      n)
+        filter_name=$OPTARG
         shift
         ;;
       \?)
@@ -383,9 +387,15 @@ method_list() {
     printf "%-20s %-20s %-20s\n" "Name" "Instance" "Version"
   fi
 
-  sort $BASEDIR/.app/var/list | (
-    IFS=:; while read instance name version
+  sort $BASEDIR/.app/var/list | while read line
+  do
+    echo $line | (IFS=:; while read name instance version
     do
+      if [ "$filter_name" != "" -a "$filter_name" != "$name" ]
+      then
+        continue
+      fi
+
       if [ $mode = "pretty" ]
       then
         printf "%-20s %-20s %-20s\n" "$name" "$instance" "$version"
@@ -403,8 +413,8 @@ method_list() {
         done
         echo $line
       fi
-    done
-  )
+    done)
+  done
 }
 
 method_usage() {
