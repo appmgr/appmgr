@@ -2,10 +2,11 @@
 
 set -e
 
-mkdir -p .app
 BASEDIR=`dirname $0`
 BASEDIR=`cd $BASEDIR; pwd`
 export BASEDIR
+
+mkdir -p $BASEDIR/.app/var
 
 if [ -n "$APPSH_REPO" ]
 then
