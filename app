@@ -6,7 +6,8 @@ BASEDIR=`dirname $0`
 BASEDIR=`cd $BASEDIR; pwd`
 export BASEDIR
 
-mkdir -p $BASEDIR/.app/var
+mkdir -p $BASEDIR/.app/var/pid
+mkdir -p $BASEDIR/.app/var/download
 
 if [ -n "$APPSH_REPO" ]
 then
@@ -39,8 +40,7 @@ resolve_snapshot() {
   local metadata
 
   echo "Resolving version $version..."
-  mkdir -p downloads
-  metadata=downloads/$groupId-$artifactId-$version-metadata.xml
+  metadata=$BASEDIR/.app/var/download/$groupId-$artifactId-$version-metadata.xml
   base_url=$repo/$(echo $groupId | sed "s,\.,/,g")/$artifactId/$version
   get $base_url/maven-metadata.xml $metadata
   resolved_version=`xmlstarlet sel -t -m '//snapshotVersion[extension[text()="zip"]]' -v value $metadata`
@@ -55,7 +55,7 @@ resolve_snapshot() {
 
 zip_file=
 download_artifact() {
-  zip_file=downloads/$groupId-$artifactId-$resolved_version.zip
+  zip_file=$BASEDIR/.app/var/download/$groupId-$artifactId-$resolved_version.zip
   if [ -r $zip_file ]
   then
     echo "Artifact already downloaded."
@@ -89,9 +89,9 @@ assert_is_instance() {
     exit 1
   fi
 
-  if [ ! -e $name/$instance/latest ]
+  if [ ! -e $name/$instance/current ]
   then
-    echo "Missing 'latest' link." >&2
+    echo "Missing 'current' link." >&2
     exit 1
   fi
 
@@ -228,12 +228,12 @@ method_install() {
     fi
   )
 
-  echo "Changing latest symlink"
-  rm -f $name/$instance/latest
-  ln -s versions/$resolved_version/root $name/$instance/latest
+  echo "Changing current symlink"
+  rm -f $name/$instance/current
+  ln -s versions/$resolved_version/root $name/$instance/current
 
   (
-    cd $name/$instance/latest
+    cd $name/$instance/current
     find bin -type f | xargs chmod +x
   )
 
@@ -277,7 +277,7 @@ method_start() {
   assert_is_instance start_usage "$name" "$instance"
 
   (
-    cd $name/$instance/latest
+    cd $name/$instance/current
 
     bin=`get_conf app.start`
 
@@ -300,10 +300,54 @@ method_start() {
 
     env -i $e \
       $bin &
-    PID=`echo $!`
-    echo $PID > $BASEDIR/.app/var/$name-$instance.pid
+    set -x
+    PID=$!
+    echo $PID > $BASEDIR/.app/var/pid/$name-$instance.pid
   )
 }
+
+method_stop() {
+  while getopts "n:i:" opt
+  do
+    case $opt in
+      n)
+        name=$OPTARG
+        ;;
+      i)
+        instance=$OPTARG
+        ;;
+      \?)
+        start_usage "Invalid option: -$OPTARG" 
+        ;;
+    esac
+  done
+
+  assert_is_instance stop_usage "$name" "$instance"
+
+  (
+    cd $name/$instance/current
+
+    bin=`get_conf app.stop`
+
+    if [ -z "$bin" ]
+    then
+      PID=`cat $BASEDIR/.app/var/pid/$name-$instance.pid`
+      echo "Sending TERM to $PID"
+      bin="kill $PID"
+    elif [ ! -x "$bin" ]
+    then
+      echo "Invalid executable: $bin" >&2
+      exit 1
+    fi
+
+    e=`get_conf_in_group env`
+
+    env -i $e \
+      PID=$PID \
+      $bin &
+  )
+}
+
 
 method_list() {
   printf "%20s %20s %20s\n" "instance" "name" "version"
@@ -343,6 +387,9 @@ case "$method" in
     ;;
   start)
     method_start $@
+    ;;
+  stop)
+    method_stop $@
     ;;
   list)
     method_list $@

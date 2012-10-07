@@ -3,10 +3,9 @@
 key_expr="[a-zA-Z][_a-zA-Z0-9]*\.[a-zA-Z][_a-zA-Z0-9]*"
 
 get_conf() {
-  key=$1
-  default=$2
-
-  file=$BASEDIR/$name/$instance/latest/etc/app.conf
+  local key=$1
+  local default=$2
+  local file=$BASEDIR/$name/$instance/latest/etc/app.conf
 
   if [ ! -r $file ]
   then
@@ -53,14 +52,17 @@ assert_key() {
 }
 
 conf_set() {
-  key=$1
-  value=$2
-
+  local key=$1
+  local value=$2
   local file=$BASEDIR/$name/$instance/latest/etc/app.conf
 
   assert_key "$key"
 
-  sed "/^$key[ ]*=.*/d" $file > $file.tmp
+  if [ -r $file ]
+  then
+    sed "/^$key[ ]*=.*/d" $file > $file.tmp
+  fi
+
   echo "$key=$value" >> $file.tmp
   mv $file.tmp $file
 }
