@@ -350,7 +350,7 @@ method_stop() {
 
 
 method_list() {
-  printf "%20s %20s %20s\n" "instance" "name" "version"
+  printf "%-20s %-20s %-20s\n" "Name" "Instance" "Version"
  
   if [ ! -r $BASEDIR/.app/var/list ]
   then
@@ -359,7 +359,7 @@ method_list() {
 
   sort $BASEDIR/.app/var/list | (export IFS=:; while read instance name version
   do
-    printf "%20s %20s %20s\n" "$instance" "$name" "$version"
+    printf "%-20s %-20s %-20s\n" "$name" "$instance" "$version"
   done)
 }
 
