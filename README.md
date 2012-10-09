@@ -12,6 +12,8 @@ TODOs
 * Add support for hooks in .app/hooks. Example hooks:
     * Diff config. Save a backup of the config On installtaion
 
+* Support changing current version.
+
 * Document app.sh
     * Concept: config. group, key and value.
     * Scriptable

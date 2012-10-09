@@ -176,15 +176,17 @@ method_install() {
     fi
 
     resolve_snapshot
+
+    download_artifact
   else
     zip_file=$file
 
     if [ -z "$version" ]
     then
-      resolved_version=`TZ=UTC date +"%Y%m%d-%H%M%S"`
-    else
-      resolved_version=$version
+      version=`TZ=UTC date +"%Y%m%d-%H%M%S"`
     fi
+
+    resolved_version=$version
   fi
 
   if [ ! -d $name/$instance ]
@@ -199,8 +201,6 @@ method_install() {
     exit 1
   fi
 
-  download_artifact
-
   mkdir -p $name/$instance/versions/$resolved_version
 
   echo "Unpacking..."
@@ -208,7 +208,10 @@ method_install() {
 
   (
     cd $name/$instance/versions/$resolved_version
-    find scripts | xargs chmod +x
+    if [ -d scripts ]
+    then
+      find scripts | xargs chmod +x
+    fi
 
     if [ -x scripts/postinstall ]
     then
@@ -348,9 +351,93 @@ method_stop() {
   )
 }
 
+list_usage() {
+  if [ -n "$1" ]
+  then
+    echo "Error:" $@ >&2
+  fi
+
+  echo "usage: list [-n name] [-P field]" >&2
+  echo ""
+  echo "List all installed applications" >&2
+  echo "  $0 list" >&2
+  echo ""
+  echo "List all applications in an parseable format:" >&2
+  echo "  $0 -P instance -P version -n foo" >&2
+  exit 1
+}
+
+find_current_version() {
+  name=$1
+  instance=$2
+
+  if [ ! -L $BASEDIR/$name/$instance/current ]
+  then
+    return 0
+  fi
+
+  (
+    cd $BASEDIR/$name/$instance
+    ls -l current | sed -n "s,.* current -> versions/\(.*\)/root,\1,p"
+  )
+}
+
+find_versions() {
+  name=$1
+  instance=$2
+
+  if [ ! -d $BASEDIR/$name/$instance/versions ]
+  then
+    return 0
+  fi
+
+  (
+    cd $BASEDIR/$name/$instance/versions
+    ls -1 *
+  )
+}
+
+list_apps() {
+  filter_name=$1
+  shift
+  vars="$@"
+
+  sort $BASEDIR/.app/var/list | while read line
+  do
+    echo $line | (IFS=:; while read name instance version junk
+    do
+      if [ -n "$filter_name" -a "$filter_name" != "$name" ]
+      then
+        continue
+      fi
+
+      local line=""
+      IFS=" "; for var in $vars
+      do
+        case $var in
+          name) x=$name;;
+          instance) x=$instance;;
+          version) x=$version;;
+          current_version) x=`find_current_version $name $instance`;;
+          *) x="";;
+        esac
+
+        if [ -z "$line" ]
+        then
+          line="$line$x"
+        else
+          line="$line:$x"
+        fi
+      done
+      echo $line
+    done)
+  done
+}
 
 method_list() {
   local mode="pretty"
+  local vars
+  local filter_name
 
   while getopts "P:n:" opt
   do
@@ -363,7 +450,7 @@ method_list() {
         filter_name=$OPTARG
         ;;
       \?)
-        install_usage "Invalid option: -$OPTARG" 
+        list_usage "Invalid option: -$OPTARG" 
         ;;
     esac
   done
@@ -376,36 +463,13 @@ method_list() {
   if [ $mode = "pretty" ]
   then
     printf "%-20s %-20s %-20s\n" "Name" "Instance" "Version"
-  fi
-
-  sort $BASEDIR/.app/var/list | while read line
-  do
-    echo $line | (IFS=:; while read name instance version
+    list_apps "$filter_name" name instance version | (IFS=:; while read name instance version
     do
-      if [ "$filter_name" != "" -a "$filter_name" != "$name" ]
-      then
-        continue
-      fi
-
-      if [ $mode = "pretty" ]
-      then
-        printf "%-20s %-20s %-20s\n" "$name" "$instance" "$version"
-      else
-        line=""
-        IFS=" "; for var in $vars
-        do
-          eval v=\$$var
-          if [ -z "$line" ]
-          then
-            line="$line$v"
-          else
-            line="$line:$v"
-          fi
-        done
-        echo $line
-      fi
+      printf "%-20s %-20s %-20s\n" "$name" "$instance" "$version"
     done)
-  done
+  else
+    list_apps "$filter_name" $vars
+  fi
 }
 
 method_usage() {
