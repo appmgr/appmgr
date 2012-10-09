@@ -352,16 +352,15 @@ method_stop() {
 method_list() {
   local mode="pretty"
 
-  while getopts "Pn:" opt
+  while getopts "P:n:" opt
   do
     case $opt in
       P)
         mode="parseable"
-        shift
+        vars="$vars $OPTARG"
         ;;
       n)
         filter_name=$OPTARG
-        shift
         ;;
       \?)
         install_usage "Invalid option: -$OPTARG" 
@@ -372,14 +371,6 @@ method_list() {
   if [ ! -r $BASEDIR/.app/var/list ]
   then
     return
-  fi
-
-  x="$@"
-  if [ -z "$x" ]
-  then
-    vars="name instance version"
-  else
-    vars="$@"
   fi
 
   if [ $mode = "pretty" ]
