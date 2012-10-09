@@ -5,7 +5,7 @@ key_expr="[a-zA-Z][_a-zA-Z0-9]*\.[a-zA-Z][_a-zA-Z0-9]*"
 get_conf() {
   local key=$1
   local default=$2
-  local file=$BASEDIR/$name/$instance/latest/etc/app.conf
+  local file=$BASEDIR/$name/$instance/current/etc/app.conf
 
   if [ ! -r $file ]
   then
@@ -24,7 +24,7 @@ get_conf() {
 }
 
 get_conf_all() {
-  local file=$BASEDIR/$name/$instance/latest/etc/app.conf
+  local file=$BASEDIR/$name/$instance/current/etc/app.conf
 
   if [ ! -r $file ]
   then
@@ -54,7 +54,7 @@ assert_key() {
 conf_set() {
   local key=$1
   local value=$2
-  local file=$BASEDIR/$name/$instance/latest/etc/app.conf
+  local file=$BASEDIR/$name/$instance/current/etc/app.conf
 
   assert_key "$key"
 
@@ -70,7 +70,7 @@ conf_set() {
 conf_delete() {
   key=$1
 
-  local file=$BASEDIR/$name/$instance/latest/etc/app.conf
+  local file=$BASEDIR/$name/$instance/current/etc/app.conf
 
   assert_key "$key"
 
