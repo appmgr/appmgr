@@ -69,9 +69,10 @@ download_artifact() {
 }
 
 assert_is_instance() {
-  usage=$1
-  name=$2
-  instance=$3
+  local usage=$1
+  local name=$2
+  local instance=$3
+  local check_link=$4
 
   if [ -z "$name" ]
   then
@@ -89,12 +90,14 @@ assert_is_instance() {
     exit 1
   fi
 
-  if [ ! -e $name/$instance/current ]
+  if [ "$check_link" != "no" ]
   then
-    echo "Missing 'current' link." >&2
-    exit 1
+    if [ ! -e $name/$instance/current ]
+    then
+      echo "Missing 'current' link." >&2
+      exit 1
+    fi
   fi
-
 }
 
 install_usage() {
@@ -232,8 +235,7 @@ method_install() {
   )
 
   echo "Changing current symlink"
-  rm -f $name/$instance/current
-  ln -s versions/$resolved_version/root $name/$instance/current
+  ln -f -s versions/$resolved_version/root $name/$instance/current
 
   (
     cd $name/$instance/current
@@ -393,7 +395,7 @@ find_versions() {
 
   (
     cd $BASEDIR/$name/$instance/versions
-    ls -1 *
+    ls -1d *
   )
 }
 
@@ -472,15 +474,119 @@ method_list() {
   fi
 }
 
+list_versions_usage() {
+  if [ -n "$1" ]
+  then
+    echo "Error:" $@ >&2
+  fi
+
+  echo "usage: list-versions -n name -i instance [-P]" >&2
+  echo "  -P - parseable output" >&2
+  exit 1
+}
+
+method_list_versions() {
+  local name
+  local instance
+  local version
+  local mode="pretty"
+
+  while getopts "n:i:P" opt
+  do
+    case $opt in
+      n)
+        name=$OPTARG
+        ;;
+      i)
+        instance=$OPTARG
+        ;;
+      v)
+        version=$OPTARG
+        ;;
+      P)
+        mode="parseable"
+        ;;
+      \?)
+        set_current_usage "Invalid option: -$OPTARG" 
+        ;;
+    esac
+  done
+
+  assert_is_instance set_current_usage "$name" "$instance"
+
+  if [ $mode = "pretty" ]
+  then
+    echo "Available versions for $name/$instance:"
+  fi
+
+  find_versions $name $instance
+
+  return 0
+}
+
+set_current_usage() {
+  if [ -n "$1" ]
+  then
+    echo "Error:" $@ >&2
+  fi
+
+  echo "usage: set-current -n name -i instance -v version" >&2
+  exit 1
+}
+
+method_set_current() {
+  local name
+  local instance
+  local version
+
+  while getopts "n:i:v:" opt
+  do
+    case $opt in
+      n)
+        name=$OPTARG
+        ;;
+      i)
+        instance=$OPTARG
+        ;;
+      v)
+        version=$OPTARG
+        ;;
+      \?)
+        set_current_usage "Invalid option: -$OPTARG" 
+        ;;
+    esac
+  done
+
+  if [ -z "$version" ]
+  then
+    echo "Missing required option -v version." >&2
+    exit 1
+  fi
+
+  assert_is_instance set_current_usage "$name" "$instance" "no"
+
+  if [ ! -d $BASEDIR/$name/$instance/versions/$version ]
+  then
+    echo "Invalid version: $version."
+    exit 1
+  fi
+
+  ln -f -s versions/$version/root $BASEDIR/$name/$instance/current
+
+  return 0
+}
+
 method_usage() {
   echo "usage: $0 <method>" >&2
   echo "" >&2
   echo "Available methods:" >&2
-  echo "  install - Installs an application" >&2
-  echo "  list    - List all installed applications" >&2
-  echo "  start   - Starts an applications" >&2
-  echo "  stop    - Stops an applications" >&2
-  echo "  conf    - Application configuration management" >&2
+  echo "  conf          - Application configuration management" >&2
+  echo "  install       - Installs an application" >&2
+  echo "  list          - List all installed applications" >&2
+  echo "  list-versions - List all available versions for a single application" >&2
+  echo "  set-current   - Set the current version" >&2
+  echo "  start         - Starts an applications" >&2
+  echo "  stop          - Stops an applications" >&2
   echo "" >&2
   echo "Run '$0 <method>' to get more help" >&2
 }
@@ -494,23 +600,13 @@ then
 fi
 
 case "$method" in
-  install)
-    method_install $@
-    ;;
-  start)
-    method_start $@
-    ;;
-  stop)
-    method_stop $@
-    ;;
-  list)
-    method_list $@
-    ;;
-  conf)
-    method_conf $@
-    ;;
-  *)
-    method_usage $@
-    ;;
+  conf)          method_conf $@ ;;
+  install)       method_install $@ ;;
+  list)          method_list $@ ;;
+  list-versions) method_list_versions $@ ;;
+  set-current)   method_set_current $@ ;;
+  start)         method_start $@ ;;
+  stop)          method_stop $@ ;;
+  *)             method_usage $@ ;;
 esac
 exit $?
