@@ -18,6 +18,14 @@ _complete_appsh() {
   COMPREPLY=()
   local cur="${COMP_WORDS[COMP_CWORD]}"
   local prev="${COMP_WORDS[COMP_CWORD-1]}"
+  local opts
+
+  if [ $COMP_CWORD == 1 ]
+  then
+    opts="conf install list set-current start stop"
+    COMPREPLY=($(compgen -W "${opts}" -- ${cur}))  
+    return 0
+  fi
 
   eval `_appsh_parse_opts`
 
