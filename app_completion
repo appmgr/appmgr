@@ -1,0 +1,43 @@
+#!/bin/bash
+
+_find_name() {
+  local prev=""
+  for ((i=0, j=0; i < ${#COMP_WORDS[@]}; i++, j++)); do
+    if [ "$prev" == -n ]
+    then
+      echo "${COMP_WORDS[$i]}"
+    fi
+    prev="${COMP_WORDS[$i]}"
+  done
+}
+
+_complete_appsh_name() {
+#  set -x
+  COMPREPLY=()
+  local cur="${COMP_WORDS[COMP_CWORD]}"
+  local prev="${COMP_WORDS[COMP_CWORD-1]}"
+  local opts="-n -i"
+  local name
+
+  case $prev in
+    -n)
+      values=$(./app list -P name)
+      COMPREPLY=( $(compgen -W "$values" -- ${cur}) )
+      return 0
+      ;;
+    -i)
+      name=`_find_name`
+      if [ -n "$name" ]
+      then
+        values=$(./app list -n $name -P instance)
+        COMPREPLY=( $(compgen -W "$values" -- ${cur}) )
+        return 0
+      fi
+      ;;
+  esac
+
+  COMPREPLY=($(compgen -W "${opts}" -- ${cur}))  
+  set +x
+}
+
+complete -F _complete_appsh_name app
