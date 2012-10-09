@@ -235,7 +235,8 @@ method_install() {
   )
 
   echo "Changing current symlink"
-  ln -f -s versions/$resolved_version/root $name/$instance/current
+  rm -f $BASEDIR/$name/$instance/current
+  ln -s versions/$resolved_version/root $BASEDIR/$name/$instance/current
 
   (
     cd $name/$instance/current
@@ -571,7 +572,7 @@ method_set_current() {
     exit 1
   fi
 
-  ln -f -s versions/$version/root $BASEDIR/$name/$instance/current
+  ln -s versions/$version/root $BASEDIR/$name/$instance/current
 
   return 0
 }
