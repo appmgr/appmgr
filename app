@@ -261,58 +261,33 @@ start_usage() {
   exit 1
 }
 
+stop_usage() {
+  if [ -n "$1" ]
+  then
+    echo "Error:" $@ >&2
+  fi
+
+  echo "usage: $0 stop -n name -i instance" >&2
+  exit 1
+}
+
 # TODO: set ulimit
 # TODO: set umask
 # TODO: change group newgrp/sg
 method_start() {
-  while getopts "n:i:" opt
-  do
-    case $opt in
-      n)
-        name=$OPTARG
-        ;;
-      i)
-        instance=$OPTARG
-        ;;
-      \?)
-        start_usage "Invalid option: -$OPTARG" 
-        ;;
-    esac
-  done
-
-  assert_is_instance start_usage "$name" "$instance"
-
-  (
-    cd $name/$instance/current
-
-    bin=`get_conf app.start`
-
-    if [ -z "$bin" ]
-    then
-      bin=`find bin -type f`
-
-      if [ ! -x "$bin" ]
-      then
-        echo "No app.start configured, couldn't detect an executable file to execute." >&2
-        exit 1
-      fi
-    elif [ ! -x "$bin" ]
-    then
-      echo "Invalid executable: $bin" >&2
-      exit 1
-    fi
-
-    e=`get_conf_in_group env`
-
-    env -i $e \
-      $bin &
-    set -x
-    PID=$!
-    echo $PID > $BASEDIR/.app/var/pid/$name-$instance.pid
-  )
+  run_method start_usage "start" "$@"
 }
 
 method_stop() {
+  run_method stop_usage "stop" "$@"
+}
+
+run_method() {
+  local usage=$0; shift
+  local method=$1; shift
+  local name
+  local instance
+
   while getopts "n:i:" opt
   do
     case $opt in
@@ -323,34 +298,53 @@ method_stop() {
         instance=$OPTARG
         ;;
       \?)
-        start_usage "Invalid option: -$OPTARG" 
+        $usage "Invalid option: -$OPTARG" 
         ;;
     esac
   done
 
-  assert_is_instance stop_usage "$name" "$instance"
+  assert_is_instance $usage "$name" "$instance"
 
   (
     cd $name/$instance/current
 
-    bin=`get_conf app.stop`
+    bin=`get_conf $BASEDIR $name $instance app.method`
 
     if [ -z "$bin" ]
     then
-      PID=`cat $BASEDIR/.app/var/pid/$name-$instance.pid`
-      echo "Sending TERM to $PID"
-      bin="kill $PID"
-    elif [ ! -x "$bin" ]
+      bin=$BASEDIR/.app/lib/default-method
+    fi
+
+    if [ ! -x "$bin" ]
     then
       echo "Invalid executable: $bin" >&2
       exit 1
     fi
 
-    e=`get_conf_in_group env`
+    e=`get_conf_in_group $BASEDIR $name $instance env`
 
-    env -i $e \
-      PID=$PID \
-      $bin &
+    set +e
+    set -x
+    env -i \
+      $e \
+      PATH=/bin:/usr/bin \
+      APPSH_METHOD=$method \
+      APPSH_BASEDIR=$BASEDIR \
+      APPSH_NAME=$name \
+      APPSH_INSTANCE=$instance \
+      $bin
+    local ret=$?
+    set +x
+    set -e
+
+    case $ret in
+      0)
+        echo "Application ${method}ed"
+        ;;
+      *)
+        echo "Error starting $name/$instance"
+        ;;
+    esac
   )
 }
 

@@ -1,0 +1,19 @@
+#!/bin/bash
+
+PID_FILE=$APPSH_BASEDIR/.app/var/pid/$name-$instance.pid 
+
+. ./app-conf
+
+bin=`get_conf $APPSH_BASEDIR $APPSH_NAME $APPSH_INSTANCE app.bin`
+
+case "$APPSH_METHOD" in
+  start)
+    set -x
+    $bin &
+    ret=$?
+    echo $! > $PID_FILE
+    ;;
+  *)
+    exit 1
+    ;;
+esac

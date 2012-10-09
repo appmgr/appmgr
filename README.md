@@ -17,3 +17,13 @@ TODOs
 * Document app.sh
     * Concept: config. group, key and value.
     * Scriptable
+
+Method Contract
+---------------
+
+### Environment variables you can depend on
+
+* `APPSH_NAME`
+* `APPSH_INSTANCE`
+* `APPSH_METHOD`
+* `APPSH_PID_FILE`

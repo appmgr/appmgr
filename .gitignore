@@ -2,5 +2,4 @@ apps.list
 downloads
 target
 .app/var
-/*/*/current
-/*/*/versions
+/*/*/*
