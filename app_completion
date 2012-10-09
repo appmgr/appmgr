@@ -1,23 +1,25 @@
 #!/bin/bash
 
-_find_name() {
+_appsh_parse_opts() {
   local prev=""
   for ((i=0, j=0; i < ${#COMP_WORDS[@]}; i++, j++)); do
     if [ "$prev" == -n ]
     then
-      echo "${COMP_WORDS[$i]}"
+      echo "local has_n=${COMP_WORDS[$i]}"
+    elif [ "$prev" == -i ]
+    then
+      echo "local has_i=${COMP_WORDS[$i]}"
     fi
     prev="${COMP_WORDS[$i]}"
   done
 }
 
-_complete_appsh_name() {
-#  set -x
+_complete_appsh() {
   COMPREPLY=()
   local cur="${COMP_WORDS[COMP_CWORD]}"
   local prev="${COMP_WORDS[COMP_CWORD-1]}"
-  local opts="-n -i"
-  local name
+
+  eval `_appsh_parse_opts`
 
   case $prev in
     -n)
@@ -26,18 +28,28 @@ _complete_appsh_name() {
       return 0
       ;;
     -i)
-      name=`_find_name`
-      if [ -n "$name" ]
+      if [ -n "$has_n" ]
       then
-        values=$(./app list -n $name -P instance)
+        values=$(./app list -n $has_n -P instance)
         COMPREPLY=( $(compgen -W "$values" -- ${cur}) )
         return 0
       fi
       ;;
   esac
 
+  opts=""
+  if [ -z "$has_n" ]
+  then
+    opts="$opts -n"
+  else
+    if [ -z "$has_i" ]
+    then
+      opts="$opts -i"
+    fi
+  fi
+
   COMPREPLY=($(compgen -W "${opts}" -- ${cur}))  
   set +x
 }
 
-complete -F _complete_appsh_name app
+complete -F _complete_appsh app
