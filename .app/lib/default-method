@@ -1,17 +1,35 @@
 #!/bin/bash
 
+set -e
+
 PID_FILE=$APPSH_BASEDIR/.app/var/pid/$name-$instance.pid 
 
-. ./app-conf
+. $APPSH_BASEDIR/.app/lib/app-conf
 
 bin=`get_conf $APPSH_BASEDIR $APPSH_NAME $APPSH_INSTANCE app.bin`
+
+if [ -z "$bin" ]
+then
+  echo "Missing required configuration: app.bin." >&2
+  exit 1
+fi
+
+if [ ! -r "$bin" ]
+then
+  echo "No such file: $bin" >&2
+  exit 1
+fi
+
+chmod +x "$bin"
 
 case "$APPSH_METHOD" in
   start)
     set -x
     $bin &
     ret=$?
-    echo $! > $PID_FILE
+    pid=$!
+    echo "Application launched with PID=$pid"
+    echo $pid > $PID_FILE
     ;;
   *)
     exit 1

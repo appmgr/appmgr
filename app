@@ -321,10 +321,10 @@ run_method() {
       exit 1
     fi
 
-    e=`get_conf_in_group $BASEDIR $name $instance env`
+    set -x
+    e="`get_conf_in_group $BASEDIR $name $instance env`"
 
     set +e
-    set -x
     env -i \
       $e \
       PATH=/bin:/usr/bin \

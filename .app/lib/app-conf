@@ -44,10 +44,10 @@ get_conf_in_group() {
   local BASEDIR=$1
   local name=$2
   local instance=$3
-  local prefix=$1
+  local group=$4
 
   get_conf_all "$BASEDIR" "$name" "$instance" | \
-    sed -n "s,^[ ]*${prefix}\.\([._a-zA-Z]*\)=\(.*\)$,\1=\2,p"
+    sed -n "s,^[ ]*${group}\.\([._a-zA-Z]*\)=\(.*\)$,\1=\2,p"
 }
 
 assert_key() {
