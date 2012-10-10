@@ -502,12 +502,12 @@ method_list_versions() {
         mode="parseable"
         ;;
       \?)
-        set_current_usage "Invalid option: -$OPTARG" 
+        list_versions_usage "Invalid option: -$OPTARG" 
         ;;
     esac
   done
 
-  assert_is_instance set_current_usage "$name" "$instance"
+  assert_is_instance list_versions_usage "$name" "$instance" "no"
 
   if [ $mode = "pretty" ]
   then
@@ -566,6 +566,7 @@ method_set_current() {
     exit 1
   fi
 
+  rm -f $BASEDIR/$name/$instance/current
   ln -s versions/$version/root $BASEDIR/$name/$instance/current
 
   return 0
@@ -588,20 +589,47 @@ method_usage() {
 
 . $BASEDIR/.app/lib/app-conf
 
-if [ $# -gt 0 ]
-then
+main() {
+  local method=""
+  local first
+
+  while getopts "n:i:" opt
+  do
+    case $opt in
+      n)
+        name=$OPTARG
+        first="$first -n $name"
+        shift
+        shift
+        OPTIND=1
+        ;;
+      i)
+        instance=$OPTARG
+        first="$first -i $instance"
+        shift
+        shift
+        OPTIND=1
+        ;;
+      \?)
+        echo "Invalid option: $OPTARG" 
+        ;;
+    esac
+  done
+
   method=$1
   shift
-fi
 
-case "$method" in
-  conf)          method_conf $@ ;;
-  install)       method_install $@ ;;
-  list)          method_list $@ ;;
-  list-versions) method_list_versions $@ ;;
-  set-current)   method_set_current $@ ;;
-  start)         method_start $@ ;;
-  stop)          method_stop $@ ;;
-  *)             method_usage $@ ;;
-esac
-exit $?
+  case "$method" in
+    conf)          method_conf $first $@ ;;
+    install)       method_install $first $@ ;;
+    list)          method_list $first $@ ;;
+    list-versions) method_list_versions $first $@ ;;
+    set-current)   method_set_current $first $@ ;;
+    start)         method_start $first $@ ;;
+    stop)          method_stop $first $@ ;;
+    *)             method_usage $@ ;;
+  esac
+  exit $?
+}
+
+main $@

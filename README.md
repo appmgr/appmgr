@@ -18,6 +18,8 @@ TODOs
     * Concept: config. group, key and value.
     * Scriptable
 
+* init.d support
+
 Method Contract
 ---------------
 
@@ -26,4 +28,4 @@ Method Contract
 * `APPSH_NAME`
 * `APPSH_INSTANCE`
 * `APPSH_METHOD`
-* `APPSH_PID_FILE`
+
