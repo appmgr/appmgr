@@ -1,17 +1,37 @@
 #!/bin/bash
 
+_appsh_contains() {
+  local e
+  for e in "${@:2}"; do [[ "$e" == "$1" ]] && echo $1 && return; done
+}
+
+_appsh_methods=(
+    "conf"
+    "install"
+    "list"
+    "list-versions"
+    "set-current"
+    "start"
+    "stop"
+    )
+
 _appsh_parse_opts() {
   local prev=""
+  local has_method
   for ((i=0, j=0; i < ${#COMP_WORDS[@]}; i++, j++)); do
+    local curr=${COMP_WORDS[$i]}
     if [ "$prev" == -n ]
     then
-      echo "local has_n=${COMP_WORDS[$i]}"
+      echo "local has_n=$curr"
     elif [ "$prev" == -i ]
     then
-      echo "local has_i=${COMP_WORDS[$i]}"
+      echo "local has_i=$curr"
     fi
+
+    has_method="$has_method$(_appsh_contains "$curr" ${_appsh_methods[@]})"
     prev="${COMP_WORDS[$i]}"
   done
+  echo "local has_method='$has_method'"
 }
 
 _complete_appsh() {
@@ -20,14 +40,15 @@ _complete_appsh() {
   local prev="${COMP_WORDS[COMP_CWORD-1]}"
   local opts
 
+  eval `_appsh_parse_opts`
+
   if [ $COMP_CWORD == 1 ]
   then
-    opts="conf install list set-current start stop"
+    opts="${_appsh_methods[@]}"
+    opts="-n $opts"
     COMPREPLY=($(compgen -W "${opts}" -- ${cur}))  
     return 0
   fi
-
-  eval `_appsh_parse_opts`
 
   case $prev in
     -n)
@@ -54,6 +75,11 @@ _complete_appsh() {
     then
       opts="$opts -i"
     fi
+  fi
+
+  if [ -z "$has_method" ]
+  then
+    opts="$opts ${_appsh_methods[@]}"
   fi
 
   COMPREPLY=($(compgen -W "${opts}" -- ${cur}))  
