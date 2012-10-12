@@ -35,6 +35,8 @@ TODOs
 
 * init.d support
 
+* Support -h for all applicable methods to show the help/usage.
+
 Commands
 --------
 

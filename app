@@ -23,6 +23,7 @@ method_usage() {
   echo "Run $0 -h <group> for more help" >&2
 }
 
+. $BASEDIR/.app/lib/app-common
 . $BASEDIR/.app/lib/app-app
 . $BASEDIR/.app/lib/app-conf
 . $BASEDIR/.app/lib/app-operate
