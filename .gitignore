@@ -2,4 +2,4 @@ apps.list
 downloads
 target
 .app/var
-/*/*/*
+/*/.gitignore

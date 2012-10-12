@@ -1,0 +1,100 @@
+#!/bin/bash
+
+assert_is_instance() {
+  local usage=$1
+  local name=$2
+  local instance=$3
+  local check_link=$4
+
+  if [ -z "$name" ]
+  then
+    $usage "Missing required option -n."
+  fi
+
+  if [ -z "$instance" ]
+  then
+    $usage "Missing required option -i."
+  fi
+
+  if [ ! -d $name/$instance ]
+  then
+    echo "No such application/instance: $name/$instance."  >&2
+    exit 1
+  fi
+
+  if [ "$check_link" != "no" ]
+  then
+    if [ ! -e $name/$instance/current ]
+    then
+      echo "Missing 'current' link." >&2
+      exit 1
+    fi
+  fi
+}
+
+list_apps() {
+  filter_name=$1
+  shift
+  vars="$@"
+
+  sort $BASEDIR/.app/var/list | while read line
+  do
+    echo $line | (IFS=:; while read name instance version junk
+    do
+      if [ -n "$filter_name" -a "$filter_name" != "$name" ]
+      then
+        continue
+      fi
+
+      local line=""
+      IFS=" "; for var in $vars
+      do
+        case $var in
+          name) x=$name;;
+          instance) x=$instance;;
+          version) x=$version;;
+          current_version) x=`find_current_version $name $instance`;;
+          *) x="";;
+        esac
+
+        if [ -z "$line" ]
+        then
+          line="$line$x"
+        else
+          line="$line:$x"
+        fi
+      done
+      echo $line
+    done)
+  done
+}
+
+find_current_version() {
+  name=$1
+  instance=$2
+
+  if [ ! -L $BASEDIR/$name/$instance/current ]
+  then
+    return 0
+  fi
+
+  (
+    cd $BASEDIR/$name/$instance
+    ls -l current | sed -n "s,.* current -> versions/\(.*\)/root,\1,p"
+  )
+}
+
+find_versions() {
+  name=$1
+  instance=$2
+
+  if [ ! -d $BASEDIR/$name/$instance/versions ]
+  then
+    return 0
+  fi
+
+  (
+    cd $BASEDIR/$name/$instance/versions
+    ls -1d *
+  )
+}

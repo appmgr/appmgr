@@ -1,0 +1,130 @@
+#!/bin/bash
+
+start_usage() {
+  if [ -n "$1" ]
+  then
+    echo "Error:" "$@" >&2
+  fi
+
+  echo "usage: $0 start -n name -i instance" >&2
+  exit 1
+}
+
+stop_usage() {
+  if [ -n "$1" ]
+  then
+    echo "Error:" "$@" >&2
+  fi
+
+  echo "usage: $0 stop -n name -i instance" >&2
+  exit 1
+}
+
+# TODO: set ulimit
+# TODO: set umask
+# TODO: change group newgrp/sg
+method_start() {
+  run_control start_usage "start" "$@"
+}
+
+method_stop() {
+  run_control stop_usage "stop" "$@"
+}
+
+run_control() {
+  local usage=$0; shift
+  local method=$1; shift
+  local name
+  local instance
+
+  while getopts "n:i:" opt
+  do
+    case $opt in
+      n)
+        name=$OPTARG
+        ;;
+      i)
+        instance=$OPTARG
+        ;;
+      \?)
+        $usage "Invalid option: -$OPTARG" 
+        ;;
+    esac
+  done
+
+  assert_is_instance $usage "$name" "$instance"
+
+  (
+    cd $name/$instance/current
+
+    bin=`get_conf $BASEDIR $name $instance app.method`
+
+    if [ -z "$bin" ]
+    then
+      bin=$BASEDIR/.app/lib/pid-method
+    fi
+
+    if [ ! -x "$bin" ]
+    then
+      echo "Invalid executable: $bin" >&2
+      exit 1
+    fi
+
+    e="`get_conf_in_group $BASEDIR $name $instance env`"
+
+    # Set a default PATH which can be overridden by the application's settings
+    set +e
+    env -i \
+      PATH=/bin:/usr/bin \
+      $e \
+      APPSH_METHOD=$method \
+      APPSH_BASEDIR=$BASEDIR \
+      APPSH_NAME=$name \
+      APPSH_INSTANCE=$instance \
+      $bin
+    local ret=$?
+    set +x
+    set -e
+
+    case $ret in
+      0)
+        echo "Application ${method}ed"
+        ;;
+      *)
+        echo "Error starting $name/$instance"
+        ;;
+    esac
+  )
+}
+
+method_operate_usage() {
+  if [ -n "$1" ]
+  then
+    echo "Error:" $@ >&2
+  fi
+
+  echo "usage: $0 operate <method>" >&2
+  echo "" >&2
+  echo "Available methods:" >&2
+  echo "  start" >&2
+  echo "  stop" >&2
+  echo "  restart" >&2
+  echo "  status" >&2
+}
+
+method_operate() {
+  if [ $# -gt 0 ]
+  then
+    method=$1
+    shift
+  fi
+
+  case "$method" in
+    start)   method_start $first "$@" ;;
+    stop)    method_stop $first "$@" ;;
+    status)  method_status $first "$@" ;;
+    restart) method_restart $first "$@" ;;
+    *)       method_operate_usage ;;
+  esac
+  exit $?
+}

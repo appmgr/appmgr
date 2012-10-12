@@ -95,16 +95,18 @@ conf_delete() {
   mv $file.tmp $file
 }
 
-conf_usage() {
+method_conf_usage() {
   if [ -n "$1" ]
   then
     echo "Error:" $@ >&2
   fi
 
-  echo "usage:" >&2
+  echo "usage: $0 conf <method>" >&2
   echo ""
-  echo "  $0 conf -n name -i instance" >&2
-  echo "  $0 conf -n name -i instance -s [group.key] [value]" >&2
+  echo "Available methods:" >&2
+  echo "  get                     - list all configuration parameters" >&2
+  echo "  set [group.key] [value] - set a configuration parameter" >&2
+  echo "  delete [group.key]      - deletes a configuration parameter" >&2
   exit 1
 }
 
@@ -117,24 +119,24 @@ method_conf() {
   do
     case $opt in
       n)
-        name=$OPTARG
+        name="$OPTARG"
         ;;
       i)
-        instance=$OPTARG
+        instance="$OPTARG"
         ;;
       d)
         mode="delete"
-        key=$OPTARG
+        key="$OPTARG"
         ;;
       s)
         mode="set"
-        key=$OPTARG
+        key="$OPTARG"
         # Remove all options so far
         shift $((OPTIND-1))
         value="$1"
         ;;
       \?)
-        conf_usage "Invalid option: -$OPTARG" 
+        method_conf_usage "Invalid option: -$OPTARG" 
         ;;
     esac
   done
