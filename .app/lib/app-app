@@ -25,10 +25,11 @@ get() {
   fi
 }
 
-resolved_version=
+resolved_version=""
 resolve_snapshot() {
   local base_url
   local metadata
+  local zip_file=$1
 
   echo "Resolving version $version..."
   metadata=$BASEDIR/.app/var/download/$groupId-$artifactId-$version-metadata.xml
@@ -42,11 +43,7 @@ resolve_snapshot() {
     exit 1
   fi
   echo "Resolved version $version to $resolved_version"
-}
 
-zip_file=
-download_artifact() {
-  zip_file=$BASEDIR/.app/var/download/$groupId-$artifactId-$resolved_version.zip
   if [ -r $zip_file ]
   then
     echo "Artifact already downloaded."
@@ -65,33 +62,32 @@ method_install_usage() {
     echo "Error:" "$@" >&2
   fi
 
-  echo "usage:" >&2
-  echo ""
-  echo "Install Maven artifact from repo:" >&2
-  echo "  $0 install -m groupId:artifactId [-n name] -i instance [-v version]" >&2
-  echo "Name defaults to artifactId." >&2
-  echo ""
-  echo "Install zip file:" >&2
-  echo "  $0 install -f file -n name -i instance [-v version]" >&2
+  echo "usage: install <-r resolver> -u <url>" >&2
+  echo "" >&2
+  echo "Install package from a Maven repository:" >&2
+  echo "  $0 [-n name] [-i instance] app install -r maven -u groupId:artifactId:version" >&2
+  echo "" >&2
+  echo "Install package from a file:" >&2
+  echo "  $0 [-n name] [-i instance] app install -r file -u file [-v version]" >&2
   echo "The version defaults to the current timestamp" >&2
   exit 1
 }
 
 method_install() {
-  local m
+  local name="$1"
+  local instance="$2"
+  local version
+  local resolver
+  local url
+  local groupId
+  local artifactId
+  local zip_file
 
-  while getopts "m:n:i:v:f:" opt
+  shift 2
+
+  while getopts "n:i:v:r:u:" opt
   do
     case $opt in
-      m)
-        m=$OPTARG
-        groupId=`echo $OPTARG | cut -s -f 1 -d :`
-        artifactId=`echo $OPTARG | cut -s -f 2 -d :`
-        if [ -z "$groupId" -o -z "$artifactId" ]
-        then
-          method_install_usage "Invalid -m value."
-        fi
-        ;;
       n)
         name=$OPTARG
         ;;
@@ -101,8 +97,11 @@ method_install() {
       v)
         version=$OPTARG
         ;;
-      f)
-        file=$OPTARG
+      r)
+        resolver=$OPTARG
+        ;;
+      u)
+        url=$OPTARG
         ;;
       \?)
         method_install_usage "Invalid option: -$OPTARG" 
@@ -110,15 +109,29 @@ method_install() {
     esac
   done
 
-  if [ -z "$file" -a -z "$m" ]
-  then
-    method_install_usage "Either -f or -m has to be specified." 
-  fi
+  case "$resolver" in
+    maven)
+      url=`echo $url | tr ":" " "`; set -- $url
+      groupId=$1
+      artifactId=$2
+      version=$3
 
-  if [ -n "$file" -a -n "$m" ]
-  then
-    method_install_usage "Only one of -f or -m can specified." 
-  fi
+      if [ -z "$groupId" -o -z "$artifactId" -o -z "$version" ]
+      then
+        method_install_usage "Invalid Maven url."
+      fi
+      ;;
+    file)
+      if [ ! -r "$url" ]
+      then
+        echo "Could not read file: $url" >&2
+        exit 1
+      fi
+      ;;
+    *)
+      method_install_usage "Invalid resolver type: $resolver" 
+      ;;
+  esac
 
   if [ -z "$instance" ]
   then
@@ -130,18 +143,17 @@ method_install() {
     method_install_usage "Missing required argument: -v version."
   fi
 
-  if [ -n "$m" ]
+  if [ $resolver == maven ]
   then
-    if [ -z "$name" ]
-    then
-      name=$artifactId
-    fi
-
     resolve_snapshot
 
-    download_artifact
+    zip_file=$BASEDIR/.app/var/download/$groupId-$artifactId-$resolved_version.zip
+
+    download_artifact $zip_file
   else
-    zip_file=$file
+    # TODO: should the zip file be copied into download/ so that
+    # there's always a local copy?
+    zip_file=$url
 
     if [ -z "$version" ]
     then
@@ -151,16 +163,16 @@ method_install() {
     resolved_version=$version
   fi
 
-  if [ ! -d $name/$instance ]
-  then
-    echo "Creating instance '$instance' for $name"
-    mkdir -p $name/$instance
-  fi
-
   if [ -d $name/$instance/versions/$resolved_version ]
   then
     echo "Version $resolved_version is already installed"
     exit 1
+  fi
+
+  if [ ! -d $name/$instance ]
+  then
+    echo "Creating instance '$instance' for '$name'"
+    mkdir -p $name/$instance
   fi
 
   mkdir -p $name/$instance/versions/$resolved_version
@@ -206,7 +218,7 @@ method_install() {
   then
     sed "/^$name:$instance/d" $BASEDIR/.app/var/list > $BASEDIR/.app/var/list.new
   fi
-  echo "$name:$instance:$version" >> $BASEDIR/.app/var/list.new
+  echo "$name:$instance:$version:$url" >> $BASEDIR/.app/var/list.new
   mv $BASEDIR/.app/var/list.new $BASEDIR/.app/var/list
 }
 
@@ -216,7 +228,7 @@ method_set_current_usage() {
     echo "Error:" "$@" >&2
   fi
 
-  echo "usage: set-current -n name -i instance -v version" >&2
+  echo "usage: set-current -v version" >&2
   exit 1
 }
 
@@ -271,11 +283,11 @@ method_list_usage() {
 
   echo "usage: list [-n name] [-P field]" >&2
   echo ""
-  echo "List all installed applications" >&2
-  echo "  $0 list" >&2
+  echo "List all installed applications:" >&2
+  echo "  list" >&2
   echo ""
-  echo "List all applications in an parseable format:" >&2
-  echo "  $0 -P instance -P version -n foo" >&2
+  echo "List all applications with the selected fields with parseable output:" >&2
+  echo "  list -P instance -P version -n foo" >&2
   exit 1
 }
 
@@ -386,9 +398,11 @@ method_app() {
   local name="$1"
   local instance="$2"
 
+  shift 2
+
   if [ $# -gt 2 ]
   then
-    method=$3
+    method=$1
     shift
   fi
 

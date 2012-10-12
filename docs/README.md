@@ -1,3 +1,18 @@
+Installation
+------------
+
+NOTE: No implemented yet
+
+    git clone http:/.../app.sh.git
+
+    mkdir /opt/apps
+    cd /opt/apps
+    ln -s .../app.sh.git/app.sh app.sh
+
+    echo 'source .../app.sh.git/app_completion' >> ~/.bashrc
+
+Or was it `~/.bash_profile`? hmm
+
 Environment
 -----------
 
@@ -36,6 +51,10 @@ Tries to upgrade all instances where the version doesn't match the resolved vers
 #### `list-versions`
 
 #### `set-current`
+
+#### `remove`
+
+Not implemented
 
 ### `conf`
 
