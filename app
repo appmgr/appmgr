@@ -103,7 +103,7 @@ assert_is_instance() {
 install_usage() {
   if [ -n "$1" ]
   then
-    echo "Error:" $@ >&2
+    echo "Error:" "$@" >&2
   fi
 
   echo "usage:" >&2
@@ -254,7 +254,7 @@ method_install() {
 start_usage() {
   if [ -n "$1" ]
   then
-    echo "Error:" $@ >&2
+    echo "Error:" "$@" >&2
   fi
 
   echo "usage: $0 start -n name -i instance" >&2
@@ -264,7 +264,7 @@ start_usage() {
 stop_usage() {
   if [ -n "$1" ]
   then
-    echo "Error:" $@ >&2
+    echo "Error:" "$@" >&2
   fi
 
   echo "usage: $0 stop -n name -i instance" >&2
@@ -275,14 +275,14 @@ stop_usage() {
 # TODO: set umask
 # TODO: change group newgrp/sg
 method_start() {
-  run_method start_usage "start" "$@"
+  run_control start_usage "start" "$@"
 }
 
 method_stop() {
-  run_method stop_usage "stop" "$@"
+  run_control stop_usage "stop" "$@"
 }
 
-run_method() {
+run_control() {
   local usage=$0; shift
   local method=$1; shift
   local name
@@ -321,13 +321,13 @@ run_method() {
       exit 1
     fi
 
-    set -x
     e="`get_conf_in_group $BASEDIR $name $instance env`"
 
+    # Set a default PATH which can be overridden by the application's settings
     set +e
     env -i \
-      $e \
       PATH=/bin:/usr/bin \
+      $e \
       APPSH_METHOD=$method \
       APPSH_BASEDIR=$BASEDIR \
       APPSH_NAME=$name \
@@ -351,7 +351,7 @@ run_method() {
 list_usage() {
   if [ -n "$1" ]
   then
-    echo "Error:" $@ >&2
+    echo "Error:" "$@" >&2
   fi
 
   echo "usage: list [-n name] [-P field]" >&2
@@ -472,7 +472,7 @@ method_list() {
 list_versions_usage() {
   if [ -n "$1" ]
   then
-    echo "Error:" $@ >&2
+    echo "Error:" "$@" >&2
   fi
 
   echo "usage: list-versions -n name -i instance [-P]" >&2
@@ -522,7 +522,7 @@ method_list_versions() {
 set_current_usage() {
   if [ -n "$1" ]
   then
-    echo "Error:" $@ >&2
+    echo "Error:" "$@" >&2
   fi
 
   echo "usage: set-current -n name -i instance -v version" >&2
@@ -620,16 +620,16 @@ main() {
   shift
 
   case "$method" in
-    conf)          method_conf $first $@ ;;
-    install)       method_install $first $@ ;;
-    list)          method_list $first $@ ;;
-    list-versions) method_list_versions $first $@ ;;
-    set-current)   method_set_current $first $@ ;;
-    start)         method_start $first $@ ;;
-    stop)          method_stop $first $@ ;;
-    *)             method_usage $@ ;;
+    conf)          method_conf $first "$@" ;;
+    install)       method_install $first "$@" ;;
+    list)          method_list $first "$@" ;;
+    list-versions) method_list_versions $first "$@" ;;
+    set-current)   method_set_current $first "$@" ;;
+    start)         method_start $first "$@" ;;
+    stop)          method_stop $first "$@" ;;
+    *)             method_usage "$@" ;;
   esac
   exit $?
 }
 
-main $@
+main "$@"

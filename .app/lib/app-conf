@@ -131,7 +131,7 @@ method_conf() {
         key=$OPTARG
         # Remove all options so far
         shift $((OPTIND-1))
-        value=$1
+        value="$1"
         ;;
       \?)
         conf_usage "Invalid option: -$OPTARG" 
