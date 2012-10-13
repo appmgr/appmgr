@@ -75,13 +75,14 @@ method_install_usage() {
 
 method_install() {
   local name="$1"; shift
-  local instance="$2"; shift
+  local instance="$1"; shift
   local version
   local resolver
   local url
   local groupId
   local artifactId
   local zip_file
+
 
   if [ $# -eq 0 ]
   then
@@ -112,6 +113,16 @@ method_install() {
     esac
   done
 
+  if [ -z "$name" ]
+  then
+    method_install_usage "Missing required argument: -i name."
+  fi
+
+  if [ -z "$instance" ]
+  then
+    method_install_usage "Missing required argument: -i instance."
+  fi
+
   if [ -z "$resolver" ]
   then
     method_install_usage "Missing required option: -r resolver"
@@ -133,6 +144,12 @@ method_install() {
       then
         method_install_usage "Invalid Maven url."
       fi
+
+      resolve_snapshot
+
+      zip_file=$BASEDIR/.app/var/download/$groupId-$artifactId-$resolved_version.zip
+
+      download_artifact $zip_file
       ;;
     file)
       if [ ! -r "$url" ]
@@ -140,41 +157,22 @@ method_install() {
         echo "Could not read file: $url" >&2
         exit 1
       fi
+
+      # TODO: should the zip file be copied into download/ so that
+      # there's always a local copy?
+      zip_file=$url
+
+      if [ -z "$version" ]
+      then
+        version=`TZ=UTC date +"%Y%m%d-%H%M%S"`
+      fi
+
+      resolved_version=$version
       ;;
     *)
       method_install_usage "Invalid resolver type: $resolver" 
       ;;
   esac
-
-  if [ -z "$instance" ]
-  then
-    method_install_usage "Missing required argument: -i instance."
-  fi
-
-  if [ -z "version" ]
-  then
-    method_install_usage "Missing required argument: -v version."
-  fi
-
-  if [ $resolver == maven ]
-  then
-    resolve_snapshot
-
-    zip_file=$BASEDIR/.app/var/download/$groupId-$artifactId-$resolved_version.zip
-
-    download_artifact $zip_file
-  else
-    # TODO: should the zip file be copied into download/ so that
-    # there's always a local copy?
-    zip_file=$url
-
-    if [ -z "$version" ]
-    then
-      version=`TZ=UTC date +"%Y%m%d-%H%M%S"`
-    fi
-
-    resolved_version=$version
-  fi
 
   if [ -d $name/$instance/versions/$resolved_version ]
   then
@@ -247,7 +245,7 @@ method_set_current_usage() {
 
 method_set_current() {
   local name="$1"; shift
-  local instance="$2"; shift
+  local instance="$1"; shift
   local version
 
   if [ $# -eq 0 ]
@@ -311,7 +309,7 @@ method_list_usage() {
 
 method_list() {
   local filter_name="$1"; shift
-  local instance="$2"; shift
+  local instance="$1"; shift
   local mode="pretty"
   local vars
   local filter_name
@@ -362,7 +360,7 @@ method_list_versions_usage() {
 
 method_list_versions() {
   local filter_name="$1"; shift
-  local instance="$2"; shift
+  local instance="$1"; shift
   local version
   local mode="pretty"
 
@@ -420,10 +418,8 @@ method_app_usage() {
 }
 
 method_app() {
-  local name="$1"
-  local instance="$2"
-
-  shift 2
+  local name="$1"; shift
+  local instance="$1"; shift
 
   if [ $# -gt 0 ]
   then
