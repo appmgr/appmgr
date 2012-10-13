@@ -13,6 +13,11 @@ mkdir -p $BASEDIR/.app/var/pid
 mkdir -p $BASEDIR/.app/var/download
 
 method_usage() {
+  if [ -n "$1" ]
+  then
+    echo "Error:" "$@" >&2
+  fi
+
   echo "usage: $0 [-n name] [-i instance] <method group>" >&2
   echo "" >&2
   echo "Available method groups:" >&2
@@ -78,9 +83,9 @@ main() {
     esac
   done
 
+  local method=$1
   if [ $# -gt 0 ]
   then
-    method=$1
     shift
   fi
 
@@ -88,7 +93,14 @@ main() {
     app)           method_app     "$name" "$instance" "$@" ;;
     conf)          method_conf    "$name" "$instance" "$@" ;;
     operate)       method_operate "$name" "$instance" "$@" ;;
-    *)             method_usage ;;
+    *)             
+      if [ -z "$method" ]
+      then
+        method_usage
+      else
+        method_usage "No such method group: $method"
+      fi
+      ;;
   esac
   exit $?
 }

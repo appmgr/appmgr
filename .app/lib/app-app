@@ -6,7 +6,7 @@ then
 else
   repo="http://repo1.maven.org"
 fi
-
+ 
 # TODO: support file:// repositories
 # TODO: look in the local repository first
 # TODO: assert that we got a 200 OK
@@ -420,10 +420,10 @@ method_app_usage() {
 method_app() {
   local name="$1"; shift
   local instance="$1"; shift
+  local method="$1"
 
   if [ $# -gt 0 ]
   then
-    method=$1
     shift
   fi
 
@@ -432,7 +432,14 @@ method_app() {
     list)          method_list          "$name" "$instance" "$@" ;;
     list-versions) method_list_versions "$name" "$instance" "$@" ;;
     set-current)   method_set_current   "$name" "$instance" "$@" ;;
-    *)             method_app_usage "Unknown method $method" ;;
+    *)
+      if [ -z "$method" ]
+      then
+        method_app_usage
+      else
+        method_app_usage "Unknown method $method"
+      fi
+      ;;
   esac
   exit $?
 }
