@@ -318,12 +318,12 @@ method_list_usage() {
 
 method_list() {
   local filter_name="$1"; shift
-  local instance="$1"; shift
+  local filter_instance="$1"; shift
   local mode="pretty"
   local vars
   local filter_name
 
-  while getopts "P:n:" opt
+  while getopts "P:n:i:" opt
   do
     case $opt in
       P)
@@ -332,6 +332,9 @@ method_list() {
         ;;
       n)
         filter_name=$OPTARG
+        ;;
+      i)
+        filter_instance=$OPTARG
         ;;
       \?)
         method_list_usage "Invalid option: -$OPTARG" 
@@ -347,12 +350,12 @@ method_list() {
   if [ $mode = "pretty" ]
   then
     printf "%-20s %-20s %-20s\n" "Name" "Instance" "Version"
-    list_apps "$filter_name" name instance version | (IFS=:; while read name instance version
+    list_apps "$filter_name" "$filter_instance" name instance version | (IFS=:; while read name instance version
     do
       printf "%-20s %-20s %-20s\n" "$name" "$instance" "$version"
     done)
   else
-    list_apps "$filter_name" $vars
+    list_apps "$filter_name" "$filter_instance" $vars
   fi
 }
 

@@ -19,7 +19,6 @@ setup() {
   cd $BATS_TMPDIR/app.sh
   ln -s $APPSH
   WORK=$(cd -P $BATS_TMPDIR/app.sh; pwd)
-  echo WORK=$WORK
 }
 
 mkzip() {

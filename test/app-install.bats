@@ -3,6 +3,8 @@
 
 load utils
 
+# TODO: Add test for installing duplicate version
+
 @test "./app app install app-a" {
   mkzip "app-a"
   app app install \
