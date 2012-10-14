@@ -3,3 +3,5 @@ downloads
 target
 .app/var
 /*/.gitignore
+
+/test/data/*.zip
