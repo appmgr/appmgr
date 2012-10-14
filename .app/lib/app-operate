@@ -1,58 +1,24 @@
 #!/bin/bash
 
-start_usage() {
+operate_usage() {
   if [ -n "$1" ]
   then
     echo "Error:" "$@" >&2
   fi
 
-  echo "usage: $0 start -n name -i instance" >&2
-  exit 1
-}
-
-stop_usage() {
-  if [ -n "$1" ]
-  then
-    echo "Error:" "$@" >&2
-  fi
-
-  echo "usage: $0 stop -n name -i instance" >&2
+  echo "usage: $0 [operate method] -n name -i instance" >&2
   exit 1
 }
 
 # TODO: set ulimit
 # TODO: set umask
 # TODO: change group newgrp/sg
-method_start() {
-  run_control start_usage "start" "$@"
-}
-
-method_stop() {
-  run_control stop_usage "stop" "$@"
-}
-
 run_control() {
-  local usage=$0; shift
   local method=$1; shift
-  local name
-  local instance
+  local name=$1; shift
+  local instance=$1; shift
 
-  while getopts "n:i:" opt
-  do
-    case $opt in
-      n)
-        name=$OPTARG
-        ;;
-      i)
-        instance=$OPTARG
-        ;;
-      \?)
-        $usage "Invalid option: -$OPTARG" 
-        ;;
-    esac
-  done
-
-  assert_is_instance $usage "$name" "$instance"
+  assert_is_instance operate_usage "$name" "$instance"
 
   (
     cd $name/$instance/current
@@ -91,7 +57,7 @@ run_control() {
         echo "Application ${method}ed"
         ;;
       *)
-        echo "Error starting $name/$instance"
+        echo "Error ${method}ing $name/$instance"
         ;;
     esac
   )
@@ -103,9 +69,9 @@ method_operate_usage() {
     echo "Error:" $@ >&2
   fi
 
-  echo "usage: $0 operate <method>" >&2
+  echo "usage: $0 operate <operate method>" >&2
   echo "" >&2
-  echo "Available methods:" >&2
+  echo "Available operate methods:" >&2
   echo "  start" >&2
   echo "  stop" >&2
   echo "  restart" >&2
@@ -113,18 +79,28 @@ method_operate_usage() {
 }
 
 method_operate() {
+  local name="$1"; shift
+  local instance="$1"; shift
+  local method="$1"
+
   if [ $# -gt 0 ]
   then
-    method=$1
     shift
   fi
 
   case "$method" in
-    start)   method_start $first "$@" ;;
-    stop)    method_stop $first "$@" ;;
-    status)  method_status $first "$@" ;;
-    restart) method_restart $first "$@" ;;
-    *)       method_operate_usage ;;
+    start)   run_control "start" "$name" "$instance" "$@" ;;
+    stop)    run_control "stop" "$name" "$instance" "$@" ;;
+    status)  run_control "status" "$name" "$instance" "$@" ;;
+    restart) run_control "restart" "$name" "$instance" "$@" ;;
+    *)
+      if [ -z "$method" ]
+      then
+        method_operate_usage
+      else
+        method_operate_usage "Unknown method $method"
+      fi
+      ;;
   esac
   exit $?
 }

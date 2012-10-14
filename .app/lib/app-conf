@@ -111,19 +111,13 @@ method_conf_usage() {
 }
 
 method_conf() {
-  local name
-  local instance
+  local name="$1"; shift
+  local instance="$1"; shift
   local mode="list"
 
-  while getopts "n:i:s:d:" opt
+  while getopts "s:d:" opt
   do
     case $opt in
-      n)
-        name="$OPTARG"
-        ;;
-      i)
-        instance="$OPTARG"
-        ;;
       d)
         mode="delete"
         key="$OPTARG"
