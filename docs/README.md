@@ -97,3 +97,8 @@ Method Contract
 * `APPSH_INSTANCE`
 * `APPSH_METHOD`
 
+Unclassified:
+
+* `APPSH_HOME`
+* `BASEDIR`
+

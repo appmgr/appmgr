@@ -2,6 +2,20 @@
 
 set -e
 
+PRG="$0"
+while [ -h "$PRG" ] ; do
+  ls=`ls -ld "$PRG"`
+  link=`expr "$ls" : '.*-> \(.*\)$'`
+  if expr "$link" : '/.*' > /dev/null; then
+    PRG="$link"
+  else
+    PRG="`dirname "$PRG"`/$link"
+  fi
+done
+
+APPSH_HOME=`dirname "$PRG"`
+APPSH_HOME=`cd "$APPSH_HOME" && pwd`
+
 if [ -z "$BASEDIR" ]
 then
   BASEDIR=`dirname $0`
@@ -28,10 +42,10 @@ method_usage() {
   echo "Run $0 -h <group> for more help" >&2
 }
 
-. $BASEDIR/.app/lib/app-common
-. $BASEDIR/.app/lib/app-app
-. $BASEDIR/.app/lib/app-conf
-. $BASEDIR/.app/lib/app-operate
+. $APPSH_HOME/.app/lib/app-common
+. $APPSH_HOME/.app/lib/app-app
+. $APPSH_HOME/.app/lib/app-conf
+. $APPSH_HOME/.app/lib/app-operate
 
 main() {
   local method
