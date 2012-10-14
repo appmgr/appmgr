@@ -6,13 +6,9 @@ _appsh_contains() {
 }
 
 _appsh_methods=(
+    "app"
     "conf"
-    "install"
-    "list"
-    "list-versions"
-    "set-current"
-    "start"
-    "stop"
+    "operate"
     )
 
 _appsh_parse_opts() {
@@ -32,49 +28,53 @@ _appsh_parse_opts() {
     prev="${COMP_WORDS[$i]}"
   done
   echo "local has_method='$has_method'"
+
+  case "${COMP_WORDS[COMP_CWORD]}" in
+    -*)
+      echo "local in_option=yes"
+      ;;
+  esac
 }
 
 _complete_appsh() {
   COMPREPLY=()
   local cur="${COMP_WORDS[COMP_CWORD]}"
   local prev="${COMP_WORDS[COMP_CWORD-1]}"
-  local opts
+  local opts=""
 
   eval `_appsh_parse_opts`
 
   if [ $COMP_CWORD == 1 ]
   then
     opts="${_appsh_methods[@]}"
+    opts="$opts"
+    if [ "$in_option" = "yes" ]
+    then
     opts="-n $opts"
+    fi
     COMPREPLY=($(compgen -W "${opts}" -- ${cur}))  
     return 0
   fi
 
   case $prev in
     -n)
-      values=$(./app list -P name)
+      values=$(./app app list -P name)
       COMPREPLY=($(compgen -W "$values" -- ${cur}))
       return 0
       ;;
     -i)
       if [ -n "$has_n" ]
       then
-        values=$(./app list -n $has_n -P instance)
+        values=$(./app app list -n $has_n -P instance)
         COMPREPLY=($(compgen -W "$values" -- ${cur}))
         return 0
       fi
       ;;
   esac
 
-  opts=""
-  if [ -z "$has_n" ]
+  if [ -n "$has_n" -a -z "$has_i" ]
   then
-    opts="$opts -n"
-  else
-    if [ -z "$has_i" ]
-    then
-      opts="$opts -i"
-    fi
+   opts="$opts -i"
   fi
 
   if [ -z "$has_method" ]
