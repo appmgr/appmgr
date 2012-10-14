@@ -19,6 +19,14 @@ setup() {
   ln -s $APPSH
 }
 
+zip_app_a() {
+(
+  cd $BATS_TEST_DIRNAME/data/app-a
+  rm -f ../app-a.zip
+  zip -qr ../app-a.zip *
+)
+}
+
 app() {
   run ./app "$@"
 }

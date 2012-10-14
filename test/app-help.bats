@@ -1,5 +1,5 @@
 #!/usr/bin/env bats
-# vim: set filetype=sh :
+# vim: set filetype=sh:
 
 load utils
 
@@ -27,7 +27,7 @@ load utils
   app app list-versions; echo_lines
   [ $status -eq $exit_usage ]
   [ $(expr "${lines[0]}" : "usage: list-versions .*") -ne 0 ]
-  [ ${#lines[*]} == 2 ]
+  [ ${#lines[*]} == 1 ]
 }
 
 @test "./app app set-current" {

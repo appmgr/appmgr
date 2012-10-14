@@ -354,7 +354,6 @@ method_list_versions_usage() {
   fi
 
   echo "usage: list-versions -n name -i instance [-P]" >&2
-  echo "  -P - parsable output" >&2
   exit 1
 }
 

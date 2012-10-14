@@ -1,5 +1,5 @@
 #!/usr/bin/env bats
-# vim: set filetype=sh :
+# vim: set filetype=sh:
 
 load utils
 
