@@ -6,7 +6,7 @@ _appsh_contains() {
 }
 
 _appsh_methods=(
-    "app"
+    "instance"
     "conf"
     "operate"
     )
@@ -58,14 +58,14 @@ _complete_appsh() {
 
   case $prev in
     -n)
-      values=$(./app app list -P name)
+      values=$(./app instance list -P name)
       COMPREPLY=($(compgen -W "$values" -- ${cur}))
       return 0
       ;;
     -i)
       if [ -n "$has_n" ]
       then
-        values=$(./app app list -n $has_n -P instance)
+        values=$(./app instance list -n $has_n -P instance)
         COMPREPLY=($(compgen -W "$values" -- ${cur}))
         return 0
       fi

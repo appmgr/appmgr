@@ -5,9 +5,9 @@ load utils
 
 # TODO: Add test for installing duplicate version
 
-@test "./app app install app-a" {
+@test "./app instance install app-a" {
   mkzip "app-a"
-  app app install \
+  app instance install \
     -r file \
     -u $BATS_TEST_DIRNAME/data/app-a.zip \
     -n app-a -i prod
@@ -23,9 +23,9 @@ Changing current symlink" ]
   [ ${#lines[*]} == 6 ]
 }
 
-@test "./app app install install-test-env" {
+@test "./app instance install install-test-env" {
   mkzip "install-test-env"
-  app app install \
+  app instance install \
     -r file \
     -u $BATS_TEST_DIRNAME/data/install-test-env.zip \
     -n install-test-env -i prod -v 1.0

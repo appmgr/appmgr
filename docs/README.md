@@ -40,7 +40,7 @@ TODOs
 Commands
 --------
 
-### `app`
+### `instance`
 
 #### `install`
 

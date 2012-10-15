@@ -65,10 +65,10 @@ method_install_usage() {
   echo "usage: install <-r resolver> -u <url>" >&2
   echo "" >&2
   echo "Install package from a Maven repository:" >&2
-  echo "  $0 [-n name] [-i instance] app install -r maven -u groupId:artifactId:version" >&2
+  echo "  $0 [-n name] [-i instance] instance install -r maven -u groupId:artifactId:version" >&2
   echo "" >&2
   echo "Install package from a file:" >&2
-  echo "  $0 [-n name] [-i instance] app install -r file -u file [-v version]" >&2
+  echo "  $0 [-n name] [-i instance] instance install -r file -u file [-v version]" >&2
   echo "The version defaults to the current timestamp" >&2
   exit 1
 }
@@ -413,13 +413,13 @@ method_list_versions() {
   return 0
 }
 
-method_app_usage() {
+method_instance_usage() {
   if [ -n "$1" ]
   then
     echo "Error:" $@ >&2
   fi
 
-  echo "usage: $0 app <method>" >&2
+  echo "usage: $0 instance <method>" >&2
   echo "" >&2
   echo "Available methods:" >&2
   echo "  install       - Installs an application" >&2
@@ -428,7 +428,7 @@ method_app_usage() {
   echo "  set-current   - Set the current version" >&2
 }
 
-method_app() {
+method_instance() {
   local name="$1"; shift
   local instance="$1"; shift
   local method="$1"
@@ -446,9 +446,9 @@ method_app() {
     *)
       if [ -z "$method" ]
       then
-        method_app_usage
+        method_instance_usage
       else
-        method_app_usage "Unknown method $method"
+        method_instance_usage "Unknown method $method"
       fi
       ;;
   esac

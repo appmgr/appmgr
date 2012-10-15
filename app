@@ -35,7 +35,7 @@ method_usage() {
   echo "usage: $0 [-n name] [-i instance] <method group>" >&2
   echo "" >&2
   echo "Available method groups:" >&2
-  echo "  app" >&2
+  echo "  instance" >&2
   echo "  conf" >&2
   echo "  operate" >&2
   echo "" >&2
@@ -43,7 +43,7 @@ method_usage() {
 }
 
 . $APPSH_HOME/.app/lib/app-common
-. $APPSH_HOME/.app/lib/app-app
+. $APPSH_HOME/.app/lib/app-instance
 . $APPSH_HOME/.app/lib/app-conf
 . $APPSH_HOME/.app/lib/app-operate
 
@@ -75,8 +75,8 @@ main() {
           method_usage
         else
           case "$h" in
-            app)
-              method_app_usage
+            instance)
+              method_instance_usage
               ;;
             conf)
               method_conf_usage
@@ -104,7 +104,7 @@ main() {
   fi
 
   case "$method" in
-    app)           method_app     "$name" "$instance" "$@" ;;
+    instance)      method_instance     "$name" "$instance" "$@" ;;
     conf)          method_conf    "$name" "$instance" "$@" ;;
     operate)       method_operate "$name" "$instance" "$@" ;;
     *)             
