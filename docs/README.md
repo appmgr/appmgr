@@ -25,7 +25,8 @@ TODOs
   settings etc (PATH).
 
 * Add support for hooks in .app/hooks. Example hooks:
-    * Diff config. Save a backup of the config On installtaion
+    * Diff config. Save a backup of the config on installtaion.
+    * Copy the configuration from the previous installation.
 
 * Support changing current version.
 
