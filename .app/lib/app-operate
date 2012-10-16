@@ -27,7 +27,7 @@ run_control() {
 
     if [ -z "$bin" ]
     then
-      bin=$BASEDIR/.app/lib/pid-method
+      bin=$APPSH_HOME/.app/lib/pid-method
     fi
 
     if [ ! -x "$bin" ]
@@ -45,6 +45,7 @@ run_control() {
       $e \
       APPSH_METHOD=$method \
       APPSH_BASEDIR=$BASEDIR \
+      APPSH_HOME=$APPSH_HOME \
       APPSH_NAME=$name \
       APPSH_INSTANCE=$instance \
       $bin
@@ -54,10 +55,10 @@ run_control() {
 
     case $ret in
       0)
-        echo "Application ${method}ed"
+        echo "Method ${method} completed successfully for $name/$instance"
         ;;
       *)
-        echo "Error ${method}ing $name/$instance"
+        echo "Error running method ${method} for $name/$instance"
         ;;
     esac
   )

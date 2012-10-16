@@ -1,13 +1,13 @@
 Installation
 ------------
 
-NOTE: No implemented yet
-
-    git clone http:/.../app.sh.git
+    git clone http://.../app.sh.git
 
     mkdir /opt/apps
     cd /opt/apps
     ln -s .../app.sh.git/app.sh app.sh
+
+NOTE: The bash completion is not perfect yet.
 
     echo 'source .../app.sh.git/app_completion' >> ~/.bashrc
 
@@ -103,3 +103,22 @@ Unclassified:
 * `APPSH_HOME`
 * `BASEDIR`
 
+Directory Hierarchy
+-------------------
+
+### Current
+
+App.sh related:
+
+    ./app
+    ./.app/lib bash libraries used by app.sh and methods
+    ./.app/var runtime data
+
+Applications:
+
+    ./<name>/<instance>/
+        current   - symlink to the currently installed app
+        versions/ - collection with all installed versions
+          1.0/
+          1.1/
+          2.0/

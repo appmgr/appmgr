@@ -4,7 +4,7 @@ set -e
 
 PID_FILE=$APPSH_BASEDIR/.app/var/pid/$name-$instance.pid 
 
-. $APPSH_BASEDIR/.app/lib/app-conf
+. $APPSH_HOME/.app/lib/app-conf
 
 bin=`get_conf $APPSH_BASEDIR $APPSH_NAME $APPSH_INSTANCE app.bin`
 

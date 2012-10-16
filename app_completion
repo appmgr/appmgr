@@ -1,14 +1,23 @@
 #!/bin/bash
 
-_appsh_contains() {
+_appsh_find() {
   local e
   for e in "${@:2}"; do [[ "$e" == "$1" ]] && echo $1 && return; done
 }
 
-_appsh_methods=(
+_appsh_method_groups=(
     "instance"
     "conf"
     "operate"
+    )
+
+_appsh_methods=(
+    "install"
+    )
+
+_appsh_resolvers=(
+    "file"
+    "maven"
     )
 
 _appsh_parse_opts() {
@@ -24,9 +33,11 @@ _appsh_parse_opts() {
       echo "local has_i=$curr"
     fi
 
-    has_method="$has_method$(_appsh_contains "$curr" ${_appsh_methods[@]})"
+    has_method_group="$has_method_group$(_appsh_find "$curr" ${_appsh_method_groups[@]})"
+    has_method="$has_method$(_appsh_find "$curr" ${_appsh_methods[@]})"
     prev="${COMP_WORDS[$i]}"
   done
+  echo "local has_method_group='$has_method_group'"
   echo "local has_method='$has_method'"
 
   case "${COMP_WORDS[COMP_CWORD]}" in
@@ -42,11 +53,13 @@ _complete_appsh() {
   local prev="${COMP_WORDS[COMP_CWORD-1]}"
   local opts=""
 
-  eval `_appsh_parse_opts`
+  local x=`_appsh_parse_opts`
+  eval "$x"
+#  set | grep ^has_
 
   if [ $COMP_CWORD == 1 ]
   then
-    opts="${_appsh_methods[@]}"
+    opts="${_appsh_method_groups[@]}"
     opts="$opts"
     if [ "$in_option" = "yes" ]
     then
@@ -56,7 +69,7 @@ _complete_appsh() {
     return 0
   fi
 
-  case $prev in
+  case "$prev" in
     -n)
       values=$(./app instance list -P name)
       COMPREPLY=($(compgen -W "$values" -- ${cur}))
@@ -70,6 +83,15 @@ _complete_appsh() {
         return 0
       fi
       ;;
+    -r)
+      COMPREPLY="${_appsh_resolvers[@]}"
+      COMPREPLY=($(compgen -W "$COMPREPLY" -- ${cur}))
+      return
+      ;;
+    -u)
+      COMPREPLY=($(compgen -f -- ${cur}))
+      return
+      ;;
   esac
 
   if [ -n "$has_n" -a -z "$has_i" ]
@@ -77,13 +99,25 @@ _complete_appsh() {
    opts="$opts -i"
   fi
 
-  if [ -z "$has_method" ]
-  then
-    opts="$opts ${_appsh_methods[@]}"
-  fi
+  has_method_group=$has_method_group
+  has_method=$has_method
+  case "$has_method_group" in
+    instance)
+      if [ -z $has_method ]
+      then
+        opts="$opts install list list-versions set-current"
+      else
+        case "$has_method" in
+          install)
+            opts="$opts -r -u"
+            ;;
+        esac
+      fi
+      ;;
+  esac
 
   COMPREPLY=($(compgen -W "${opts}" -- ${cur}))  
   set +x
 }
 
-complete -F _complete_appsh app
+complete -d -F _complete_appsh app

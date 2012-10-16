@@ -30,5 +30,6 @@ mkzip() {
 }
 
 app() {
-  run ./app "$@"
+  (set -x
+  run ./app "$@")
 }
