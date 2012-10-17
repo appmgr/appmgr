@@ -73,7 +73,7 @@ method_stop() {
   esac
 
   signal="-9"
-  echo -n "Sending kill $signal to $PID, waiting for shutdown: "
+  echo -n "Sending kill $signal to $PID, waiting for shutdown"
   kill $signal $PID
 
   while [ "`do_status`" == "running" ]
@@ -82,7 +82,7 @@ method_stop() {
     echo -n "."
   done
 
-  echo "OK"
+  echo " OK"
   rm -f $PID_FILE
   return 0
 }
