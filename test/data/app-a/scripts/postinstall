@@ -1,3 +1,11 @@
 #!/bin/bash
 
 echo "Hello World!"
+
+if [ -d root/etc/$APPSH_INSTANCE ]
+then
+  find root/etc/$APPSH_INSTANCE -type f -maxdepth 1 | while read file
+  do
+    cp $file root/
+  done
+fi

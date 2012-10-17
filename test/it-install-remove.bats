@@ -13,7 +13,7 @@ load utils
   app instance install \
     -r file \
     -u $BATS_TEST_DIRNAME/data/app-a.zip \
-    -n $name -i $instance
+    -n $name -i $instance; echo_lines
   [ $status -eq 0 ]
 
   can_not_read ".app/var/pid/$name-$instance.pid"
@@ -35,8 +35,10 @@ load utils
 
   can_read "$name/$instance/$name.log"
   can_read "$name/$instance/$name.env"
+  can_read "$name/$instance/current/foo.conf"
 
   [ "`cat $name/$instance/$name.env`" = "TEST_PROPERTY=awesome" ]
+  [ "`cat $name/$instance/current/foo.conf`" = "hello" ]
 
 #  app instance install \
 #    -r file \

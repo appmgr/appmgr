@@ -35,11 +35,16 @@ Changing current symlink" ]
   [ "$output" = "Creating instance 'prod' for 'install-test-env'
 Unpacking...
 Running postinstall...
+APPSH_BASEDIR=$APPSH_BASEDIR
+APPSH_HOME=$APPSH_HOME
+APPSH_INSTANCE=prod
+APPSH_NAME=install-test-env
+APPSH_VERSION=1.0
 PATH=/bin:/usr/bin
 PWD=$WORK/install-test-env/prod/versions/1.0
 SHLVL=1
 _=/usr/bin/env
 Postinstall completed successfully
 Changing current symlink" ]
-  [ ${#lines[*]} == 9 ]
+  [ ${#lines[*]} == 14 ]
 }

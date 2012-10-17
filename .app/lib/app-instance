@@ -210,6 +210,11 @@ method_install() {
       set +e
       env -i \
         PATH=/bin:/usr/bin \
+        APPSH_BASEDIR=$BASEDIR \
+        APPSH_HOME=$APPSH_HOME \
+        APPSH_NAME=$name \
+        APPSH_INSTANCE=$instance \
+        APPSH_VERSION=$resolved_version \
         scripts/postinstall
       set -e
       ret=`echo $?`
