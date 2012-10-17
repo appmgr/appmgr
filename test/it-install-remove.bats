@@ -14,19 +14,29 @@ load utils
     -r file \
     -u $BATS_TEST_DIRNAME/data/app-a.zip \
     -n $name -i $instance
+  [ $status -eq 0 ]
 
-#  set -x
   can_not_read ".app/var/pid/$name-$instance.pid"
+
+  app -n $name -i $instance conf set env.TEST_PROPERTY awesome
+  [ $status -eq 0 ]
 
   describe "Starting $name/$instance"
   app -n $name -i $instance operate start
+  [ $status -eq 0 ]
   echo_lines
   can_read .app/var/pid/$name-$instance.pid
 
   describe "Stopping $name/$instance"
   app -n $name -i $instance operate stop
+  [ $status -eq 0 ]
   echo_lines
   can_not_read .app/var/pid/$name-$instance.pid
+
+  can_read "$name/$instance/$name.log"
+  can_read "$name/$instance/$name.env"
+
+  [ "`cat $name/$instance/$name.env`" = "TEST_PROPERTY=awesome" ]
 
 #  app instance install \
 #    -r file \

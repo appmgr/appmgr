@@ -1,8 +1,10 @@
 #!/bin/bash
 
-me=`basename $0`
+me=$APPSH_INSTANCE_HOME/`basename $0`
 
 echo "Starting" >> $me.log
+
+env | grep TEST_PROPERTY > $me.env
 
 for i in {1..10}
 do
