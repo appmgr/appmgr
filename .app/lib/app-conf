@@ -40,12 +40,12 @@ get_conf_all() {
   local instance=$3
   local file=$BASEDIR/$name/$instance/current/etc/app.conf
 
-  if [ ! -r $file ]
+  if [ ! -r "$file" ]
   then
     return 0
   fi
 
-  sed -n "s,^[ ]*\($key_expr\)[ ]*=[ ]*\(.*\)$,\1=\2,p" $file | sort
+  sed -n "s,^[ ]*\($key_expr\)[ ]*=[ ]*\(.*\)$,\1=\2,p" "$file" | sort
 }
 
 get_conf_in_group() {
@@ -103,6 +103,17 @@ conf_delete() {
   mv $file.tmp $file
 }
 
+method_conf_list() {
+  local name=$1; shift
+  local instance=$1; shift
+
+  get_conf_all "$BASEDIR" "$name" "$instance" | (IFS==; while read key value
+  do
+    printf "%-20s %-20s" "$key" "$value"
+    echo
+  done)
+}
+
 method_conf_usage() {
   if [ -n "$1" ]
   then
@@ -121,43 +132,57 @@ method_conf_usage() {
 method_conf() {
   local name="$1"; shift
   local instance="$1"; shift
-  local mode="list"
+  local method="$1"
 
-  while getopts "s:d:" opt
-  do
-    case $opt in
-      d)
-        mode="delete"
-        key="$OPTARG"
-        ;;
-      s)
-        mode="set"
-        key="$OPTARG"
-        # Remove all options so far
-        shift $((OPTIND-1))
-        value="$1"
-        ;;
-      \?)
-        method_conf_usage "Invalid option: -$OPTARG" 
-        ;;
-    esac
-  done
+  if [ $# -gt 0 ]
+  then
+    shift
+  fi
 
   assert_is_instance conf_usage "$name" "$instance"
 
-  case $mode in
+  case "$method" in
     list)
-      get_conf_all "$BASEDIR" "$name" "$instance" | (IFS==; while read key value
-      do
-        printf "%-20s %-20s" "$key" "$value"
-        echo
-      done)
+      if [ $# -gt 0 ]
+      then
+        method_conf_usage "Extra options."
+        exit 1
+      fi
+
+      method_conf_list "$name" "$instance"
       ;;
     set)
-      conf_set "$BASEDIR" "$name" "$instance" "$key" "$value"
+      if [ $# -ne 2 ]
+      then
+        method_conf_usage
+        exit 1
+      fi
+
+      conf_set "$BASEDIR" "$name" "$instance" "$1" "$2"
       ;;
     delete)
-      conf_delete "$BASEDIR" "$name" "$instance" "$key"
+      if [ $# -ne 1 ]
+      then
+        method_conf_usage
+        exit 1
+      fi
+
+      conf_delete "$BASEDIR" "$name" "$instance" "$1"
+      ;;
+    *)
+      if [ $# -eq 0 ]
+      then
+        method_conf_list "$name" "$instance"
+        exit 0
+      fi
+
+      if [ -z "$method" ]
+      then
+        method_conf_usage
+      else
+        method_conf_usage "Unknown method $method"
+      fi
+      exit 1
       ;;
   esac
 }

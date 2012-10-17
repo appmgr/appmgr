@@ -21,7 +21,9 @@ run_control() {
   assert_is_instance operate_usage "$name" "$instance"
 
   (
-    cd $name/$instance/current
+    cd $name/$instance
+    APPSH_INSTANCE_HOME=`pwd`
+    cd current
 
     bin=`get_conf $BASEDIR $name $instance app.method`
 
@@ -48,6 +50,7 @@ run_control() {
       APPSH_HOME=$APPSH_HOME \
       APPSH_NAME=$name \
       APPSH_INSTANCE=$instance \
+      APPSH_INSTANCE_HOME=$APPSH_INSTANCE_HOME \
       $bin
     local ret=$?
     set +x
