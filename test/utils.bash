@@ -30,6 +30,30 @@ mkzip() {
 }
 
 app() {
-  (set -x
-  run ./app "$@")
+  echo ./app $@
+  run ./app $@
+}
+
+describe() {
+  echo "# " $@ >&3
+}
+
+can_read() {
+  if [ -r "$1" ]
+  then
+    return 0
+  else
+    echo "Can't read $1"
+    return 1
+  fi
+}
+
+can_not_read() {
+  if [ ! -r "$1" ]
+  then
+    return 0
+  else
+    echo "Can read $1"
+    return 1
+  fi
 }

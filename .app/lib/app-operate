@@ -53,14 +53,15 @@ run_control() {
     set +x
     set -e
 
-    case $ret in
-      0)
-        echo "Method ${method} completed successfully for $name/$instance"
-        ;;
-      *)
-        echo "Error running method ${method} for $name/$instance"
-        ;;
-    esac
+#    case $ret in
+#      0)
+#        echo "Method ${method} completed successfully for $name/$instance"
+#        ;;
+#      *)
+#        echo "Error running method ${method} for $name/$instance"
+#        ;;
+#    esac
+    exit $ret
   )
 }
 

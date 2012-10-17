@@ -5,18 +5,28 @@ load utils
 
 @test "install remove roundtrip" {
   mkzip "app-a"
-  a="-n app-a -i prod"
+  name="app-a"
+  instance="prod"
+  a="-n $name -i $instance"
+
+  describe "Installing $name/$instance"
   app instance install \
     -r file \
     -u $BATS_TEST_DIRNAME/data/app-a.zip \
-    $a
+    -n $name -i $instance
 
-  [ ! -r .app/var/pid/$name-$instance.pid ]
-  app $a operate start; echo_lines
-  [ -r .app/var/pid/$name-$instance.pid ]
+#  set -x
+  can_not_read ".app/var/pid/$name-$instance.pid"
 
-  app $a operate stop; echo_lines
-  [ ! -r .app/var/pid/$name-$instance.pid ]
+  describe "Starting $name/$instance"
+  app -n $name -i $instance operate start
+  echo_lines
+  can_read .app/var/pid/$name-$instance.pid
+
+  describe "Stopping $name/$instance"
+  app -n $name -i $instance operate stop
+  echo_lines
+  can_not_read .app/var/pid/$name-$instance.pid
 
 #  app instance install \
 #    -r file \

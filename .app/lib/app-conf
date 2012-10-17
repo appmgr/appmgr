@@ -7,8 +7,16 @@ get_conf() {
   local name=$2
   local instance=$3
   local key=$4
-  local default=$5
+  local default=
   local file=$BASEDIR/$name/$instance/current/etc/app.conf
+
+  shift 4
+
+  if [ $# -gt 0 ]
+  then
+    default=$1
+    shift
+  fi
 
   if [ ! -r $file ]
   then

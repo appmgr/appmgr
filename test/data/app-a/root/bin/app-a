@@ -2,8 +2,12 @@
 
 me=`basename $0`
 
+echo "Starting" >> $me.log
+
 for i in {1..10}
 do
   echo "#$i: `date`" >> $me.log
   sleep 1
 done
+
+echo "Exiting" >> $me.log
