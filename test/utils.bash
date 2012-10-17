@@ -14,13 +14,13 @@ echo_lines() {
 APPSH=$(pwd)/app
 
 setup() {
-  APPSH_BASEDIR=$BATS_TMPDIR/app.sh
+  APPSH_APPS=$BATS_TMPDIR/app.sh
   APPSH_HOME=$(cd $BATS_TEST_DIRNAME/../..; echo `pwd`/app.sh)
+  APPSH_APPS_CANONICAL=$(cd -P $APPSH_APPS; pwd)
   rm -rf $BATS_TMPDIR/app.sh
   mkdir $BATS_TMPDIR/app.sh
   cd $BATS_TMPDIR/app.sh
   ln -s $APPSH
-  WORK=$(cd -P $BATS_TMPDIR/app.sh; pwd)
 }
 
 mkzip() {

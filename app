@@ -16,15 +16,14 @@ done
 APPSH_HOME=`dirname "$PRG"`
 APPSH_HOME=`cd "$APPSH_HOME" && pwd`
 
-if [ -z "$BASEDIR" ]
+if [ -z "$APPSH_APPS" ]
 then
-  BASEDIR=`dirname $0`
-  BASEDIR=`cd $BASEDIR; pwd`
+  apps=`dirname $0`
+  apps=`cd $apps; pwd`
 fi
-export BASEDIR
 
-mkdir -p $BASEDIR/.app/var/pid
-mkdir -p $BASEDIR/.app/var/download
+mkdir -p $apps/.app/var/pid
+mkdir -p $apps/.app/var/download
 
 method_usage() {
   if [ -n "$1" ]
@@ -104,9 +103,9 @@ main() {
   fi
 
   case "$method" in
-    instance)      method_instance     "$name" "$instance" "$@" ;;
-    conf)          method_conf    "$name" "$instance" "$@" ;;
-    operate)       method_operate "$name" "$instance" "$@" ;;
+    instance)      method_instance "$name" "$instance" "$@" ;;
+    conf)          method_conf     "$name" "$instance" "$@" ;;
+    operate)       method_operate  "$name" "$instance" "$@" ;;
     *)             
       if [ -z "$method" ]
       then

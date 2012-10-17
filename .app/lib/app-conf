@@ -15,12 +15,12 @@ format_conf() {
 }
 
 get_conf() {
-  local BASEDIR=$1
+  local apps=$1
   local name=$2
   local instance=$3
   local key=$4
   local default=
-  local file=$BASEDIR/$name/$instance/current/etc/app.conf
+  local file=$apps/$name/$instance/current/etc/app.conf
 
   shift 4
 
@@ -47,10 +47,10 @@ get_conf() {
 }
 
 get_conf_all() {
-  local BASEDIR=$1
+  local apps=$1
   local name=$2
   local instance=$3
-  local file=$BASEDIR/$name/$instance/current/etc/app.conf
+  local file=$apps/$name/$instance/current/etc/app.conf
 
   if [ ! -r "$file" ]
   then
@@ -61,12 +61,12 @@ get_conf_all() {
 }
 
 get_conf_in_group() {
-  local BASEDIR=$1
+  local apps=$1
   local name=$2
   local instance=$3
   local group=$4
 
-  get_conf_all "$BASEDIR" "$name" "$instance" | sed -n "s,^${group}\.\(.*\),\1,p"
+  get_conf_all "$apps" "$name" "$instance" | sed -n "s,^${group}\.\(.*\),\1,p"
 }
 
 assert_key() {
@@ -81,13 +81,13 @@ assert_key() {
 }
 
 conf_set() {
-  local BASEDIR=$1
+  local apps=$1
   local name=$2
   local instance=$3
   local key=$4
   local value=$5
 
-  local file=$BASEDIR/$name/$instance/current/etc/app.conf
+  local file=$apps/$name/$instance/current/etc/app.conf
 
   assert_key "$key"
 
@@ -101,12 +101,12 @@ conf_set() {
 }
 
 conf_delete() {
-  local BASEDIR=$1
+  local apps=$1
   local name=$2
   local instance=$3
   local key=$4
 
-  local file=$BASEDIR/$name/$instance/current/etc/app.conf
+  local file=$apps/$name/$instance/current/etc/app.conf
 
   assert_key "$key"
 
@@ -118,7 +118,7 @@ method_conf_list() {
   local name=$1; shift
   local instance=$1; shift
 
-  get_conf_all "$BASEDIR" "$name" "$instance" | format_conf
+  get_conf_all "$apps" "$name" "$instance" | format_conf
 }
 
 method_conf_usage() {
@@ -166,7 +166,7 @@ method_conf() {
         exit 1
       fi
 
-      get_conf_in_group "$BASEDIR" "$name" "$instance" "$1" | format_conf
+      get_conf_in_group "$apps" "$name" "$instance" "$1" | format_conf
       ;;
     set)
       if [ $# -ne 2 ]
@@ -175,7 +175,7 @@ method_conf() {
         exit 1
       fi
 
-      conf_set "$BASEDIR" "$name" "$instance" "$1" "$2"
+      conf_set "$apps" "$name" "$instance" "$1" "$2"
       ;;
     delete)
       if [ $# -ne 1 ]
@@ -184,7 +184,7 @@ method_conf() {
         exit 1
       fi
 
-      conf_delete "$BASEDIR" "$name" "$instance" "$1"
+      conf_delete "$apps" "$name" "$instance" "$1"
       ;;
     *)
       if [ $# -eq 0 ]

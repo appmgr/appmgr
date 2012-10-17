@@ -38,6 +38,9 @@ TODOs
 
 * Support -h for all applicable methods to show the help/usage.
 
+* Rename "scripts/" to handlers or something similar. Perhaps just
+  remove it entirely.
+
 Commands
 --------
 
@@ -108,17 +111,25 @@ Directory Hierarchy
 
 ### Current
 
+App.sh is installed through cloning the git repository and/or
+unpacking a tarball from the git repository. The directory that
+contains app is known as $APPSH_HOME
+
 App.sh related:
 
-    ./app
+    ./         The root of an application set. Known as $APPSH_APPS
+    ./app      The app script, symlinked from your git clone directory
     ./.app/lib bash libraries used by app.sh and methods
     ./.app/var runtime data
 
 Applications:
 
-    ./<name>/<instance>/
-        current   - symlink to the currently installed app
-        versions/ - collection with all installed versions
-          1.0/
+    ./<name>/<instance>/  - Known as $APPSH_INSTANCE_HOME
+        current           - symlink to the currently installed app
+        versions/         - collection with all installed versions
+          1.0/            - A installed version. The zip file is unzipped here.
+                            The current directory for scripts executing from scripts/
+            root/
+            scripts/
           1.1/
           2.0/

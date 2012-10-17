@@ -32,7 +32,7 @@ resolve_snapshot() {
   local zip_file=$1
 
   echo "Resolving version $version..."
-  metadata=$BASEDIR/.app/var/download/$groupId-$artifactId-$version-metadata.xml
+  metadata=$apps/.app/var/download/$groupId-$artifactId-$version-metadata.xml
   base_url=$repo/$(echo $groupId | sed "s,\.,/,g")/$artifactId/$version
   get $base_url/maven-metadata.xml $metadata
   resolved_version=`xmlstarlet sel -t -m '//snapshotVersion[extension[text()="zip"]]' -v value $metadata`
@@ -147,7 +147,7 @@ method_install() {
 
       resolve_snapshot
 
-      zip_file=$BASEDIR/.app/var/download/$groupId-$artifactId-$resolved_version.zip
+      zip_file=$apps/.app/var/download/$groupId-$artifactId-$resolved_version.zip
 
       download_artifact $zip_file
       ;;
@@ -191,7 +191,7 @@ method_install() {
   echo "Unpacking..."
   unzip -q -d $name/$instance/versions/$resolved_version $zip_file
 
-  if [ ! -d $BASEDIR/$name/$instance/versions/$resolved_version/root ]
+  if [ ! -d $apps/$name/$instance/versions/$resolved_version/root ]
   then
     echo "Invalid zip file, did not contain a ./root directory." >&2
     exit 1
@@ -210,7 +210,7 @@ method_install() {
       set +e
       env -i \
         PATH=/bin:/usr/bin \
-        APPSH_BASEDIR=$BASEDIR \
+        APPSH_APPS=$apps \
         APPSH_HOME=$APPSH_HOME \
         APPSH_NAME=$name \
         APPSH_INSTANCE=$instance \
@@ -228,8 +228,8 @@ method_install() {
   )
 
   echo "Changing current symlink"
-  rm -f $BASEDIR/$name/$instance/current
-  ln -s versions/$resolved_version/root $BASEDIR/$name/$instance/current
+  rm -f $apps/$name/$instance/current
+  ln -s versions/$resolved_version/root $apps/$name/$instance/current
 
   if [ -d $name/$instance/current/bin ]
   then
@@ -239,12 +239,12 @@ method_install() {
     )
   fi
 
-  if [ -r $BASEDIR/.app/var/list ]
+  if [ -r $apps/.app/var/list ]
   then
-    sed "/^$name:$instance/d" $BASEDIR/.app/var/list > $BASEDIR/.app/var/list.new
+    sed "/^$name:$instance/d" $apps/.app/var/list > $apps/.app/var/list.new
   fi
-  echo "$name:$instance:$version:$url" >> $BASEDIR/.app/var/list.new
-  mv $BASEDIR/.app/var/list.new $BASEDIR/.app/var/list
+  echo "$name:$instance:$version:$url" >> $apps/.app/var/list.new
+  mv $apps/.app/var/list.new $apps/.app/var/list
 }
 
 method_set_current_usage() {
@@ -293,14 +293,14 @@ method_set_current() {
 
   assert_is_instance method_set_current_usage "$name" "$instance" "no"
 
-  if [ ! -d $BASEDIR/$name/$instance/versions/$version ]
+  if [ ! -d $apps/$name/$instance/versions/$version ]
   then
     echo "Invalid version: $version."
     exit 1
   fi
 
-  rm -f $BASEDIR/$name/$instance/current
-  ln -s versions/$version/root $BASEDIR/$name/$instance/current
+  rm -f $apps/$name/$instance/current
+  ln -s versions/$version/root $apps/$name/$instance/current
 
   return 0
 }
@@ -347,7 +347,7 @@ method_list() {
     esac
   done
  
-  if [ ! -r $BASEDIR/.app/var/list ]
+  if [ ! -r $apps/.app/var/list ]
   then
     return
   fi

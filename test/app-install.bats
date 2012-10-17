@@ -29,19 +29,18 @@ Changing current symlink" ]
     -r file \
     -u $BATS_TEST_DIRNAME/data/install-test-env.zip \
     -n install-test-env -i prod -v 1.0
-
   echo_lines
   [ $status -eq 0 ]
   [ "$output" = "Creating instance 'prod' for 'install-test-env'
 Unpacking...
 Running postinstall...
-APPSH_BASEDIR=$APPSH_BASEDIR
+APPSH_APPS=$APPSH_APPS
 APPSH_HOME=$APPSH_HOME
 APPSH_INSTANCE=prod
 APPSH_NAME=install-test-env
 APPSH_VERSION=1.0
 PATH=/bin:/usr/bin
-PWD=$WORK/install-test-env/prod/versions/1.0
+PWD=$APPSH_APPS_CANONICAL/install-test-env/prod/versions/1.0
 SHLVL=1
 _=/usr/bin/env
 Postinstall completed successfully

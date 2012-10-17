@@ -2,11 +2,11 @@
 
 set -u
 
-PID_FILE=$APPSH_BASEDIR/.app/var/pid/$APPSH_NAME-$APPSH_INSTANCE.pid 
+PID_FILE=$APPSH_APPS/.app/var/pid/$APPSH_NAME-$APPSH_INSTANCE.pid 
 
 . $APPSH_HOME/.app/lib/app-conf
 
-bin=`get_conf $APPSH_BASEDIR $APPSH_NAME $APPSH_INSTANCE app.bin`
+bin=`get_conf $APPSH_APPS $APPSH_NAME $APPSH_INSTANCE app.bin`
 
 if [ -z "$bin" ]
 then

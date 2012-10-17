@@ -25,7 +25,7 @@ run_control() {
     APPSH_INSTANCE_HOME=`pwd`
     cd current
 
-    bin=`get_conf $BASEDIR $name $instance app.method`
+    bin=`get_conf $apps $name $instance app.method`
 
     if [ -z "$bin" ]
     then
@@ -38,7 +38,7 @@ run_control() {
       exit 1
     fi
 
-    e="`get_conf_in_group $BASEDIR $name $instance env`"
+    e="`get_conf_in_group $apps $name $instance env`"
 
     # Set a default PATH which can be overridden by the application's settings
     set +e
@@ -46,7 +46,7 @@ run_control() {
       PATH=/bin:/usr/bin \
       $e \
       APPSH_METHOD=$method \
-      APPSH_BASEDIR=$BASEDIR \
+      APPSH_APPS=$apps \
       APPSH_HOME=$APPSH_HOME \
       APPSH_NAME=$name \
       APPSH_INSTANCE=$instance \

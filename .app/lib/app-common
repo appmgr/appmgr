@@ -37,7 +37,7 @@ list_apps() {
   filter_instnace=$1; shift
   vars="$@"
 
-  sort $BASEDIR/.app/var/list | while read line
+  sort $apps/.app/var/list | while read line
   do
     echo $line | (IFS=:; while read name instance version junk
     do
@@ -78,13 +78,13 @@ find_current_version() {
   name=$1
   instance=$2
 
-  if [ ! -L $BASEDIR/$name/$instance/current ]
+  if [ ! -L $apps/$name/$instance/current ]
   then
     return 0
   fi
 
   (
-    cd $BASEDIR/$name/$instance
+    cd $apps/$name/$instance
     ls -l current | sed -n "s,.* current -> versions/\(.*\)/root,\1,p"
   )
 }
@@ -93,13 +93,13 @@ find_versions() {
   name=$1
   instance=$2
 
-  if [ ! -d $BASEDIR/$name/$instance/versions ]
+  if [ ! -d $apps/$name/$instance/versions ]
   then
     return 0
   fi
 
   (
-    cd $BASEDIR/$name/$instance/versions
+    cd $apps/$name/$instance/versions
     ls -1d *
   )
 }

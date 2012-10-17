@@ -18,13 +18,14 @@ load utils
 
   can_not_read ".app/var/pid/$name-$instance.pid"
 
+  describe "Setting property"
   app -n $name -i $instance conf set env.TEST_PROPERTY awesome
   [ $status -eq 0 ]
 
   describe "Starting $name/$instance"
   app -n $name -i $instance operate start
-  [ $status -eq 0 ]
   echo_lines
+  [ $status -eq 0 ]
   can_read .app/var/pid/$name-$instance.pid
 
   describe "Stopping $name/$instance"
