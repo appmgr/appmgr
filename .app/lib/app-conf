@@ -1,6 +1,18 @@
 #!/bin/bash
 
+# TODO: Add a 'get' method that returns a single value
+# Exit with 0 if found, 1 otherwise.
+
 key_expr="[a-zA-Z][_a-zA-Z0-9]*\.[a-zA-Z][_a-zA-Z0-9]*"
+
+format_conf() {
+  local IFS==
+  while read key value
+  do
+    printf "%-20s %-20s" "$key" "$value"
+    echo
+  done
+}
 
 get_conf() {
   local BASEDIR=$1
@@ -54,8 +66,7 @@ get_conf_in_group() {
   local instance=$3
   local group=$4
 
-  get_conf_all "$BASEDIR" "$name" "$instance" | \
-    sed -n "s,^[ ]*${group}\.\([._a-zA-Z]*\)=\(.*\)$,\1=\2,p"
+  get_conf_all "$BASEDIR" "$name" "$instance" | sed -n "s,^${group}\.\(.*\),\1,p"
 }
 
 assert_key() {
@@ -107,11 +118,7 @@ method_conf_list() {
   local name=$1; shift
   local instance=$1; shift
 
-  get_conf_all "$BASEDIR" "$name" "$instance" | (IFS==; while read key value
-  do
-    printf "%-20s %-20s" "$key" "$value"
-    echo
-  done)
+  get_conf_all "$BASEDIR" "$name" "$instance" | format_conf
 }
 
 method_conf_usage() {
@@ -123,7 +130,8 @@ method_conf_usage() {
   echo "usage: $0 conf <method>" >&2
   echo ""
   echo "Available methods:" >&2
-  echo "  get                     - list all configuration parameters" >&2
+  echo "  list                    - list all configuration values" >&2
+  echo "  list-group [group]      - list all configuration values in the specified group" >&2
   echo "  set [group.key] [value] - set a configuration parameter" >&2
   echo "  delete [group.key]      - deletes a configuration parameter" >&2
   exit 1
@@ -150,6 +158,15 @@ method_conf() {
       fi
 
       method_conf_list "$name" "$instance"
+      ;;
+    list-group)
+      if [ $# -ne 1 ]
+      then
+        method_conf_usage
+        exit 1
+      fi
+
+      get_conf_in_group "$BASEDIR" "$name" "$instance" "$1" | format_conf
       ;;
     set)
       if [ $# -ne 2 ]

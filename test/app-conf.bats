@@ -51,6 +51,30 @@ group.foo            bar                 " ]
   [ $status -eq 1 ]
 }
 
+@test "./app conf list-group" {
+  i=env-a
+  n=app-a
+
+  mkzip "app-a"
+  app instance install -r file -u $BATS_TEST_DIRNAME/data/app-a.zip -n $n -i $i -v 1.0
+  [ $status -eq 0 ]
+
+  app -n $n -i $i conf set mygroup.a 1
+  [ $status -eq 0 ]
+  app -n $n -i $i conf set mygroup.b 1
+  [ $status -eq 0 ]
+  app -n $n -i $i conf set mygroup.c 2
+  [ $status -eq 0 ]
+  app -n $n -i $i conf set othergroup.a 1
+  [ $status -eq 0 ]
+
+  app -n $n -i $i conf list-group mygroup; echo_lines
+  [ $status -eq 0 ]
+  [ "$output" = "a                    1                   
+b                    1                   
+c                    2                   " ]
+}
+
 @test "./app conf set" {
   i=env-a
   n=app-a
