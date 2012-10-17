@@ -89,7 +89,7 @@ _complete_appsh() {
       return
       ;;
     -u)
-      COMPREPLY=($(compgen -f -- ${cur}))
+      COMPREPLY=($(compgen -o filenames -f -- ${cur}))
       return
       ;;
   esac
@@ -120,4 +120,4 @@ _complete_appsh() {
   set +x
 }
 
-complete -d -F _complete_appsh app
+complete -F _complete_appsh app
