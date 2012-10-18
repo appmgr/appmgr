@@ -16,11 +16,18 @@ done
 APPSH_HOME=`dirname "$PRG"`
 APPSH_HOME=`cd "$APPSH_HOME" && pwd`
 
-if [ -z "$APPSH_APPS" ]
-then
-  apps=`dirname $0`
-  apps=`cd $apps; pwd`
-fi
+# Not sure this is useful
+#if [ -z "$APPSH_APPS" ]
+#then
+#  apps=`dirname $0`
+#  apps=`cd $apps; pwd`
+#fi
+
+apps=`dirname $0`
+apps=`cd $apps; pwd`
+
+# Ideally this should just do "cd /" to ensure that all paths are useful.
+cd $apps
 
 mkdir -p $apps/.app/var/pid
 mkdir -p $apps/.app/var/download

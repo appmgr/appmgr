@@ -16,11 +16,11 @@ load utils
   [ $status -eq 0 ]
   [ "$output" = "Creating instance 'prod' for 'app-a'
 Unpacking...
+Changing current symlink
 Running postinstall...
 Hello World!
 Creating logs directory
-Postinstall completed successfully
-Changing current symlink" ]
+Postinstall completed successfully" ]
   [ ${#lines[*]} == 7 ]
 }
 
@@ -34,6 +34,7 @@ Changing current symlink" ]
   [ $status -eq 0 ]
   [ "$output" = "Creating instance 'prod' for 'install-test-env'
 Unpacking...
+Changing current symlink
 Running postinstall...
 APPSH_APPS=$APPSH_APPS
 APPSH_HOME=$APPSH_HOME
@@ -44,8 +45,7 @@ PATH=/bin:/usr/bin
 PWD=$APPSH_APPS_CANONICAL/install-test-env/prod/versions/1.0/root
 SHLVL=1
 _=/usr/bin/env
-Postinstall completed successfully
-Changing current symlink" ]
+Postinstall completed successfully" ]
   [ ${#lines[*]} == 14 ]
 # PWD=$APPSH_APPS_CANONICAL/install-test-env/prod/versions/1.0
 }

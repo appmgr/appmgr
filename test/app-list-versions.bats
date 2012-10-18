@@ -18,8 +18,11 @@ load utils
 1.0
 1.1" ]
 
-  app instance list-versions -n app-a -i env-a -P; echo_lines
-  [ $status -eq 0 ]
-  [ "$output" = "1.0
-1.1" ]
+  expected="1.0
+1.1"
+
+set -x
+  app -n app-a instance -i env-a list-versions -P; [ "$output" = "$expected" ]; echo_lines;
+  app -n app-a instance list-versions -i env-a -P; [ "$output" = "$expected" ]; echo_lines;
+  app instance list-versions -n app-a -i env-a -P; [ "$output" = "$expected" ]; echo_lines;
 }

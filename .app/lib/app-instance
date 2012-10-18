@@ -197,6 +197,18 @@ method_install() {
     exit 1
   fi
 
+  echo "Changing current symlink"
+  rm -f $apps/$name/$instance/current
+  ln -s versions/$resolved_version/root $apps/$name/$instance/current
+
+  if [ -d $name/$instance/current/bin ]
+  then
+    (
+      cd $name/$instance/current
+      find bin -type f | xargs chmod +x
+    )
+  fi
+
   (
     cd $name/$instance/versions/$resolved_version
     if [ -d scripts ]
@@ -227,18 +239,6 @@ method_install() {
       echo "Postinstall completed successfully"
     fi
   )
-
-  echo "Changing current symlink"
-  rm -f $apps/$name/$instance/current
-  ln -s versions/$resolved_version/root $apps/$name/$instance/current
-
-  if [ -d $name/$instance/current/bin ]
-  then
-    (
-      cd $name/$instance/current
-      find bin -type f | xargs chmod +x
-    )
-  fi
 
   if [ -r $apps/.app/var/list ]
   then
