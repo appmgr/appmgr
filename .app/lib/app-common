@@ -18,7 +18,7 @@ assert_is_instance() {
 
   if [ ! -d $name/$instance ]
   then
-    echo "No such application/instance: $name/$instance."  >&2
+    echo "No such instance: $name/$instance."  >&2
     exit 1
   fi
 
