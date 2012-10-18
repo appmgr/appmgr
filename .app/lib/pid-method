@@ -2,11 +2,12 @@
 
 set -u
 
-PID_FILE=$APPSH_APPS/.app/var/pid/$APPSH_NAME-$APPSH_INSTANCE.pid 
-
 . $APPSH_HOME/.app/lib/app-conf
 
+pid_file=$APPSH_APPS/.app/var/pid/$APPSH_NAME-$APPSH_INSTANCE.pid 
 bin=`get_conf $APPSH_APPS $APPSH_NAME $APPSH_INSTANCE app.bin`
+
+cd $APPSH_APPS/$APPSH_NAME/$APPSH_INSTANCE/current
 
 if [ -z "$bin" ]
 then
@@ -23,9 +24,9 @@ fi
 chmod +x "$bin"
 
 PID=
-if [ -r $PID_FILE ]
+if [ -r $pid_file ]
 then
-  PID="`cat $PID_FILE`"
+  PID="`cat $pid_file`"
 fi
 
 do_status() {
@@ -51,9 +52,10 @@ method_start() {
   esac
 
   $bin <&- 1<&- 2<&- &
+
   PID=$!
   echo "Application launched as $PID"
-  echo $PID > $PID_FILE
+  echo $PID > $pid_file
 
   return 0
 }
@@ -83,7 +85,7 @@ method_stop() {
   done
 
   echo " OK"
-  rm -f $PID_FILE
+  rm -f $pid_file
   return 0
 }
 

@@ -1,11 +1,21 @@
-#!/bin/bash
+#!/bin/bash -e
 
 echo "Hello World!"
 
-if [ -d root/etc/$APPSH_INSTANCE ]
+if [ -d etc/$APPSH_INSTANCE ]
 then
-  find root/etc/$APPSH_INSTANCE -type f -maxdepth 1 | while read file
+  find etc/$APPSH_INSTANCE -type f -maxdepth 1 | while read file
   do
-    cp $file root/
+    cp $file .
   done
 fi
+
+LOGS=$APPSH_APPS/$APPSH_NAME/$APPSH_INSTANCE/logs
+
+if [ ! -d $LOGS ]
+then
+  echo "Creating logs directory"
+  mkdir $LOGS
+fi
+
+ln -s $LOGS logs

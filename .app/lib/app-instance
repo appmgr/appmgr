@@ -191,7 +191,7 @@ method_install() {
   echo "Unpacking..."
   unzip -q -d $name/$instance/versions/$resolved_version $zip_file
 
-  if [ ! -d $apps/$name/$instance/versions/$resolved_version/root ]
+  if [ ! -d $name/$instance/versions/$resolved_version/root ]
   then
     echo "Invalid zip file, did not contain a ./root directory." >&2
     exit 1
@@ -207,6 +207,7 @@ method_install() {
     if [ -x scripts/postinstall ]
     then
       echo "Running postinstall..."
+      cd root
       set +e
       env -i \
         PATH=/bin:/usr/bin \
@@ -215,7 +216,7 @@ method_install() {
         APPSH_NAME=$name \
         APPSH_INSTANCE=$instance \
         APPSH_VERSION=$resolved_version \
-        scripts/postinstall
+        ../scripts/postinstall
       set -e
       ret=`echo $?`
       if [ "$ret" != 0 ]

@@ -45,6 +45,7 @@ run_control() {
     env -i \
       PATH=/bin:/usr/bin \
       $e \
+      PWD=$PWD \
       APPSH_METHOD=$method \
       APPSH_APPS=$apps \
       APPSH_HOME=$APPSH_HOME \
@@ -56,14 +57,6 @@ run_control() {
     set +x
     set -e
 
-#    case $ret in
-#      0)
-#        echo "Method ${method} completed successfully for $name/$instance"
-#        ;;
-#      *)
-#        echo "Error running method ${method} for $name/$instance"
-#        ;;
-#    esac
     exit $ret
   )
 }

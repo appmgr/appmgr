@@ -41,6 +41,9 @@ TODOs
 * Rename "scripts/" to handlers or something similar. Perhaps just
   remove it entirely.
 
+* Document how the operate method (custom pid-method stuff) can see
+  its own output for debugging.
+
 Commands
 --------
 
@@ -104,7 +107,7 @@ Method Contract
 Unclassified:
 
 * `APPSH_HOME`
-* `BASEDIR`
+* `APPSH_APPS`
 
 Directory Hierarchy
 -------------------
@@ -113,7 +116,7 @@ Directory Hierarchy
 
 App.sh is installed through cloning the git repository and/or
 unpacking a tarball from the git repository. The directory that
-contains app is known as $APPSH_HOME
+contains the app.sh libraries is known as `$APPSH_HOME`.
 
 App.sh related:
 
@@ -125,11 +128,10 @@ App.sh related:
 Applications:
 
     ./<name>/<instance>/  - Known as $APPSH_INSTANCE_HOME
-        current           - symlink to the currently installed app
+        current ->        - symlink to the currently installed app
         versions/         - collection with all installed versions
           1.0/            - A installed version. The zip file is unzipped here.
-                            The current directory for scripts executing from scripts/
-            root/
+            root/         - The current directory when executing methods and scripts
             scripts/
           1.1/
           2.0/

@@ -34,15 +34,12 @@ load utils
   echo_lines
   can_not_read .app/var/pid/$name-$instance.pid
 
-  can_read "$name/$instance/$name.log"
-  can_read "$name/$instance/$name.env"
+  can_read "$name/$instance/logs/$name.log"
+  can_read "$name/$instance/logs/$name.env"
   can_read "$name/$instance/current/foo.conf"
 
-  [ "`cat $name/$instance/$name.env`" = "TEST_PROPERTY=awesome" ]
+  [ "`cat $name/$instance/logs/$name.env`" = "TEST_PROPERTY=awesome" ]
   [ "`cat $name/$instance/current/foo.conf`" = "hello" ]
 
-#  app instance install \
-#    -r file \
-#    -u $HOME/.m2/repository/io/trygvis/appsh/examples/jenkins/1.0-SNAPSHOT/jenkins-1.0-SNAPSHOT.zip \
-#    -n jenkins -i env-a
+  # TODO: Remove the version
 }

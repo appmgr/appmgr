@@ -1,15 +1,16 @@
 #!/bin/bash
 
-me=$APPSH_INSTANCE_HOME/`basename $0`
+#cd $APPSH_INSTANCE_HOME
+me=`basename $0`
 
-echo "Starting" >> $me.log
+env | grep TEST_PROPERTY >> logs/$me.env
 
-env | grep TEST_PROPERTY > $me.env
+echo "Starting" >> logs/$me.log
 
 for i in {1..10}
 do
-  echo "#$i: `date`" >> $me.log
+  echo "#$i: `date`" >> logs/$me.log
   sleep 1
 done
 
-echo "Exiting" >> $me.log
+echo "Exiting" >> logs/$me.log

@@ -18,9 +18,10 @@ load utils
 Unpacking...
 Running postinstall...
 Hello World!
+Creating logs directory
 Postinstall completed successfully
 Changing current symlink" ]
-  [ ${#lines[*]} == 6 ]
+  [ ${#lines[*]} == 7 ]
 }
 
 @test "./app instance install install-test-env" {
@@ -40,10 +41,11 @@ APPSH_INSTANCE=prod
 APPSH_NAME=install-test-env
 APPSH_VERSION=1.0
 PATH=/bin:/usr/bin
-PWD=$APPSH_APPS_CANONICAL/install-test-env/prod/versions/1.0
+PWD=$APPSH_APPS_CANONICAL/install-test-env/prod/versions/1.0/root
 SHLVL=1
 _=/usr/bin/env
 Postinstall completed successfully
 Changing current symlink" ]
   [ ${#lines[*]} == 14 ]
+# PWD=$APPSH_APPS_CANONICAL/install-test-env/prod/versions/1.0
 }
