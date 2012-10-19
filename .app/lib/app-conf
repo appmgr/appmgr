@@ -147,7 +147,7 @@ method_conf() {
     shift
   fi
 
-  assert_is_instance conf_usage "$name" "$instance"
+  assert_is_instance method_conf_usage "$name" "$instance"
 
   case "$method" in
     list)
