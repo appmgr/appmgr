@@ -6,54 +6,74 @@ then
 else
   repo="http://repo1.maven.org"
 fi
+
+calculate_md5() {
+  local file="$1"; shift
+
+  md5sum "$file" | cut -c 1-32
+}
  
 # TODO: support file:// repositories
 # TODO: look in the local repository first
-# TODO: assert that we got a 200 OK
 get() { 
+  local url=$1
+  local file=$2
   local exit
 
-  curl -o $2 $1 -D curl.tmp
+  curl -o $file $url -D curl.tmp
 
   exit=`grep "^HTTP/[0-9]\.[0-9] 200 .*" curl.tmp >/dev/null; echo $?`
   head=`head -n 1 curl.tmp`
-  rm curl.tmp
+  rm -f curl.tmp
   if [ "$exit" != 0 ]
   then
-    echo "Unable to download $1: $head"
+    echo "Unable to download $url: $head" >&2
     exit 1
   fi
 }
 
-resolved_version=""
 resolve_snapshot() {
-  local base_url
-  local metadata
-  local zip_file=$1
+  local groupId=$1; shift
+  local groupIdSlash=$1; shift
+  local artifactId=$1; shift
+  local version=$1; shift
 
-  echo "Resolving version $version..."
-  metadata=$apps/.app/var/download/$groupId-$artifactId-$version-metadata.xml
-  base_url=$repo/$(echo $groupId | sed "s,\.,/,g")/$artifactId/$version
+  local metadata=$apps/.app/var/download/$groupId-$artifactId-$version-metadata.xml
+  local base_url=$repo/$groupIdSlash/$artifactId/$version
   get $base_url/maven-metadata.xml $metadata
-  resolved_version=`xmlstarlet sel -t -m '//snapshotVersion[extension[text()="zip"]]' -v value $metadata`
+  local resolved_version=`xmlstarlet sel -t -m '//snapshotVersion[extension[text()="zip"]]' -v value $metadata`
+  echo $resolved_version
+}
 
-  if [ -z "$resolved_version" ]
-  then
-    echo "Unable to resolve version."
-    exit 1
-  fi
-  echo "Resolved version $version to $resolved_version"
+download_artifact() {
+  local file="$1"; shift
+  local url="$1"; shift
 
-  if [ -r $zip_file ]
+  echo "Downloading $url.md5"
+  get $url.md5 $file.md5
+  local expected_md5="`cat $file.md5`"
+
+  if [ -r $file ]
   then
-    echo "Artifact already downloaded."
+    if [ "$expected_md5" == "`calculate_md5 $file`" ]
+    then
+      echo "Artifact already downloaded."
+    else
+      rm -f "$file"
+    fi
     return 0
   fi
-  echo "Downloading artifact"
-  base_url=$repo/$(echo $groupId | sed "s,\.,/,g")/$artifactId/$version
-  get $base_url/$artifactId-$resolved_version.zip $zip_file
+  echo "Downloading artifact: $url"
+  get $url $file
 
-  # TODO: download checksum. bash is too shady to trust
+  local actual_md5="`calculate_md5 $file`"
+  if [ "$expected_md5" == "$actual_md5" ]
+  then
+    echo "Artifact downloaded."
+  else
+    echo "Invalid checksum. Expected $expected_md5, got $actual_md5" >&2
+    exit 1
+  fi
 }
 
 method_install_usage() {
@@ -145,11 +165,25 @@ method_install() {
         method_install_usage "Invalid Maven url."
       fi
 
-      resolve_snapshot
+      local groupIdSlash=$(echo $groupId | sed "s,\.,/,g")
+      if [ "`echo $version | sed -n s,.*-SNAPSHOT$,SNAPSHOT,p`" == "SNAPSHOT" ]
+      then
+        echo "Resolving version $version..."
+        local resolved_version=`resolve_snapshot $groupId $groupIdSlash $artifactId $version`
+        if [ -z "$resolved_version" ]
+        then
+          echo "Unable to resolve version."
+          exit 1
+        fi
+        echo "Resolved version $version to $resolved_version"
+      else
+        resolved_version=$version
+      fi
 
       zip_file=$apps/.app/var/download/$groupId-$artifactId-$resolved_version.zip
+      artifact_url=$repo/$groupIdSlash/$artifactId/$version/$artifactId-$resolved_version.zip
 
-      download_artifact $zip_file
+      download_artifact "$zip_file" "$artifact_url"
       ;;
     file)
       if [ ! -r "$url" ]

@@ -89,6 +89,8 @@ The operate sub-methods are provided by the application.
 
 #### `stop`
 
+TODO: support -f flag that doesn't exit with 1 if the app is not running.
+
 #### `status`
 
 ### `foreach`
