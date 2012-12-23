@@ -52,7 +52,7 @@ run_control() {
       APPSH_NAME=$name \
       APPSH_INSTANCE=$instance \
       APPSH_INSTANCE_HOME=$APPSH_INSTANCE_HOME \
-      $bin
+      $bin "$@"
     local ret=$?
     set +x
     set -e
