@@ -13,11 +13,6 @@ NOTE: The bash completion is not perfect yet.
 
 Or was it `~/.bash_profile`? hmm
 
-Environment
------------
-
-The following environment variables are set by default:
-
 TODOs
 -----
 
@@ -34,7 +29,8 @@ TODOs
     * Concept: config. group, key and value.
     * Scriptable
 
-* init.d support
+* init.d support - register the application under /etc/init.d on
+  installation. Should probably be a plugin.
 
 * Support -h for all applicable methods to show the help/usage.
 
@@ -137,3 +133,34 @@ Applications:
             scripts/
           1.1/
           2.0/
+
+Creating Apps
+-------------
+
+"App bundles" are basically just zip file with a specific layout. It
+has to contain at least a `root/` directory which contains your
+application. It can contain anything. The `current` symlink will point
+to this directory.
+
+The bundle can also contain a special `scripts` directory which
+contains scripts that's run durtion package operations. Only
+`postinstall` is currently supported.
+
+Zip File Tree
+=============
+
+    root/
+        bin/
+            myapp
+        etc/
+            config
+    scripts/
+        postinstall
+
+Managing Apps
+-------------
+
+Setting Environment Variables
+-----------------------------
+
+    app -n .. -i .. conf

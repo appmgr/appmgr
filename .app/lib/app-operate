@@ -10,57 +10,6 @@ operate_usage() {
   exit 1
 }
 
-# TODO: set ulimit
-# TODO: set umask
-# TODO: change group newgrp/sg
-run_control() {
-  local method=$1; shift
-  local name=$1; shift
-  local instance=$1; shift
-
-  assert_is_instance operate_usage "$name" "$instance"
-
-  (
-    cd $name/$instance
-    APPSH_INSTANCE_HOME=`pwd`
-    cd current
-
-    bin=`get_conf $apps $name $instance app.method`
-
-    if [ -z "$bin" ]
-    then
-      bin=$APPSH_HOME/.app/lib/pid-method
-    fi
-
-    if [ ! -x "$bin" ]
-    then
-      echo "Invalid executable: $bin" >&2
-      exit 1
-    fi
-
-    e="`get_conf_in_group $apps $name $instance env`"
-
-    # Set a default PATH which can be overridden by the application's settings
-    set +e
-    env -i \
-      PATH=/bin:/usr/bin \
-      $e \
-      PWD=$PWD \
-      APPSH_METHOD=$method \
-      APPSH_APPS=$apps \
-      APPSH_HOME=$APPSH_HOME \
-      APPSH_NAME=$name \
-      APPSH_INSTANCE=$instance \
-      APPSH_INSTANCE_HOME=$APPSH_INSTANCE_HOME \
-      $bin "$@"
-    local ret=$?
-    set +x
-    set -e
-
-    exit $ret
-  )
-}
-
 method_operate_usage() {
   if [ -n "$1" ]
   then
@@ -86,11 +35,25 @@ method_operate() {
     shift
   fi
 
+  bin=`get_conf $apps $name $instance app.method`
+
+  if [ -z "$bin" ]
+  then
+    bin=$APPSH_HOME/.app/lib/pid-method
+  fi
+
+  if [ ! -x "$name/$instance/current/$bin" ]
+  then
+    echo "Invalid executable: $bin" >&2
+    exit 1
+  fi
+
   case "$method" in
-    start)   run_control "start" "$name" "$instance" "$@" ;;
-    stop)    run_control "stop" "$name" "$instance" "$@" ;;
-    status)  run_control "status" "$name" "$instance" "$@" ;;
-    restart) run_control "restart" "$name" "$instance" "$@" ;;
+    start)   run_app "$name" "$instance" "$bin" "start" "$@" ;;
+    stop)    run_app "$name" "$instance" "$bin" "stop" "$@" ;;
+    status)  run_app "$name" "$instance" "$bin" "status" "$@" ;;
+    restart) run_app "$name" "$instance" "$bin" "restart" "$@" ;;
+    run)     run_app "$name" "$instance" "$bin" "run" "$@" ;;
     *)
       if [ -z "$method" ]
       then

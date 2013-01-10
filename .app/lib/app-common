@@ -16,7 +16,14 @@ assert_is_instance() {
     $usage "Missing required option -i."
   fi
 
-  if [ ! -d $name/$instance ]
+  # Use $APPSH_APPS as prefix if it's set
+  local x=""
+  if [ ! -z "$APPSH_APPS" ]
+  then
+    x="$APPSH_APPS/"
+  fi
+
+  if [ ! -d $x$name/$instance ]
   then
     echo "No such instance: $name/$instance."  >&2
     exit 1
@@ -24,7 +31,7 @@ assert_is_instance() {
 
   if [ "$check_link" != "no" ]
   then
-    if [ ! -e $name/$instance/current ]
+    if [ ! -e $x$name/$instance/current ]
     then
       echo "Missing 'current' link." >&2
       exit 1
@@ -101,5 +108,50 @@ find_versions() {
   (
     cd $apps/$name/$instance/versions
     ls -1d *
+  )
+}
+
+# TODO: set ulimit
+# TODO: set umask
+# TODO: change group newgrp/sg
+run_app() {
+  local name=$1; shift
+  local instance=$1; shift
+  local bin=$1; shift
+  local method=$1; shift
+
+  assert_is_instance operate_usage "$name" "$instance"
+
+  local x=""
+  if [ ! -z "$APPSH_APPS" ]
+  then
+    x="$APPSH_APPS/"
+  fi
+
+  (
+    cd $x$name/$instance
+    APPSH_INSTANCE_HOME=`pwd`
+    cd current
+
+    e="`get_conf_in_group $apps $name $instance env`"
+
+    # Set a default PATH which can be overridden by the application's settings
+    set +e
+    env -i \
+      PATH=/bin:/usr/bin \
+      $e \
+      PWD=$PWD \
+      APPSH_METHOD=$method \
+      APPSH_APPS=$apps \
+      APPSH_HOME=$APPSH_HOME \
+      APPSH_NAME=$name \
+      APPSH_INSTANCE=$instance \
+      APPSH_INSTANCE_HOME=$APPSH_INSTANCE_HOME \
+      $bin "$@"
+    local ret=$?
+    set +x
+    set -e
+
+    exit $ret
   )
 }
