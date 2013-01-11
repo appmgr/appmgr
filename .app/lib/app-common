@@ -134,6 +134,9 @@ run_app() {
     cd current
 
     e="`get_conf_in_group $apps $name $instance env`"
+    # This magically get the expansion of $u correct.
+    IFS="
+"
 
     # Set a default PATH which can be overridden by the application's settings
     set +e
