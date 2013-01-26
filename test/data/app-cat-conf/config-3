@@ -1,0 +1,4 @@
+# same key as config-2, different value
+foo.bar=baz
+
+foo.wat=bar

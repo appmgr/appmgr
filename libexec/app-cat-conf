@@ -1,0 +1,47 @@
+#!/bin/bash
+
+if [[ $APPSH_HOME == "" ]]
+then
+  APPSH_HOME=`dirname "$0"`
+  APPSH_HOME=`cd "$APPSH_HOME/.." && pwd`
+fi
+
+set -e
+
+key_expr="[a-zA-Z][_a-zA-Z0-9]*"
+
+file=.app/config
+
+while getopts "f:n:" opt
+do
+  case $opt in
+    f)
+      file=$OPTARG
+      ;;
+    n)
+      name=$OPTARG
+      ;;
+    \?)
+      echo "Invalid option: $OPTARG" >&2
+      exit 1
+      ;;
+  esac
+done
+
+if [ -z "$name" ]
+then
+  filter="s,^[ ]*\($key_expr\.$key_expr\)[ ]*=[ ]*\(.*\)$,\1=\2,p"
+else
+  filter="s,^\($name\)=\(.*\),\1=\2,p"
+fi
+
+if [[ $APPSH_DEFAULT_CONFIG == "" ]]
+then
+  APPSH_DEFAULT_CONFIG=$APPSH_HOME/lib/default-config
+fi
+
+# The awk script makes sure each key only appears once
+cat "$file" "$APPSH_DEFAULT_CONFIG" | \
+  sed -n -e "$filter" $extra | \
+  awk -F = ' (!($1 in a)){a[$1]; print }' | \
+  sort

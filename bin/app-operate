@@ -1,5 +1,11 @@
 #!/bin/bash
 
+if [[ $APPSH_HOME == "" ]]
+then
+  APPSH_HOME=`dirname "$0"`
+  APPSH_HOME=`cd "$APPSH_HOME/.." && pwd`
+fi
+
 operate_usage() {
   if [ -n "$1" ]
   then
@@ -35,7 +41,7 @@ method_operate() {
     shift
   fi
 
-  bin=`get_conf $apps $name $instance app.method`
+  bin=`$APPSH_HOME/bin/app-cat-conf -f $apps/$name/$instance/current/etc/app.conf -g app -k method | cut -f 2 -d =`
 
   if [ -z "$bin" ]
   then

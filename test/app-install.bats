@@ -5,12 +5,11 @@ load utils
 
 # TODO: Add test for installing duplicate version
 
-@test "./app instance install app-a" {
+@test "./app install app-a" {
   mkzip "app-a"
-  app instance install \
+  app install \
     -r file \
-    -u $BATS_TEST_DIRNAME/data/app-a.zip \
-    -n app-a -i prod
+    -u $BATS_TEST_DIRNAME/data/app-a.zip
 
   echo_lines
   [ $status -eq 0 ]
@@ -29,7 +28,7 @@ Postinstall completed successfully" ]
   app instance install \
     -r file \
     -u $BATS_TEST_DIRNAME/data/install-test-env.zip \
-    -n install-test-env -i prod -v 1.0
+    -v 1.0
   echo_lines
   [ $status -eq 0 ]
   [ "$output" = "Creating instance 'prod' for 'install-test-env'

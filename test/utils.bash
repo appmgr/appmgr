@@ -6,21 +6,25 @@ workdir=test-run
 exit_usage=1
 exit_usage_wrong=0
 
-echo_lines() {
-  for line in "${lines[@]}"; do echo $line; done
-  echo status=$status
-}
-
-APPSH=$(pwd)/app
-
 setup() {
-  APPSH_APPS=$BATS_TMPDIR/app.sh
-  APPSH_HOME=$(cd $BATS_TEST_DIRNAME/../..; echo `pwd`/app.sh)
-  APPSH_APPS_CANONICAL=$(cd -P $APPSH_APPS; pwd)
+  PATH=/bin:/usr/bin
+  PATH=$PATH:$APPSH_HOME
+  APPSH_HOME=$(cd $BATS_TEST_DIRNAME/..; echo `pwd`)
+
   rm -rf $BATS_TMPDIR/app.sh
   mkdir $BATS_TMPDIR/app.sh
   cd $BATS_TMPDIR/app.sh
-  ln -s $APPSH
+
+  if [ "`declare -f setup_inner >/dev/null; echo $?`" = 0 ]
+  then
+    setup_inner
+  fi
+}
+
+echo_lines() {
+  echo lines:
+  for line in "${lines[@]}"; do echo $line; done
+  echo status=$status
 }
 
 mkzip() {
@@ -32,8 +36,16 @@ mkzip() {
 }
 
 app() {
-  echo ./app $@
-  run ./app $@
+  echo app $@
+  run $APPSH_HOME/app $@
+}
+
+app_libexec() {
+  local x=`PATH=$APPSH_HOME/libexec:/bin:/usr/bin which $1`
+
+  echo libexec/$@
+  shift
+  run "$x" $@
 }
 
 describe() {
@@ -58,4 +70,44 @@ can_not_read() {
     echo "Can read $1"
     return 1
   fi
+}
+
+is_directory() {
+  if [ ! -d "$1" ]
+  then
+	echo "Not a directory: $1" 2>&1
+	return 1
+  fi
+}
+
+eq() {
+  local ex="$1"
+  local e="$2"
+  local a="`eval echo $ex`"
+
+  if [[ $e == $a ]]
+  then
+	return 0
+  fi
+
+  echo "Assertion failed: $ex"
+  echo "Expected: $e"
+  echo "Actual:   $a"
+  exit 1
+}
+
+match() {
+  local ex="$1"
+  local regex="$2"
+  local a="`eval echo $ex`"
+
+  if [[ $a =~ $regex ]]
+  then
+	return 0
+  fi
+
+  echo "Assertion failed: $ex =~ $a"
+  echo "Expected: $e"
+  echo "Actual:   $a"
+  exit 1
 }

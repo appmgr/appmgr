@@ -1,0 +1,231 @@
+#!/bin/bash -e
+
+set -u
+
+if [[ $APPSH_HOME == "" ]]
+then
+  APPSH_HOME=`dirname "$0"`
+  APPSH_HOME=`cd "$APPSH_HOME/.." && pwd`
+fi
+
+usage() {
+  message=${1-}
+
+  if [ ! -z "$message" ]
+  then
+    echo $message
+  fi
+
+  echo "usage: $subapp init -r <repo> <maven url>"
+  echo "usage: $subapp resolve-version"
+  echo "usage: $subapp download-version -v <version> -f <download target>"
+  exit 1
+}
+
+slash() {
+  echo $1 | sed "s,\.,/,g"
+}
+
+# TODO: support file:// repositories
+# TODO: look in the local repository first
+get() {
+  local url=$1; shift
+  local file=$1; shift
+
+  if [[ $url == file://* ]]
+  then
+    get_file "$url" "$file"
+  else
+    get_http "$url" "$file"
+  fi
+}
+
+get_file() {
+  url=${1:7}
+
+  cp "$url" "$2"
+}
+
+get_http() {
+  curl -o $file $url -D curl.tmp
+
+  exit=`grep "^HTTP/[0-9]\.[0-9] 200 .*" curl.tmp >/dev/null; echo $?`
+  head=`head -n 1 curl.tmp`
+  rm -f curl.tmp
+  if [ "$exit" != 0 ]
+  then
+    echo "Unable to download $url: $head" >&2
+    exit 1
+  fi
+}
+
+download_artifact() {
+  local file="$1"; shift
+  local url="$1"; shift
+
+  echo "Downloading $url.md5"
+  get $url.md5 $file.md5
+  local expected_md5="`cat $file.md5`"
+
+  if [ -r $file ]
+  then
+    if [ "$expected_md5" == "`calculate_md5 $file`" ]
+    then
+      echo "Artifact already downloaded."
+    else
+      rm -f "$file"
+    fi
+    return 0
+  fi
+  echo "Downloading artifact: $url"
+  get $url $file
+
+  local actual_md5="`calculate_md5 $file`"
+  if [ "$expected_md5" == "$actual_md5" ]
+  then
+    echo "Artifact downloaded."
+  else
+    echo "Invalid checksum. Expected $expected_md5, got $actual_md5" >&2
+    exit 1
+  fi
+}
+
+resolve_version() {
+  local group_id=`app-conf get maven.group_id`
+  local artifact_id=`app-conf get maven.artifact_id`
+  local version=`app-conf get maven.version`
+
+  repo=`app-conf get maven.repo`
+
+  if [[ ! $version == *-SNAPSHOT ]]
+  then
+    app-conf set app.version "$version"
+    exit 0
+  fi
+
+  echo "Resolving version $version..."
+  resolve_snapshot $group_id $artifact_id $version
+}
+
+resolve_snapshot() {
+  local group_id=$1; shift
+  local artifact_id=$1; shift
+  local version=$1; shift
+
+  repo=`app-conf get maven.repo`
+
+  local group_id_slash=`slash $group_id`
+
+  local base_path=$group_id_slash/$artifact_id/$version
+
+  mkdir -p .app/cache/$base_path
+
+  local l=.app/cache/$base_path/maven-metadata.xml
+  local r=$repo/$base_path/maven-metadata.xml
+
+  get $r $l
+#  x=`xmlstarlet sel -t -m '//snapshotVersion[extension[text()="zip"]]' -v value $l`
+  set -- `xmlstarlet sel -t -m '/metadata/versioning/snapshot' -v "timestamp|buildNumber" $l`
+  snapshot_version="$1-$2"
+
+  if [[ $snapshot_version == "" ]]
+  then
+    echo "Unable to resolve SNAPSHOT version for $group_id:$artifact_id:$version"
+    exit 1
+  fi
+
+  app-conf set maven.snapshotVersion "$snapshot_version"
+  app-conf set app.version "${version%-SNAPSHOT}-$snapshot_version"
+}
+
+download_version() {
+  resolved_version=""
+  target=""
+  while getopts "v:f:" opt
+  do
+    case $opt in
+      v)
+        resolved_version="$OPTARG"
+        ;;
+      f)
+        target="$OPTARG"
+        ;;
+      *)
+        usage "Invalid option: $OPTARG" 
+        ;;
+    esac
+  done
+
+  if [[ $resolved_version == "" || $target == "" ]]
+  then
+    usage
+  fi
+
+  repo=`app-conf get maven.repo`
+  group_id=`app-conf get maven.group_id`
+  artifact_id=`app-conf get maven.artifact_id`
+  version=`app-conf get maven.version`
+
+  group_id_slash=`slash $group_id`
+  base_path=$group_id_slash/$artifact_id/$version
+
+  mkdir -p .app/cache/$base_path
+
+  l=.app/cache/$base_path/$artifact_id-$resolved_version.zip
+  r=$repo/$base_path/$artifact_id-$resolved_version.zip
+
+  echo "Downloading $group_id:$artifact_id:$resolved_version..."
+  get $r $l
+
+  ln -s "`pwd`/$l" "$target"
+}
+
+init() {
+  while getopts "r:" opt
+  do
+    case $opt in
+      r)
+        app-conf set maven.repo "$OPTARG"
+        shift 2
+        OPTIND=1
+        ;;
+      *)
+        usage "Invalid option: $OPTARG" 
+        ;;
+    esac
+  done
+
+  x=`echo $1 | tr ":" " "`; set -- $x
+  group_id=$1
+  artifact_id=$2
+  version=$3
+
+  if [ -z "$group_id" -o -z "$artifact_id" -o -z "$version" ]
+  then
+    usage "Invalid Maven coordinates: $coordinates"
+  fi
+
+  app-conf set maven.group_id "$group_id"
+  app-conf set maven.artifact_id "$artifact_id"
+  app-conf set maven.version "$version"
+}
+
+subapp="$0";
+command="$1"; shift
+
+case "$command" in
+  init)
+    init "$@"
+    ;;
+  resolve-version)
+    resolve_version
+    ;;
+  download-version)
+    download_version "$@"
+    ;;
+  *)
+    usage
+    ;;
+esac
+
+exit 0

@@ -1,6 +1,4 @@
-#!/bin/bash
-
-set -e
+#!/bin/bash -e
 
 PRG="$0"
 while [ -h "$PRG" ] ; do
@@ -16,113 +14,56 @@ done
 APPSH_HOME=`dirname "$PRG"`
 APPSH_HOME=`cd "$APPSH_HOME" && pwd`
 
-# Not sure this is useful
-#if [ -z "$APPSH_APPS" ]
-#then
-#  apps=`dirname $0`
-#  apps=`cd $apps; pwd`
-#fi
-
-apps=`dirname $0`
-apps=`cd $apps; pwd`
-
-# Ideally this should just do "cd /" to ensure that all paths are useful.
-cd $apps
-
-mkdir -p $apps/.app/var/pid
-mkdir -p $apps/.app/var/download
-
-method_usage() {
+usage() {
   if [ -n "$1" ]
   then
     echo "Error:" "$@" >&2
   fi
 
-  echo "usage: $0 [-n name] [-i instance] <method group>" >&2
+  echo "usage: $0 <command>" >&2
   echo "" >&2
-  echo "Available method groups:" >&2
-  echo "  instance" >&2
+  echo "Available commands:" >&2
+  echo "  init" >&2
   echo "  conf" >&2
   echo "  operate" >&2
   echo "" >&2
   echo "Run $0 -h <group> for more help" >&2
 }
 
-. $APPSH_HOME/.app/lib/app-common
-. $APPSH_HOME/.app/lib/app-instance
-. $APPSH_HOME/.app/lib/app-conf
-. $APPSH_HOME/.app/lib/app-operate
+. $APPSH_HOME/lib/common
 
-main() {
-  local method
-  local name="$APPSH_NAME"
-  local instance="$APPSH_INSTANCE"
-
-  while getopts "n:i:h" opt
-  do
-    case $opt in
-      n)
-        name=$OPTARG
-        shift 2
-        OPTIND=1
-        ;;
-      i)
-        instance=$OPTARG
-        shift 2
-        OPTIND=1
-        ;;
-      h)
-        shift
-        OPTIND=1
-        h="$1"
-
-        if [ -z "$h" ]
-        then
-          method_usage
-        else
-          case "$h" in
-            instance)
-              method_instance_usage
-              ;;
-            conf)
-              method_conf_usage
-              ;;
-            operate)
-              method_operate_usage
-              ;;
-            *)
-              echo "No such method group: $h"
-              ;;
-          esac
-        fi
-        exit 1
-        ;;
-      \?)
-        echo "Invalid option: $OPTARG" 
-        ;;
-    esac
-  done
-
-  local method=$1
-  if [ $# -gt 0 ]
-  then
-    shift
-  fi
-
-  case "$method" in
-    instance)      method_instance "$name" "$instance" "$@" ;;
-    conf)          method_conf     "$name" "$instance" "$@" ;;
-    operate)       method_operate  "$name" "$instance" "$@" ;;
-    *)             
-      if [ -z "$method" ]
-      then
-        method_usage
-      else
-        method_usage "No such method group: $method"
-      fi
+while getopts "h" opt
+do
+  case $opt in
+    h)
+      usage
+      exit 1
+      ;;
+    \?)
+      usage
+      exit 1
       ;;
   esac
-  exit $?
-}
+done
 
-main "$@"
+if [ $# -eq 0 ]
+then
+  usage
+fi
+
+command=$1; shift
+
+bin=`grep_path "/app-$command$" "$APPSH_HOME/bin"`
+
+if [ ! -x "$bin" ]
+then
+  echo "Unknown command: $command" 2>&1
+  exit 1
+fi
+
+PATH=$APPSH_HOME/bin:$PATH
+
+# TODO: this is probably a good place to clean up the environment
+exec env \
+  "APPSH_HOME=$APPSH_HOME" \
+  "$bin" "$@"

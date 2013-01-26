@@ -1,0 +1,172 @@
+#!/bin/bash
+
+if [[ $APPSH_HOME == "" ]]
+then
+  APPSH_HOME=`dirname "$0"`
+  APPSH_HOME=`cd "$APPSH_HOME/.." && pwd`
+fi
+
+calculate_md5() {
+  local file="$1"; shift
+
+  md5sum "$file" | cut -c 1-32
+}
+ 
+# TODO: support file:// repositories
+# TODO: look in the local repository first
+get() {
+  local url=$1
+  local file=$2
+  local exit
+
+  curl -o $file $url -D curl.tmp
+
+  exit=`grep "^HTTP/[0-9]\.[0-9] 200 .*" curl.tmp >/dev/null; echo $?`
+  head=`head -n 1 curl.tmp`
+  rm -f curl.tmp
+  if [ "$exit" != 0 ]
+  then
+    echo "Unable to download $url: $head" >&2
+    exit 1
+  fi
+}
+
+resolve_snapshot() {
+  local groupId=$1; shift
+  local groupIdSlash=$1; shift
+  local artifactId=$1; shift
+  local version=$1; shift
+
+  local metadata=$apps/.app/var/download/$groupId-$artifactId-$version-metadata.xml
+  local base_url=$repo/$groupIdSlash/$artifactId/$version
+  get $base_url/maven-metadata.xml $metadata
+  local resolved_version=`xmlstarlet sel -t -m '//snapshotVersion[extension[text()="zip"]]' -v value $metadata`
+  echo $resolved_version
+}
+
+download_artifact() {
+  local file="$1"; shift
+  local url="$1"; shift
+
+  echo "Downloading $url.md5"
+  get $url.md5 $file.md5
+  local expected_md5="`cat $file.md5`"
+
+  if [ -r $file ]
+  then
+    if [ "$expected_md5" == "`calculate_md5 $file`" ]
+    then
+      echo "Artifact already downloaded."
+    else
+      rm -f "$file"
+    fi
+    return 0
+  fi
+  echo "Downloading artifact: $url"
+  get $url $file
+
+  local actual_md5="`calculate_md5 $file`"
+  if [ "$expected_md5" == "$actual_md5" ]
+  then
+    echo "Artifact downloaded."
+  else
+    echo "Invalid checksum. Expected $expected_md5, got $actual_md5" >&2
+    exit 1
+  fi
+}
+
+if [ $# -lt 2 ]
+then
+  method_install_usage
+fi
+
+case "$resolver" in
+  maven)
+    ;;
+  file)
+    if [ ! -r "$url" ]
+    then
+      echo "Could not read file: $url" >&2
+      exit 1
+    fi
+
+    # TODO: should the zip file be copied into download/ so that
+    # there's always a local copy?
+    zip_file=$url
+
+    if [ -z "$version" ]
+    then
+      version=`TZ=UTC date +"%Y%m%d-%H%M%S"`
+    fi
+
+    resolved_version=$version
+    ;;
+  *)
+    method_install_usage "Invalid resolver type: $resolver" 
+    ;;
+esac
+
+if [ -d versions/$resolved_version ]
+then
+  echo "Version $resolved_version is already installed"
+  exit 1
+fi
+
+mkdir -p versions/$resolved_version
+
+echo "Unpacking..."
+unzip -q -d versions/$resolved_version $zip_file
+
+if [ ! -d versions/$resolved_version/root ]
+then
+  echo "Invalid zip file, did not contain a ./root directory." >&2
+  exit 1
+fi
+
+echo "Changing current symlink"
+rm -f current
+ln -s versions/$resolved_version/root current
+
+if [ -d current/bin ]
+then
+  (
+    cd $name/$instance/current
+    find bin -type f | xargs chmod +x
+  )
+fi
+
+(
+  cd versions/$resolved_version
+  if [ -d scripts ]
+  then
+    find scripts | xargs chmod +x
+  fi
+
+  if [ -x scripts/postinstall ]
+  then
+    echo "Running postinstall..."
+    cd root
+    set +e
+    env -i \
+      PATH=/bin:/usr/bin \
+      APPSH_APPS=$apps \
+      APPSH_HOME=$APPSH_HOME \
+      APPSH_VERSION=$resolved_version \
+      ../scripts/postinstall
+    set -e
+    ret=`echo $?`
+    if [ "$ret" != 0 ]
+    then
+      echo "Postinstall failed!"
+      exit 1
+    fi
+    echo "Postinstall completed successfully"
+  fi
+)
+
+#  if [ -r $apps/.app/var/list ]
+#  then
+#    sed "/^$name:$instance/d" $apps/.app/var/list > $apps/.app/var/list.new
+#  fi
+#  echo "$name:$instance:$version:$url" >> $apps/.app/var/list.new
+#  mv $apps/.app/var/list.new $apps/.app/var/list

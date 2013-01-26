@@ -1,37 +1,26 @@
 #!/bin/bash
 
-assert_is_instance() {
-  local usage=$1
-  local name=$2
-  local instance=$3
-  local check_link=$4
+assert_is_app() {
+  local check_link=yes
 
-  if [ -z "$name" ]
-  then
-    $usage "Missing required option -n."
-  fi
+  while getopts "C" opt
+  do
+    case $opt in
+      C)
+        check_link=no
+        ;;
+    esac
+  done
 
-  if [ -z "$instance" ]
+  if [ ! -d .app ]
   then
-    $usage "Missing required option -i."
-  fi
-
-  # Use $APPSH_APPS as prefix if it's set
-  local x=""
-  if [ ! -z "$APPSH_APPS" ]
-  then
-    x="$APPSH_APPS/"
-  fi
-
-  if [ ! -d $x$name/$instance ]
-  then
-    echo "No such instance: $name/$instance."  >&2
+    echo "This is not an app, missing directory: '.app'"  >&2
     exit 1
   fi
 
-  if [ "$check_link" != "no" ]
+  if [[ $check_link == yes ]]
   then
-    if [ ! -e $x$name/$instance/current ]
+    if [ ! -e current ]
     then
       echo "Missing 'current' link." >&2
       exit 1
@@ -40,9 +29,9 @@ assert_is_instance() {
 }
 
 list_apps() {
-  filter_name=$1; shift
-  filter_instnace=$1; shift
-  vars="$@"
+  local filter_name=$1; shift
+  local filter_instnace=$1; shift
+  local vars="$@"
 
   sort $apps/.app/var/list | while read line
   do
@@ -82,8 +71,8 @@ list_apps() {
 }
 
 find_current_version() {
-  name=$1
-  instance=$2
+  local name=$1
+  local instance=$2
 
   if [ ! -L $apps/$name/$instance/current ]
   then
@@ -97,8 +86,8 @@ find_current_version() {
 }
 
 find_versions() {
-  name=$1
-  instance=$2
+  local name="$1"
+  local instance="$2"
 
   if [ ! -d $apps/$name/$instance/versions ]
   then
@@ -109,6 +98,24 @@ find_versions() {
     cd $apps/$name/$instance/versions
     ls -1d *
   )
+}
+
+grep_path() {
+  local regex="$1"; shift
+  local path="$1"; shift
+
+  find `echo $path | tr : " "` -type f -executable 2>/dev/null | (egrep "$regex" || exit 0)
+#  IFS=:
+#  for x in $path
+#  do
+#    ls $x/* 2>/dev/null | while read f
+#    do
+#      if [[ $f =~ $regex ]]
+#      then
+#        echo $f
+#      fi
+#    done
+#  done
 }
 
 # TODO: set ulimit
@@ -133,7 +140,8 @@ run_app() {
     APPSH_INSTANCE_HOME=`pwd`
     cd current
 
-    e="`get_conf_in_group $apps $name $instance env`"
+    local e=`$APPSH_HOME/bin/app-cat-conf -f $apps/$name/$instance/current/etc/app.conf -g env | cut -f 2- -d .`
+    #e="`get_conf_in_group $apps $name $instance env`"
     # This magically get the expansion of $u correct.
     IFS="
 "
@@ -143,7 +151,7 @@ run_app() {
     env -i \
       PATH=/bin:/usr/bin \
       $e \
-      PWD=$PWD \
+      PWD="$PWD" \
       APPSH_METHOD=$method \
       APPSH_APPS=$apps \
       APPSH_HOME=$APPSH_HOME \

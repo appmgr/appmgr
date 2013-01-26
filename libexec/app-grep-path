@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# A command line wrapper around get grep_path function
+
+if [[ $APPSH_HOME == "" ]]
+then
+  APPSH_HOME=`dirname "$0"`
+  APPSH_HOME=`cd "$APPSH_HOME/.." && pwd`
+fi
+
+. $APPSH_HOME/lib/common
+
+grep_path "$1" "$2"

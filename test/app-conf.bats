@@ -3,92 +3,117 @@
 
 load utils
 
+setup_inner() {
+  mkdir .app; touch .app/config
+  export APPSH_DEFAULT_CONFIG=/dev/null
+}
+
 @test "./app conf - happy day" {
-  i=env-a
-  n=app-a
+  app conf; echo_lines
+  echo "app.bin=bin/app-a" > .app/config
+  eq '$status' 0
+  eq '${#lines[*]}' 0
 
-  mkzip "app-a"
-  app instance install -r file -u $BATS_TEST_DIRNAME/data/app-a.zip -n $n -i $i -v 1.0
-  [ $status -eq 0 ]
+  app conf set g.foo bar; echo_lines
+  eq '$status' 0
 
-  app -n $n -i $i conf; echo_lines
-  [ $status -eq 0 ]
-  [ "$output" = "app.bin              bin/app-a           " ]
+  app conf; echo_lines
+  eq '$status' 0
+  eq '${lines[0]}' "app.bin              bin/app-a           " 
+  eq '${lines[1]}' "g.foo                bar                 " 
+  eq '${#lines[*]}' 2
 
-  app -n $n -i $i conf set group.foo bar; echo_lines
-  [ $status -eq 0 ]
+  app conf get g.foo; echo_lines
+  eq '$status' 0
+  eq '${lines[0]}' "bar" 
+  eq '${#lines[*]}' 1
 
-  app -n $n -i $i conf; echo_lines
-  [ $status -eq 0 ]
-  [ "$output" = "app.bin              bin/app-a           
-group.foo            bar                 " ]
+  app conf delete g.foo; echo_lines
+  eq '$status' 0
 
-  app -n $n -i $i conf delete group.foo; echo_lines
-  [ $status -eq 0 ]
+  app conf; echo_lines
+  eq '$status' 0
+  eq '${lines[0]}' "app.bin              bin/app-a           " 
+  eq '${#lines[*]}' 1
+}
 
-  app -n $n -i $i conf; echo_lines
-  [ $status -eq 0 ]
-  [ "$output" = "app.bin              bin/app-a           " ]
+@test "./app conf - defaults to 'list'" {
+  echo "app.bin=bin/app-a" > .app/config
+
+  app conf; echo_lines
+  eq '$status' 0
+  eq '${#lines[*]}' 1
+  eq '${lines[0]}' "app.bin              bin/app-a           " 
+}
+
+@test "./app conf wat" {
+  app conf wat; echo_lines
+  eq '$status' 1
+  eq '${lines[0]}' "Error: Unknown command: wat" 
 }
 
 @test "./app conf list" {
-  i=env-a
-  n=app-a
+  echo "app.bin=bin/app-a" > .app/config
 
-  mkzip "app-a"
-  app instance install -r file -u $BATS_TEST_DIRNAME/data/app-a.zip -n $n -i $i -v 1.0
-  [ $status -eq 0 ]
+  app conf; echo_lines
+  eq '$status' 0
+  eq '${#lines[*]}' 1
+  eq '${lines[0]}' "app.bin              bin/app-a           " 
 
-  app -n $n -i $i conf; echo_lines
-  [ $status -eq 0 ]
-  [ "$output" = "app.bin              bin/app-a           " ]
+  app conf list; echo_lines
+  eq '$status' 0
+  eq '${#lines[*]}' 1
+  eq '${lines[0]}' "app.bin              bin/app-a           " 
 
-  app -n $n -i $i conf list; echo_lines
-  [ $status -eq 0 ]
-  [ "$output" = "app.bin              bin/app-a           " ]
-
-  app -n $n -i $i conf list foo; echo_lines
-  [ $status -eq 1 ]
+  app conf list foo; echo_lines
+  eq '$status' 1
 }
 
-@test "./app conf list-group" {
-  i=env-a
-  n=app-a
-
-  mkzip "app-a"
-  app instance install -r file -u $BATS_TEST_DIRNAME/data/app-a.zip -n $n -i $i -v 1.0
-  [ $status -eq 0 ]
-
-  app -n $n -i $i conf set mygroup.a 1
-  [ $status -eq 0 ]
-  app -n $n -i $i conf set mygroup.b 1
-  [ $status -eq 0 ]
-  app -n $n -i $i conf set mygroup.c 2
-  [ $status -eq 0 ]
-  app -n $n -i $i conf set othergroup.a 1
-  [ $status -eq 0 ]
-
-  app -n $n -i $i conf list-group mygroup; echo_lines
-  [ $status -eq 0 ]
-  [ "$output" = "a                    1                   
-b                    1                   
-c                    2                   " ]
-}
+#@test "./app conf list-group" {
+#  app conf set mygroup a 1
+#  eq '$status' 0
+#  app conf set mygroup b 1
+#  eq '$status' 0
+#  app conf set mygroup c 2
+#  eq '$status' 0
+#  app conf set othergroup a 1
+#  eq '$status' 0
+#
+#  app conf list; echo_lines
+#  eq '$status' 0
+#  app conf list-group mygroup; echo_lines
+#  eq '$status' 0
+#  eq '${lines[0]}' "mygroup.a            1                   " 
+#  eq '${lines[1]}' "mygroup.b            1                   " 
+#  eq '${lines[2]}' "mygroup.c            2                   " 
+#  eq '${#lines[*]}' 3
+#}
 
 @test "./app conf set" {
-  i=env-a
-  n=app-a
+  echo "app.bin=bin/app-a" > .app/config
 
-  mkzip "app-a"
-  app instance install -r file -u $BATS_TEST_DIRNAME/data/app-a.zip -n $n -i $i -v 1.0
-  [ $status -eq 0 ]
+  app conf set group; echo_lines
+  eq '$status' 1
 
-  app -n $n -i $i conf set group; echo_lines
-  [ $status -eq 1 ]
+  app conf set group.foo; echo_lines
+  eq '$status' 1
 
-  app -n $n -i $i conf set group.foo; echo_lines
-  [ $status -eq 1 ]
+  app conf set group.foo bar; echo_lines
+  eq '$status' 0
+  eq '${#lines[*]}' 0
 
-  app -n $n -i $i conf set group.foo bar; echo_lines
-  [ $status -eq 0 ]
+  app conf; echo_lines
+  eq '$status' 0
+  eq '${lines[0]}' "app.bin              bin/app-a           " 
+  eq '${lines[1]}' "group.foo            bar                 " 
+  eq '${#lines[*]}' 2
+}
+
+@test "./app conf list - with duplicate entries" {
+  echo "foo.bar=awesome" > .app/config
+  echo "foo.bar=awesome" >> .app/config
+
+  app conf list; echo_lines
+  eq '$status' 0
+  eq '${lines[0]}' "foo.bar              awesome             " 
 }

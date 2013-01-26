@@ -1,0 +1,16 @@
+app init maven io.trygvis.appsh.examples:foo:1.0-SNAPSHOT =>
+
+  # find resolver
+  app config set app.resolver maven
+  # run resolver/maven
+    # resolve version for artifact
+    # download artifact
+    app config set maven.id io.trygvis.appsh.examples:foo:1.0-SNAPSHOT
+  # run scripts/
+  # create symlink
+
+app init [-d directory] <resolver> <resolver args>
+
+resolver/maven -r <repository url> <artifact id>
+
+app list - lists all applications available under the specified directory

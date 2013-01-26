@@ -1,0 +1,79 @@
+#!/bin/bash -e
+
+set -u
+
+if [[ $APPSH_HOME == "" ]]
+then
+  APPSH_HOME=`dirname "$0"`
+  APPSH_HOME=`cd "$APPSH_HOME/.." && pwd`
+fi
+
+. $APPSH_HOME/lib/common
+
+usage() {
+  echo "usage: $0 -d dir <resolver> <resolver args>"
+  exit 1
+}
+
+fatal() {
+  echo "$0: $@"
+  exit 1
+}
+
+while getopts "d:" opt
+do
+  case $opt in
+    d)
+      dir=$OPTARG
+      shift 2
+      OPTIND=1
+      ;;
+  esac
+done
+
+if [ $# -lt 1 ]
+then
+  usage
+fi
+
+resolver_name="$1"; shift
+
+if [ -z "$dir" ]
+then
+  usage
+fi
+
+if [ -e "$dir" ]
+then
+  fatal "Already initialized: $dir" 2>&1
+fi
+
+# TODO: install a trap handler and rm -rf "$dir"
+
+resolver=`grep_path "/app-resolver-$resolver_name$" "$PATH:$APPSH_HOME/libexec" | head -n 1`
+
+if [ -z "$resolver" ]
+then
+  echo "No such resolver: $resolver_name" 2>&1
+  exit 1
+fi
+
+mkdir -- "$dir" "$dir/.app"
+cd "$dir"
+
+app-conf set app.resolver "$resolver_name"
+
+"$resolver" init "$@"
+"$resolver" resolve-version
+
+version=`app-conf get app.version`
+
+if [[ $version == "" ]]
+then
+  echo "Unable to resolve version" 2>&1
+  exit
+fi
+
+echo "Resolved version to $version"
+
+"$resolver" download-version -v "$version" -f .app/latest.zip
