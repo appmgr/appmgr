@@ -37,9 +37,8 @@ load utils
   match '${lines[2]}' "Downloading org.example:app-a:1.0-.*"
   eq    '${lines[3]}' "Unpacking..."
   match '${lines[4]}' "Creating current symlink for version 1.0-.*"
-  eq    '${lines[5]}' "Running hook: post-install"
-  eq    '${lines[6]}' "Post install"
-  eq '${#lines[*]}' 7
+  eq    '${lines[5]}' "Post install"
+  eq '${#lines[*]}' 6
 
   is_directory "my-app/.app"
 }

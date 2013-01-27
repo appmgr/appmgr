@@ -54,13 +54,10 @@ then
   exit 1
 fi
 
-# TODO: This should go away
-if [ -d current/bin ]
+if [ -r versions/$version/app.config ]
 then
-  (
-    cd $name/$instance/current
-    find bin -type f | xargs chmod +x
-  )
+  debug "Importing config from package"
+  app-conf import versions/$version/app.config
 fi
 
 app-run-hook -v "$version" -h pre-install

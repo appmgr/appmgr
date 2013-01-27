@@ -10,29 +10,16 @@ APPSH_HOME=$(cd $(dirname "$0")/.. && pwd)
 
 assert_is_app
 
-method="$1"
+method="$1"; shift
+set -x
 
-bin=`app-conf get app.method`
-bin=${bin-$APPSH_HOME/.app/libexec/app-method-pid}
+bin=`app-conf get app.operator`
+bin=${bin:-$APPSH_HOME/libexec/app-operator-pid}
 
-if [ ! -x "current/$bin" ]
+if [ ! -x "$bin" ]
 then
   echo "Invalid executable: $bin" >&2
   exit 1
 fi
 
-case "$method" in
-  start)   run_app "$name" "$instance" "$bin" "start" "$@" ;;
-  stop)    run_app "$name" "$instance" "$bin" "stop" "$@" ;;
-  status)  run_app "$name" "$instance" "$bin" "status" "$@" ;;
-  restart) run_app "$name" "$instance" "$bin" "restart" "$@" ;;
-  run)     run_app "$name" "$instance" "$bin" "run" "$@" ;;
-  *)
-    if [ -z "$method" ]
-    then
-      method_operate_usage
-    else
-      method_operate_usage "Unknown method $method"
-    fi
-    ;;
-esac
+run_app "$bin" "$@"

@@ -4,7 +4,8 @@
 load utils
 
 setup_inner() {
-  mkdir .app; touch .app/config
+  mkdir .app;
+  echo > .app/config
   export APPSH_DEFAULT_CONFIG=/dev/null
 }
 
@@ -116,4 +117,20 @@ setup_inner() {
   app conf list; echo_lines
   eq '$status' 0
   eq '${lines[0]}' "foo.bar              awesome             " 
+  eq '${#lines[*]}' 1
+}
+
+@test "./app conf import" {
+  echo "foo.bar=1" > .app/config
+  echo "foo.baz=1" > config-b
+  echo "foo.bar=2" >> config-b
+
+  app conf import config-b; echo_lines
+  eq '$status' 0
+  eq '${#lines[*]}' 0
+
+  app_libexec app-cat-conf
+  eq '${lines[0]}' "foo.bar=2" 
+  eq '${lines[1]}' "foo.baz=1" 
+  eq '${#lines[*]}' 2
 }

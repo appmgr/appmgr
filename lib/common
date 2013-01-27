@@ -39,6 +39,14 @@ assert_is_app() {
   fi
 }
 
+debug() {
+  [[ $echo_debug == no ]] || echo "D: $usage_app: $@" 2>&1
+}
+
+info() {
+  echo "I: $usage_app: $@" 2>&1
+}
+
 fatal() {
   echo "$usage_app: fatal: $@" 2>&1
   exit 1
@@ -192,4 +200,5 @@ run_app() {
 PATH=$PATH:$APPSH_HOME/bin:$APPSH_HOME/libexec
 
 # Save for later
-usage_app=$0
+usage_app=${0##*/}
+echo_debug=${echo_debug-no}

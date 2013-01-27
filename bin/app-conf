@@ -61,8 +61,16 @@ conf_delete() {
   mv $file.tmp $file
 }
 
+conf_import() {
+  local dst=$1; shift
+  local src=$1; shift
+
+  app-cat-conf -f "$src" -f "$dst" > "$dst.tmp"
+  mv "$dst.tmp" "$dst" 
+}
+
 usage() {
-  if [ -n "$1" ]
+  if [ $# -gt 0 ]
   then
     echo "Error: $@" >&2
   fi
@@ -70,11 +78,15 @@ usage() {
   echo "usage: $0 conf <command>" >&2
   echo ""
   echo "Available commands:" >&2
+  echo "  get [name]         - returns a single value" >&2
   echo "  list               - list all config values" >&2
   echo "  set [name] [value] - set a config parameter" >&2
   echo "  delete [name]      - deletes a config parameter" >&2
+  echo "  import [file]      - import a file" >&2
   exit 1
 }
+
+file=".app/config"
 
 if [ $# -gt 0 ]
 then
@@ -84,8 +96,6 @@ else
   command=list
 fi
 
-file=".app/config"
-
 assert_is_app -C
 
 case "$command" in
@@ -93,7 +103,6 @@ case "$command" in
     if [ $# != 1 ]
     then
       usage
-      exit 1
     fi
 
     app-cat-conf -f "$file" -n "$1" | cut -f 2 -d = | format_conf | sed "s, *$,,"
@@ -102,7 +111,6 @@ case "$command" in
     if [ $# -gt 0 ]
     then
       usage "Extra options."
-      exit 1
     fi
 
     app-cat-conf -f "$file" | format_conf
@@ -111,7 +119,6 @@ case "$command" in
     if [ $# -ne 2 ]
     then
       usage
-      exit 1
     fi
 
     conf_set "$1" "$2"
@@ -120,10 +127,18 @@ case "$command" in
     if [ $# -ne 1 ]
     then
       usage "Missing [name] argument."
-      exit 1
     fi
 
     conf_delete "$1"
+    ;;
+  import)
+    if [ $# -ne 1 ]
+    then
+      usage "Missing [file] argument."
+      exit 1
+    fi
+
+    conf_import "$file" "$1"
     ;;
   *)
     if [ -z "$command" ]

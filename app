@@ -14,6 +14,7 @@ usage() {
   echo "  operate" >&2
   echo "" >&2
   echo "Run $0 -h <group> for more help" >&2
+  exit 1
 }
 
 PRG="$0"
@@ -32,16 +33,18 @@ APPSH_HOME=`cd "$APPSH_HOME" && pwd`
 
 . $APPSH_HOME/lib/common
 
+echo_debug=no
 while getopts "h" opt
 do
   case $opt in
     h)
       usage
-      exit 1
+      ;;
+    D)
+      echo_debug=yes
       ;;
     \?)
       usage
-      exit 1
       ;;
   esac
 done

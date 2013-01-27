@@ -1,8 +1,13 @@
 Style Guide
 -----------
 
-Usage
+Basic
 =====
+
+* Indent: two spaces. Spaces >> tabs.
+
+Creating `usage()`
+==================
 
 * Always echo to `stderr`.
 * Exit with code 1.
@@ -14,4 +19,7 @@ Usage
       exit 1
     }
 
+Resources
+---------
 
+* Parameter expansion: <http://wiki.bash-hackers.org/syntax/pe>

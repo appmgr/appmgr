@@ -1,8 +1,14 @@
 #!/bin/bash -e
 
+#!/bin/bash
+
+set -e
 set -u
 
-. $APPSH_HOME/.app/lib/app-conf
+APPSH_HOME=$(cd $(dirname "$0")/.. && pwd)
+
+. $APPSH_HOME/lib/common
+# HEADER END
 
 pid_file=$APPSH_APPS/.app/var/pid/$APPSH_NAME-$APPSH_INSTANCE.pid 
 bin=`get_conf $APPSH_APPS $APPSH_NAME $APPSH_INSTANCE app.bin`

@@ -10,14 +10,23 @@ APPSH_HOME=$(cd $(dirname "$0")/.. && pwd)
 
 key_expr="[a-zA-Z][_a-zA-Z0-9]*"
 
-file=.app/config
+files=()
 name=""
+use_default_files=yes
 
-while getopts "f:n:" opt
+while getopts "f:Dn:" opt
 do
   case $opt in
     f)
       file=$OPTARG
+      if [[ $file == "-" ]]
+      then
+        file=/dev/stdin
+      fi
+      files+=($file)
+      ;;
+    D)
+      use_default_files=no
       ;;
     n)
       name=$OPTARG
@@ -29,6 +38,19 @@ do
   esac
 done
 
+if [[ $use_default_files == yes ]]
+then
+  if [ -r ".app/config" ]
+  then
+    files+=(".app/config")
+  fi
+
+  files+=(${APPSH_DEFAULT_CONFIG-$APPSH_HOME/lib/default-config})
+fi
+
+# TODO: find config files in the paths above $file's paths and perhaps
+# /etc/appsh/config.
+
 if [ -z "$name" ]
 then
   filter="s,^[ ]*\($key_expr\.$key_expr\)[ ]*=[ ]*\(.*\)$,\1=\2,p"
@@ -36,17 +58,10 @@ else
   filter="s,^\($name\)=\(.*\),\1=\2,p"
 fi
 
-APPSH_DEFAULT_CONFIG=${APPSH_DEFAULT_CONFIG-$APPSH_HOME/lib/default-config}
+debug "Using files:" "${files[@]}"
 
-# TODO: find config files in the paths above $file's paths and perhaps /etc/appsh/config
-
-if [[ ! -r $file ]]
-then
-  fatal "No such file: $file"
-fi
-
-# The awk script makes sure each key only appears once
-cat "$file" "$APPSH_DEFAULT_CONFIG" | \
+# The awk script makes sure each key only appears once. The first one wins
+cat "${files[@]}" | \
   sed -n -e "$filter" | \
   awk -F = ' (!($1 in a)){a[$1]; print }' | \
   sort

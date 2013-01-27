@@ -41,6 +41,13 @@ setup_inner() {
   eq '${#lines[*]}' 1
 }
 
+@test "app-cat-conf can use stdin and multiple files" {
+  x=$(cat $APPSH_HOME/test/data/app-cat-conf/config-3 | \
+  $APPSH_HOME/libexec/app-cat-conf -D -f $APPSH_HOME/test/data/app-cat-conf/config-2 -f -)
+  [[ $x == "foo.bar=wat
+foo.wat=bar" ]]
+}
+
 @test "uses \$APPSH_DEFAULT_CONFIG" {
   APPSH_DEFAULT_CONFIG=$APPSH_HOME/test/data/app-cat-conf/config-2
   app_libexec app-cat-conf -f /dev/null
