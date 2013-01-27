@@ -1,0 +1,49 @@
+#!/bin/bash
+
+set -e
+set -u
+
+APPSH_HOME=$(cd $(dirname "$0")/.. && pwd)
+
+. $APPSH_HOME/lib/common
+# HEADER END
+
+usage() {
+  echo "usage: $usage_app -v [version] -h [hook]" 2>&1
+}
+
+version=
+hook=
+
+while getopts "v:h:" opt
+do
+  case $opt in
+    v)
+      version=$OPTARG
+      shift 2
+      OPTIND=1
+      ;;
+    h)
+      hook=$OPTARG
+      shift 2
+      OPTIND=1
+      ;;
+  esac
+done
+
+if [[ -z $version || -z $hook || $# != 0 ]]
+then
+  usage
+fi
+
+bin=versions/$version/hooks/$hook
+
+if [[ ! -r $bin ]]
+then
+  exit 0
+fi
+
+# TODO: remove after
+#chmod +x $bin
+echo "Running hook: $hook"
+run_app -v $version hooks/$hook

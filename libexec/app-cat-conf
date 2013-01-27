@@ -38,6 +38,13 @@ fi
 
 APPSH_DEFAULT_CONFIG=${APPSH_DEFAULT_CONFIG-$APPSH_HOME/lib/default-config}
 
+# TODO: find config files in the paths above $file's paths and perhaps /etc/appsh/config
+
+if [[ ! -r $file ]]
+then
+  fatal "No such file: $file"
+fi
+
 # The awk script makes sure each key only appears once
 cat "$file" "$APPSH_DEFAULT_CONFIG" | \
   sed -n -e "$filter" | \

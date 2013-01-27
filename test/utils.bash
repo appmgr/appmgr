@@ -7,6 +7,7 @@ exit_usage=1
 exit_usage_wrong=0
 
 setup() {
+  find test/data -name \*.zip | xargs rm -f
   PATH=/bin:/usr/bin
   PATH=$PATH:$APPSH_HOME
   APPSH_HOME=$(cd $BATS_TEST_DIRNAME/..; echo `pwd`)

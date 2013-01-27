@@ -8,43 +8,31 @@ APPSH_HOME=$(cd $(dirname "$0")/.. && pwd)
 . $APPSH_HOME/lib/common
 # HEADER END
 
-method_operate() {
-  local name="$1"; shift
-  local instance="$1"; shift
-  local method="$1"
+assert_is_app
 
-  if [ $# -gt 0 ]
-  then
-    shift
-  fi
+method="$1"
 
-  bin=`$APPSH_HOME/bin/app-cat-conf -f $apps/$name/$instance/current/etc/app.conf -g app -k method | cut -f 2 -d =`
+bin=`app-conf get app.method`
+bin=${bin-$APPSH_HOME/.app/libexec/app-method-pid}
 
-  if [ -z "$bin" ]
-  then
-    bin=$APPSH_HOME/.app/lib/pid-method
-  fi
+if [ ! -x "current/$bin" ]
+then
+  echo "Invalid executable: $bin" >&2
+  exit 1
+fi
 
-  if [ ! -x "$name/$instance/current/$bin" ]
-  then
-    echo "Invalid executable: $bin" >&2
-    exit 1
-  fi
-
-  case "$method" in
-    start)   run_app "$name" "$instance" "$bin" "start" "$@" ;;
-    stop)    run_app "$name" "$instance" "$bin" "stop" "$@" ;;
-    status)  run_app "$name" "$instance" "$bin" "status" "$@" ;;
-    restart) run_app "$name" "$instance" "$bin" "restart" "$@" ;;
-    run)     run_app "$name" "$instance" "$bin" "run" "$@" ;;
-    *)
-      if [ -z "$method" ]
-      then
-        method_operate_usage
-      else
-        method_operate_usage "Unknown method $method"
-      fi
-      ;;
-  esac
-  exit $?
-}
+case "$method" in
+  start)   run_app "$name" "$instance" "$bin" "start" "$@" ;;
+  stop)    run_app "$name" "$instance" "$bin" "stop" "$@" ;;
+  status)  run_app "$name" "$instance" "$bin" "status" "$@" ;;
+  restart) run_app "$name" "$instance" "$bin" "restart" "$@" ;;
+  run)     run_app "$name" "$instance" "$bin" "run" "$@" ;;
+  *)
+    if [ -z "$method" ]
+    then
+      method_operate_usage
+    else
+      method_operate_usage "Unknown method $method"
+    fi
+    ;;
+esac

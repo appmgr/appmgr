@@ -48,7 +48,7 @@ fi
 
 # TODO: install a trap handler and rm -rf "$dir"
 
-resolver=`grep_path "/app-resolver-$resolver_name$" "$PATH:$APPSH_HOME/libexec" | head -n 1`
+resolver=`grep_path "/app-resolver-$resolver_name$" "$PATH" | head -n 1`
 
 if [ -z "$resolver" ]
 then
@@ -75,3 +75,5 @@ fi
 echo "Resolved version to $version"
 
 "$resolver" download-version -v "$version" -f .app/latest.zip
+
+app-install-file -v "$version" -f .app/latest.zip

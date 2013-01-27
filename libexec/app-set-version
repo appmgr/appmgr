@@ -1,0 +1,50 @@
+#!/bin/bash
+
+set -e
+set -u
+
+APPSH_HOME=$(cd $(dirname "$0")/.. && pwd)
+
+. $APPSH_HOME/lib/common
+# HEADER END
+
+version=
+
+while getopts "v:" opt
+do
+  case $opt in
+    v)
+      version=$OPTARG
+      shift 2
+      OPTIND=1
+      ;;
+  esac
+done
+
+if [[ -z $version || $# != 0 ]]
+then
+  usage
+fi
+
+if [[ ! -d versions/$version ]]
+then
+  fatal "Invalid version: not a directory: versions/$version"
+fi
+
+if [[ -e current && ! -s current ]]
+then
+  fatal "'current' is not a symlink"
+fi
+
+if [[ -e current ]]
+then
+  prev=`ls -l current`
+  prev=${prev/#* -> versions}
+  prev=${prev:1}
+  prev=${prev/%?root}
+  echo "Changing current symlink from $prev to $version"
+  ln -f -s versions/$version/root current
+else
+  echo "Creating current symlink for version $version"
+  ln -s versions/$version/root current
+fi

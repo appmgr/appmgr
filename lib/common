@@ -2,12 +2,16 @@
 
 assert_is_app() {
   local check_link=yes
+  local version=
 
-  while getopts "C" opt
+  while getopts "Cv:" opt
   do
     case $opt in
       C)
         check_link=no
+        ;;
+      v)
+        version=$OPTARG
         ;;
     esac
   done
@@ -22,10 +26,22 @@ assert_is_app() {
   then
     if [ ! -e current ]
     then
-      echo "Missing 'current' link." >&2
-      exit 1
+      fatal "Missing 'current' link." >&2
     fi
   fi
+
+  if [[ $version != "" ]]
+  then
+    if [[ ! -d versions/$version ]]
+    then
+      fatal "No such version: $version"
+    fi
+  fi
+}
+
+fatal() {
+  echo "$usage_app: fatal: $@" 2>&1
+  exit 1
 }
 
 list_apps() {
@@ -121,27 +137,33 @@ grep_path() {
 # TODO: set ulimit
 # TODO: set umask
 # TODO: change group newgrp/sg
+# usage: run_app [-v version] [bin to execute]
 run_app() {
-  local name=$1; shift
-  local instance=$1; shift
+  version=
+  while getopts "v:" opt
+  do
+    case $opt in
+      v)
+        version=$OPTARG
+		shift 2
+		OPTIND=1
+        ;;
+    esac
+  done
+
   local bin=$1; shift
-  local method=$1; shift
-
-  assert_is_instance operate_usage "$name" "$instance"
-
-  local x=""
-  if [ ! -z "$APPSH_APPS" ]
-  then
-    x="$APPSH_APPS/"
-  fi
+  local e=`app-cat-conf -f .app/config -n "env\..*" | cut -f 2- -d .`
 
   (
-    cd $x$name/$instance
-    APPSH_INSTANCE_HOME=`pwd`
-    cd current
+	if [[ $version == "" ]]
+	then
+	  assert_is_app
+	  cd current
+	else
+	  assert_is_app -v "$version"
+	  cd "versions/$version"
+	fi
 
-    local e=`$APPSH_HOME/bin/app-cat-conf -f $apps/$name/$instance/current/etc/app.conf -g env | cut -f 2- -d .`
-    #e="`get_conf_in_group $apps $name $instance env`"
     # This magically get the expansion of $u correct.
     IFS="
 "
@@ -152,12 +174,7 @@ run_app() {
       PATH=/bin:/usr/bin \
       $e \
       PWD="$PWD" \
-      APPSH_METHOD=$method \
-      APPSH_APPS=$apps \
       APPSH_HOME=$APPSH_HOME \
-      APPSH_NAME=$name \
-      APPSH_INSTANCE=$instance \
-      APPSH_INSTANCE_HOME=$APPSH_INSTANCE_HOME \
       $bin "$@"
     local ret=$?
     set +x
@@ -166,3 +183,13 @@ run_app() {
     exit $ret
   )
 }
+
+#####################################################################
+# Common init
+
+# Add the app-* apps to PATH. They're added last to allow the user to
+# overload their implementations.
+PATH=$PATH:$APPSH_HOME/bin:$APPSH_HOME/libexec
+
+# Save for later
+usage_app=$0

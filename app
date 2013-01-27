@@ -1,19 +1,5 @@
 #!/bin/bash -e
 
-PRG="$0"
-while [ -h "$PRG" ] ; do
-  ls=`ls -ld "$PRG"`
-  link=`expr "$ls" : '.*-> \(.*\)$'`
-  if expr "$link" : '/.*' > /dev/null; then
-    PRG="$link"
-  else
-    PRG="`dirname "$PRG"`/$link"
-  fi
-done
-
-APPSH_HOME=`dirname "$PRG"`
-APPSH_HOME=`cd "$APPSH_HOME" && pwd`
-
 usage() {
   if [ -n "$1" ]
   then
@@ -29,6 +15,20 @@ usage() {
   echo "" >&2
   echo "Run $0 -h <group> for more help" >&2
 }
+
+PRG="$0"
+while [ -h "$PRG" ] ; do
+  ls=`ls -ld "$PRG"`
+  link=`expr "$ls" : '.*-> \(.*\)$'`
+  if expr "$link" : '/.*' > /dev/null; then
+    PRG="$link"
+  else
+    PRG="`dirname "$PRG"`/$link"
+  fi
+done
+
+APPSH_HOME=`dirname "$PRG"`
+APPSH_HOME=`cd "$APPSH_HOME" && pwd`
 
 . $APPSH_HOME/lib/common
 
