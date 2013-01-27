@@ -38,7 +38,9 @@ load utils
   eq    '${lines[3]}' "Unpacking..."
   match '${lines[4]}' "Creating current symlink for version 1.0-.*"
   eq    '${lines[5]}' "Post install"
-  eq '${#lines[*]}' 6
+  eq    '${#lines[*]}' 6
 
   is_directory "my-app/.app"
+  # Created by post-install
+  is_directory "my-app/logs"
 }

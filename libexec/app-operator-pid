@@ -1,7 +1,5 @@
 #!/bin/bash -e
 
-#!/bin/bash
-
 set -e
 set -u
 
@@ -9,31 +7,6 @@ APPSH_HOME=$(cd $(dirname "$0")/.. && pwd)
 
 . $APPSH_HOME/lib/common
 # HEADER END
-
-pid_file=$APPSH_APPS/.app/var/pid/$APPSH_NAME-$APPSH_INSTANCE.pid 
-bin=`get_conf $APPSH_APPS $APPSH_NAME $APPSH_INSTANCE app.bin`
-
-cd $APPSH_APPS/$APPSH_NAME/$APPSH_INSTANCE/current
-
-if [ -z "$bin" ]
-then
-  echo "Missing required configuration: app.bin." >&2
-  exit 1
-fi
-
-if [ ! -r "$bin" ]
-then
-  echo "No such file: $bin" >&2
-  exit 1
-fi
-
-chmod +x "$bin"
-
-PID=
-if [ -r $pid_file ]
-then
-  PID="`cat $pid_file`"
-fi
 
 do_status() {
   if [ -z "$PID" ]
@@ -49,7 +22,46 @@ do_status() {
   fi
 }
 
-method_start() {
+find_launcher() {
+  launcher=`app-conf get app.launcher`
+
+  if [ ! -z "$launcher" ]
+  then
+    if [ ! -r "$launcher" ]
+    then
+      fatal "No such file: $launcher" >&2
+    fi
+  else
+    # Search for the launcher
+    if [ -d bin ]
+    then
+      launcher=`grep_path ".*" bin`
+
+      # This will happen if grep_path returns multiple files.
+      # As we don't know which to choose, we'll fail.
+      if [ ! -x "$launcher" ]
+      then
+        launcher=""
+      fi
+    fi
+  fi
+
+  if [[ $launcher == "" ]]
+  then
+    fatal "No launcher configured (app.launcher), could not find a single executable to run." >&2
+  fi
+
+  if [[ ! -x $launcher ]]
+  then
+    fatal "Launcher not executable: $launcher" >&2
+  fi
+
+  echo $launcher
+}
+
+command_start() {
+  launcher=`find_launcher`
+
   case `do_status` in
     running)
       echo "The application is already running as $PID."
@@ -57,7 +69,8 @@ method_start() {
       ;;
   esac
 
-  $bin <&- 1<&- 2<&- &
+  echo "Starting app with $launcher, pwd=`pwd`"
+  $launcher <&- 1<&- 2<&- &
 
   PID=$!
   echo "Application launched as $PID"
@@ -66,7 +79,7 @@ method_start() {
   return 0
 }
 
-method_stop() {
+command_stop() {
   case `do_status` in
     stopped)
       echo "The application not running."
@@ -74,46 +87,83 @@ method_stop() {
       ;;
     crashed)
       echo "The application crashed. Was running as $PID"
-      # TODO: should this remove the PID file?
-      # That makes it possible to run "stop" to stop "status" from showing "crashed"
+      # TODO: should this remove the PID file? That makes it
+      # possible to run "stop" to stop "status" from showing
+      # "crashed". Perhaps just a "clear" goal to clear the pid file.
       exit 1
       ;;
   esac
 
-  signal="-9"
-  echo -n "Sending kill $signal to $PID, waiting for shutdown"
-  kill $signal $PID
+  echo -n "Sending kill TERM to $PID, waiting for shutdown"
+  kill -TERM $PID
 
-  while [ "`do_status`" == "running" ]
+  for i in {1..10}
   do
+    if [ "`do_status`" != "running" ]
+    then
+      PID=
+      break
+    fi
+
     sleep 1
-    echo -n "."
+    echo -n .
   done
+
+  if [[ $PID != "" ]]
+  then
+    echo "This is taking too long, sending KILL to $PID "
+    kill -KILL $PID
+
+    while [ "`do_status`" == "running" ]
+    do
+      sleep 1
+      echo -n .
+    done
+  fi
 
   echo " OK"
   rm -f $pid_file
   return 0
 }
 
-method_status() {
+command_status() {
   case `do_status` in
     running)
-      echo "$APPSH_NAME/$APPSH_INSTANCE is running as $PID"
+      echo "Running as $PID"
       ;;
     stopped)
-      echo "$APPSH_NAME/$APPSH_INSTANCE is not running"
+      echo "Not running"
       ;;
     crashed)
-      echo "$APPSH_NAME/$APPSH_INSTANCE crashed. Was running as $PID"
+      echo "Crashed. Was running as $PID"
       ;;
   esac
 }
 
-case "$APPSH_METHOD" in
-  start)  method_start ;;
-  stop)   method_stop ;;
-  status) method_status ;;
-  *)      exit 1 ;;
+APP_HOME=${APP_HOME-}
+
+if [[ $APP_HOME == "" ]]
+then
+  fatal "\$APP_HOME has to be set."
+fi
+
+pid_file=$APP_HOME/.app/pid 
+
+PID=
+if [ -r $pid_file ]
+then
+  PID="`cat $pid_file`"
+fi
+
+command="$1"
+
+case "$command" in
+  start|stop|status)
+    command_$command
+    ;;
+  *)
+    fatal "Invalid command: $command"
+    ;;
 esac
 
 exit $?

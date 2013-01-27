@@ -11,15 +11,13 @@ APPSH_HOME=$(cd $(dirname "$0")/.. && pwd)
 assert_is_app
 
 method="$1"; shift
-set -x
 
 bin=`app-conf get app.operator`
 bin=${bin:-$APPSH_HOME/libexec/app-operator-pid}
 
 if [ ! -x "$bin" ]
 then
-  echo "Invalid executable: $bin" >&2
-  exit 1
+  fatal "Invalid executable: $bin" >&2
 fi
 
-run_app "$bin" "$@"
+run_app "$bin" "$method" "$@"

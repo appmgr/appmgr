@@ -14,3 +14,8 @@ app init [-d directory] <resolver> <resolver args>
 resolver/maven -r <repository url> <artifact id>
 
 app list - lists all applications available under the specified directory
+
+
+TODO:
+* tab => spaces
+* camelCase => snake_case

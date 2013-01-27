@@ -3,3 +3,7 @@
 set -u
 
 echo "Post install"
+
+[ -d ../../logs ] || mkdir ../../logs
+
+ln -s ../../../logs root/logs

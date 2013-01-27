@@ -16,15 +16,16 @@ assert_is_app() {
     esac
   done
 
-  if [ ! -d .app ]
+  local app_home=${APP_HOME-.}
+
+  if [ ! -d "$app_home/.app" ]
   then
-    echo "This is not an app, missing directory: '.app'"  >&2
-    exit 1
+    fatal "This is not an app, missing directory: .app"
   fi
 
   if [[ $check_link == yes ]]
   then
-    if [ ! -e current ]
+    if [ ! -e "$app_home/current" ]
     then
       fatal "Missing 'current' link." >&2
     fi
@@ -32,7 +33,7 @@ assert_is_app() {
 
   if [[ $version != "" ]]
   then
-    if [[ ! -d versions/$version ]]
+    if [[ ! -d "$app_home/versions/$version" ]]
     then
       fatal "No such version: $version"
     fi
@@ -160,17 +161,19 @@ run_app() {
   done
 
   local bin=$1; shift
-  local e=`app-cat-conf -f .app/config -n "env\..*" | cut -f 2- -d .`
+  local e=`app-cat-conf -n "env\..*" | cut -f 2- -d .`
+
+  local app_home=`pwd`
 
   (
-	if [[ $version == "" ]]
-	then
-	  assert_is_app
-	  cd current
-	else
-	  assert_is_app -v "$version"
-	  cd "versions/$version"
-	fi
+    if [[ $version == "" ]]
+    then
+      assert_is_app
+      cd current
+    else
+      assert_is_app -v "$version"
+      cd "versions/$version"
+    fi
 
     # This magically get the expansion of $u correct.
     IFS="
@@ -182,7 +185,8 @@ run_app() {
       PATH=/bin:/usr/bin \
       $e \
       PWD="$PWD" \
-      APPSH_HOME=$APPSH_HOME \
+      APPSH_HOME="$APPSH_HOME" \
+      APP_HOME="$app_home" \
       $bin "$@"
     local ret=$?
     set +x

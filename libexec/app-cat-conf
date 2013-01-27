@@ -40,9 +40,10 @@ done
 
 if [[ $use_default_files == yes ]]
 then
-  if [ -r ".app/config" ]
+  app_home=${APP_HOME-.}
+  if [ -r "$app_home/.app/config" ]
   then
-    files+=(".app/config")
+    files+=("$app_home/.app/config")
   fi
 
   files+=(${APPSH_DEFAULT_CONFIG-$APPSH_HOME/lib/default-config})

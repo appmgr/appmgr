@@ -86,7 +86,8 @@ usage() {
   exit 1
 }
 
-file=".app/config"
+app_home=${APP_HOME-.}
+file="$app_home/.app/config"
 
 if [ $# -gt 0 ]
 then
