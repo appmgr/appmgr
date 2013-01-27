@@ -1,16 +1,17 @@
 #!/bin/bash
 
-if [[ $APPSH_HOME == "" ]]
-then
-  APPSH_HOME=`dirname "$0"`
-  APPSH_HOME=`cd "$APPSH_HOME/.." && pwd`
-fi
-
 set -e
+set -u
+
+APPSH_HOME=$(cd $(dirname "$0")/.. && pwd)
+
+. $APPSH_HOME/lib/common
+# HEADER END
 
 key_expr="[a-zA-Z][_a-zA-Z0-9]*"
 
 file=.app/config
+name=""
 
 while getopts "f:n:" opt
 do
@@ -35,13 +36,10 @@ else
   filter="s,^\($name\)=\(.*\),\1=\2,p"
 fi
 
-if [[ $APPSH_DEFAULT_CONFIG == "" ]]
-then
-  APPSH_DEFAULT_CONFIG=$APPSH_HOME/lib/default-config
-fi
+APPSH_DEFAULT_CONFIG=${APPSH_DEFAULT_CONFIG-$APPSH_HOME/lib/default-config}
 
 # The awk script makes sure each key only appears once
 cat "$file" "$APPSH_DEFAULT_CONFIG" | \
-  sed -n -e "$filter" $extra | \
+  sed -n -e "$filter" | \
   awk -F = ' (!($1 in a)){a[$1]; print }' | \
   sort

@@ -1,12 +1,12 @@
-#!/bin/bash -e
+#!/bin/bash
 
+set -e
 set -u
 
-if [[ $APPSH_HOME == "" ]]
-then
-  APPSH_HOME=`dirname "$0"`
-  APPSH_HOME=`cd "$APPSH_HOME/.." && pwd`
-fi
+APPSH_HOME=$(cd $(dirname "$0")/.. && pwd)
+
+. $APPSH_HOME/lib/common
+# HEADER END
 
 usage() {
   message=${1-}

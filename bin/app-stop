@@ -8,6 +8,4 @@ APPSH_HOME=$(cd $(dirname "$0")/.. && pwd)
 . $APPSH_HOME/lib/common
 # HEADER END
 
-# A command line wrapper around get grep_path function
-
-grep_path "$1" "$2"
+exec $APPSH_HOME/libexec/app-operate "stop" "$@"

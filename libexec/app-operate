@@ -1,35 +1,12 @@
 #!/bin/bash
 
-if [[ $APPSH_HOME == "" ]]
-then
-  APPSH_HOME=`dirname "$0"`
-  APPSH_HOME=`cd "$APPSH_HOME/.." && pwd`
-fi
+set -e
+set -u
 
-operate_usage() {
-  if [ -n "$1" ]
-  then
-    echo "Error:" "$@" >&2
-  fi
+APPSH_HOME=$(cd $(dirname "$0")/.. && pwd)
 
-  echo "usage: $0 [operate method] -n name -i instance" >&2
-  exit 1
-}
-
-method_operate_usage() {
-  if [ -n "$1" ]
-  then
-    echo "Error:" $@ >&2
-  fi
-
-  echo "usage: $0 operate <operate method>" >&2
-  echo "" >&2
-  echo "Available operate methods:" >&2
-  echo "  start" >&2
-  echo "  stop" >&2
-  echo "  restart" >&2
-  echo "  status" >&2
-}
+. $APPSH_HOME/lib/common
+# HEADER END
 
 method_operate() {
   local name="$1"; shift

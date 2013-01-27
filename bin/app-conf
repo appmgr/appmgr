@@ -1,11 +1,9 @@
 #!/bin/bash
 
-# HEADER START
-if [[ $APPSH_HOME == "" ]]
-then
-  APPSH_HOME=`dirname "$0"`
-  APPSH_HOME=`cd "$APPSH_HOME/.." && pwd`
-fi
+set -e
+set -u
+
+APPSH_HOME=$(cd $(dirname "$0")/.. && pwd)
 
 . $APPSH_HOME/lib/common
 # HEADER END
@@ -125,7 +123,7 @@ case "$command" in
       exit 1
     fi
 
-    conf_delete "$1" "$2"
+    conf_delete "$1"
     ;;
   *)
     if [ -z "$command" ]
