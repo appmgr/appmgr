@@ -1,8 +1,6 @@
 #!/bin/bash
 
-# TODO: Add a 'get' command that returns a single value
-# Exit with 0 if found, 1 otherwise.
-
+# HEADER START
 if [[ $APPSH_HOME == "" ]]
 then
   APPSH_HOME=`dirname "$0"`
@@ -10,6 +8,12 @@ then
 fi
 
 . $APPSH_HOME/lib/common
+# HEADER END
+
+# TODO: Add a 'get' command that returns a single value
+# If -r (required) given, exit with 0 if found, 1 otherwise.
+# TODO: Add -s (shell) output, `app-conf get -s maven.artifact_id` => MAVEN_ARTIFACT_ID=..
+# Can be used like set -- `app-conf get -s maven.artifact_id maven.group_id`
 
 PATH=$APPSH_HOME/libexec:$PATH
 
