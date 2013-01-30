@@ -20,15 +20,7 @@ load utils
 
 @test "Happy day" {
   mkzip app-a
-
-  REPO=$BATS_TMPDIR/repo
-
-  if [ ! -f $REPO/org/example/app-a/1.0-SNAPSHOT/maven-metadata.xml ]
-  then
-    mvn deploy:deploy-file -Durl=file://$REPO \
-      -Dfile=`echo $APPSH_HOME/test/data/app-a.zip` -DgeneratePom \
-      -DgroupId=org.example -DartifactId=app-a -Dversion=1.0-SNAPSHOT -Dpackaging=zip
-  fi
+  install_artifact
 
   app init -d my-app maven -r "file://$BATS_TMPDIR/repo" org.example:app-a:1.0-SNAPSHOT; echo_lines
   eq    '$status' 0

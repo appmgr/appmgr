@@ -15,21 +15,25 @@ setup_inner() {
   eq '$status' 0
   eq '${#lines[*]}' 0
 
-  app conf set g.foo bar; echo_lines
+  app conf set g.FOO bar; echo_lines
   eq '$status' 0
 
   app conf; echo_lines
   eq '$status' 0
   eq '${lines[0]}' "app.bin              bin/app-a           " 
-  eq '${lines[1]}' "g.foo                bar                 " 
+  eq '${lines[1]}' "g.FOO                bar                 " 
   eq '${#lines[*]}' 2
 
-  app conf get g.foo; echo_lines
+  app conf get g.FOO; echo_lines
   eq '$status' 0
   eq '${lines[0]}' "bar" 
   eq '${#lines[*]}' 1
 
-  app conf delete g.foo; echo_lines
+  app conf get g.foo; echo_lines
+  eq '$status' 0
+  eq '${#lines[*]}' 0
+
+  app conf delete g.FOO; echo_lines
   eq '$status' 0
 
   app conf; echo_lines

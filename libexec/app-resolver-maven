@@ -124,8 +124,14 @@ resolve_snapshot() {
   local r=$repo/$base_path/maven-metadata.xml
 
   get $r $l
-#  x=`xmlstarlet sel -t -m '//snapshotVersion[extension[text()="zip"]]' -v value $l`
-  set -- `xmlstarlet sel -t -m '/metadata/versioning/snapshot' -v "timestamp|buildNumber" $l`
+  x=$(xmlstarlet sel -t -m '/metadata/versioning/snapshot' -v "timestamp|buildNumber" $l)
+  set -- $x
+
+  if [[ $# != 2 ]]
+  then
+    fatal "Unable extract a useful timestamp from maven-metadata.xml."
+  fi
+
   snapshot_version="$1-$2"
 
   if [[ $snapshot_version == "" ]]

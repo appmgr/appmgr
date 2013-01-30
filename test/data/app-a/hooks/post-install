@@ -4,6 +4,19 @@ set -u
 
 echo "Post install"
 
+NAME=`basename $APP_HOME`
+
+echo NAME=$NAME
+echo pwd=`pwd`
+set -x
+if [ -d root/etc/$NAME ]
+then
+  find root/etc/$NAME -maxdepth 1 -type f | while read file
+  do
+    cp $file root/
+  done
+fi
+
 [ -d ../../logs ] || mkdir ../../logs
 
 ln -s ../../../logs root/logs

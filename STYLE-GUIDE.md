@@ -19,6 +19,11 @@ Creating `usage()`
       exit 1
     }
 
+Executing Commands
+==================
+
+* http://unix.stackexchange.com/q/23026
+
 Resources
 ---------
 

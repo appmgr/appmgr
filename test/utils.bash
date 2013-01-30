@@ -16,6 +16,9 @@ setup() {
   mkdir $BATS_TMPDIR/app.sh
   cd $BATS_TMPDIR/app.sh
 
+  REPO=$BATS_TMPDIR/repo
+  REPO_URL="file://$REPO"
+
   if [ "`declare -f setup_inner >/dev/null; echo $?`" = 0 ]
   then
     setup_inner
@@ -34,6 +37,15 @@ mkzip() {
   rm -f ../$1.zip
   zip -qr ../$1.zip *
 )
+}
+
+install_artifact() {
+  if [ ! -f $REPO/org/example/app-a/1.0-SNAPSHOT/maven-metadata.xml ]
+  then
+    mvn deploy:deploy-file -Durl=$REPO_URL \
+      -Dfile=`echo $APPSH_HOME/test/data/app-a.zip` -DgeneratePom \
+      -DgroupId=org.example -DartifactId=app-a -Dversion=1.0-SNAPSHOT -Dpackaging=zip
+  fi
 }
 
 app() {
