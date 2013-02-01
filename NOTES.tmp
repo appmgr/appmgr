@@ -19,3 +19,14 @@ app list - lists all applications available under the specified directory
 TODO:
 * tab => spaces
 * camelCase => snake_case
+* Figure out the versions of bash that's available in the different
+  major operating systems:
+  * Debian
+  * Ubuntu
+  * RedHat
+  * SLES/OpenSuse
+  * Cygwin
+* Document patterns for parsing command line arguments
+* Support sending in config to an app when running init. Has to be
+  installed before running the hooks, useful to controlling
+  environment through config.

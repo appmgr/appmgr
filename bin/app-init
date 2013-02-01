@@ -8,14 +8,8 @@ APPSH_HOME=$(cd $(dirname "$0")/.. && pwd)
 . $APPSH_HOME/lib/common
 # HEADER END
 
-usage() {
-  echo "usage: $0 -d dir <resolver> <resolver args>"
-  exit 1
-}
-
-fatal() {
-  echo "$0: $@"
-  exit 1
+usage_inner() {
+  echo "usage: $usage_app -d dir <resolver> <resolver args>"
 }
 
 while getopts "d:" opt
@@ -46,8 +40,6 @@ then
   fatal "Already initialized: $dir" 2>&1
 fi
 
-# TODO: install a trap handler and rm -rf "$dir"
-
 resolver=`grep_path "/app-resolver-$resolver_name$" "$PATH" | head -n 1`
 
 if [ -z "$resolver" ]
@@ -57,6 +49,11 @@ then
 fi
 
 mkdir -p -- "$dir" "$dir/.app"
+
+ok=no
+clean_dir=`cd "$dir">/dev/null; pwd`
+trap '[[ $ok == yes ]] || rm -rf "$clean_dir"' EXIT
+
 cd "$dir"
 
 app-conf set app.resolver "$resolver_name"
@@ -77,3 +74,5 @@ echo "Resolved version to $version"
 "$resolver" download-version -v "$version" -f .app/latest.zip
 
 app-install-file -v "$version" -f .app/latest.zip
+
+ok=yes

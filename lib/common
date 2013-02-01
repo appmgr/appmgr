@@ -40,6 +40,21 @@ assert_is_app() {
   fi
 }
 
+usage() {
+  message=${1-}
+
+  if [[ $message != "" ]]
+  then
+    echo $message
+  fi
+
+  if [ "`declare -f usage_inner >/dev/null; echo $?`" = 0 ]
+  then
+    usage_inner >&2
+  fi
+  exit 1
+}
+
 debug() {
   [[ $echo_debug == no ]] || echo "D: $usage_app: $@" 2>&1
 }

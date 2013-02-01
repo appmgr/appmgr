@@ -8,18 +8,10 @@ APPSH_HOME=$(cd $(dirname "$0")/.. && pwd)
 . $APPSH_HOME/lib/common
 # HEADER END
 
-usage() {
-  message=${1-}
-
-  if [ ! -z "$message" ]
-  then
-    echo $message
-  fi
-
-  echo "usage: $subapp init -r <repo> <maven url>"
-  echo "usage: $subapp resolve-version"
-  echo "usage: $subapp download-version -v <version> -f <download target>"
-  exit 1
+usage_inner() {
+  echo "usage: $usage_app init -r <repo> <maven url>"
+  echo "usage: $usage_app resolve-version"
+  echo "usage: $usage_app download-version -v <version> -f <download target>"
 }
 
 slash() {
@@ -201,22 +193,25 @@ init() {
     esac
   done
 
-  x=`echo $1 | tr ":" " "`; set -- $x
-  group_id=$1
-  artifact_id=$2
-  version=$3
+  local coordinates=${1-}
+  x=${coordinates}
+  x=${x//:/ }
+  set -- $x
 
-  if [ -z "$group_id" -o -z "$artifact_id" -o -z "$version" ]
+  if [[ $# != 3 || $1 == "" || $2 == "" || $3 == "" ]]
   then
     usage "Invalid Maven coordinates: $coordinates"
   fi
+
+  group_id=$1
+  artifact_id=$2
+  version=$3
 
   app-conf set maven.group_id "$group_id"
   app-conf set maven.artifact_id "$artifact_id"
   app-conf set maven.version "$version"
 }
 
-subapp="$0";
 command="$1"; shift
 
 case "$command" in
