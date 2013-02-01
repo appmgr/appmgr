@@ -54,7 +54,7 @@ setup_inner() {
 @test "./app conf wat" {
   app conf wat; echo_lines
   eq '$status' 1
-  eq '${lines[0]}' "Error: Unknown command: wat" 
+  eq '${lines[0]}' "Unknown command: wat" 
 }
 
 @test "./app conf list" {

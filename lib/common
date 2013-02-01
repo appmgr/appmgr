@@ -40,7 +40,7 @@ assert_is_app() {
   fi
 }
 
-usage() {
+show_help() {
   message=${1-}
 
   if [[ $message != "" ]]
@@ -48,9 +48,24 @@ usage() {
     echo $message
   fi
 
-  if [ "`declare -f usage_inner >/dev/null; echo $?`" = 0 ]
+  if [ "`declare -f usage_text >/dev/null; echo $?`" = 0 ]
   then
-    usage_inner >&2
+    usage_text
+  fi
+  exit 1
+}
+
+usage() {
+  message=${1-}
+
+  if [[ $message != "" ]]
+  then
+    echo $message >&2
+  fi
+
+  if [ "`declare -f usage_text >/dev/null; echo $?`" = 0 ]
+  then
+    usage_text >&2
   fi
   exit 1
 }

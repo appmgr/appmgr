@@ -8,7 +8,7 @@ APPSH_HOME=$(cd $(dirname "$0")/.. && pwd)
 . $APPSH_HOME/lib/common
 # HEADER END
 
-usage_inner() {
+usage_text() {
   echo "usage: $usage_app -d dir <resolver> <resolver args>"
 }
 

@@ -8,9 +8,8 @@ APPSH_HOME=$(cd $(dirname "$0")/.. && pwd)
 . $APPSH_HOME/lib/common
 # HEADER END
 
-usage() {
+usage_text() {
   echo "usage: $0 -v <version> -f <file>"
-  exit 1
 }
 
 version=

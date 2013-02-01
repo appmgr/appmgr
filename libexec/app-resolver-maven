@@ -8,7 +8,7 @@ APPSH_HOME=$(cd $(dirname "$0")/.. && pwd)
 . $APPSH_HOME/lib/common
 # HEADER END
 
-usage_inner() {
+usage_text() {
   echo "usage: $usage_app init -r <repo> <maven url>"
   echo "usage: $usage_app resolve-version"
   echo "usage: $usage_app download-version -v <version> -f <download target>"

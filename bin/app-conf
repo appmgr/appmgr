@@ -69,20 +69,15 @@ conf_import() {
   mv "$dst.tmp" "$dst" 
 }
 
-usage() {
-  if [ $# -gt 0 ]
-  then
-    echo "Error: $@" >&2
-  fi
-
-  echo "usage: $0 conf <command>" >&2
+usage_text() {
+  echo "usage: $0 conf <command>"
   echo ""
-  echo "Available commands:" >&2
-  echo "  get [name]         - returns a single value" >&2
-  echo "  list               - list all config values" >&2
-  echo "  set [name] [value] - set a config parameter" >&2
-  echo "  delete [name]      - deletes a config parameter" >&2
-  echo "  import [file]      - import a file" >&2
+  echo "Available commands:"
+  echo "  get [name]         - returns a single value"
+  echo "  list               - list all config values"
+  echo "  set [name] [value] - set a config parameter"
+  echo "  delete [name]      - deletes a config parameter"
+  echo "  import [file]      - import a file"
   exit 1
 }
 
