@@ -1,20 +1,13 @@
 #!/bin/bash -e
 
-usage() {
-  if [ -n "$1" ]
-  then
-    echo "Error:" "$@" >&2
-  fi
-
-  echo "usage: $0 <command>" >&2
-  echo "" >&2
-  echo "Available commands:" >&2
-  echo "  init" >&2
-  echo "  conf" >&2
-  echo "  operate" >&2
-  echo "" >&2
-  echo "Run $0 -h <group> for more help" >&2
-  exit 1
+usage_text() {
+  echo "usage: $usage_app <command>"
+  echo ""
+  echo "Available porcelain commands:"
+  grep_path "/app-.*$" "$APPSH_HOME/bin" | sed "s,^.*/app-,    ,"
+  echo ""
+  echo "Available plumbing commands:"
+  grep_path "/app-.*$" "$APPSH_HOME/libexec" | sed "s,^.*/app-,    ,"
 }
 
 PRG="$0"
@@ -38,7 +31,7 @@ while getopts "h" opt
 do
   case $opt in
     h)
-      usage
+      show_help
       ;;
     D)
       echo_debug=yes
