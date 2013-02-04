@@ -3,12 +3,23 @@
 
 load utils
 
-@test "install remove roundtrip" {
+install_maven() {
   mkzip "app-a"
   install_artifact
+}
+
+install_file() {
+  mkzip "app-a"
+}
+
+do_test() {
+  install="$1"; shift
+  init_args="$1"; shift
+
+  $install
 
   describe "Installing app"
-  app init -d my-app/prod maven -r $REPO_URL org.example:app-a:1.0-SNAPSHOT; echo_lines
+  app init -d my-app/prod $init_args; echo_lines
   eq '$status' 0
 
   is_directory "my-app/prod/.app"
@@ -35,6 +46,12 @@ load utils
 
   [ "`cat logs/app-a.env`" = "TEST_PROPERTY=awesome" ]
   [ "`cat current/foo.conf`" = "hello" ]
+}
 
-  # TODO: Remove the version
+@test "install+upgrade; resolver=maven" {
+#  do_test install_maven "maven -r $REPO_URL org.example:app-a:1.0-SNAPSHOT"
+}
+
+@test "install+upgrade; resolver=file" {
+  do_test install_file "file $APPSH_HOME/test/data/app-a.zip"
 }

@@ -8,6 +8,7 @@ exit_usage_wrong=0
 
 setup() {
   find test/data -name \*.zip | xargs rm -f
+  ORIG_PATH=$PATH
   PATH=/bin:/usr/bin
   PATH=$PATH:$APPSH_HOME
   APPSH_HOME=$(cd $BATS_TEST_DIRNAME/..; echo `pwd`)
@@ -18,6 +19,7 @@ setup() {
 
   REPO=$BATS_TMPDIR/repo
   REPO_URL="file://$REPO"
+  FIXED_REPO_URL="file://`fix_path $REPO`"
 
   if [ "`declare -f setup_inner >/dev/null; echo $?`" = 0 ]
   then
@@ -40,12 +42,10 @@ mkzip() {
 }
 
 install_artifact() {
-  if [ ! -f $REPO/org/example/app-a/1.0-SNAPSHOT/maven-metadata.xml ]
-  then
-    mvn deploy:deploy-file -Durl=$REPO_URL \
-      -Dfile=`echo $APPSH_HOME/test/data/app-a.zip` -DgeneratePom \
-      -DgroupId=org.example -DartifactId=app-a -Dversion=1.0-SNAPSHOT -Dpackaging=zip
-  fi
+  describe -Dfile=`fix_path $APPSH_HOME/test/data/app-a.zip` -DgeneratePom
+  PATH=$ORIG_PATH mvn deploy:deploy-file -Durl=$FIXED_REPO_URL \
+    -Dfile=`fix_path $APPSH_HOME/test/data/app-a.zip` -DgeneratePom \
+    -DgroupId=org.example -DartifactId=app-a -Dversion=1.0-SNAPSHOT -Dpackaging=zip
 }
 
 app() {
@@ -59,6 +59,18 @@ app_libexec() {
   echo libexec/$@
   shift
   run "$x" $@
+}
+
+fix_path=`uname -s`
+fix_path() {
+  local path=$1
+
+  case $fix_path in
+    CYGWIN_NT*)
+      x=$(cygpath -wa $1)
+      ;;
+  esac
+  echo $x
 }
 
 describe() {

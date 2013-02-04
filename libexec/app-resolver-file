@@ -1,0 +1,94 @@
+#!/bin/bash
+
+set -e
+set -u
+
+APPSH_HOME=$(cd $(dirname "$0")/.. && pwd)
+
+. $APPSH_HOME/lib/common
+# HEADER END
+
+usage_text() {
+  echo "usage: $usage_app init <file>"
+  echo "usage: $usage_app resolve-version"
+  echo "usage: $usage_app download-version -v <version> -f <download target>"
+}
+
+init() {
+  while getopts "r:" opt
+  do
+    case $opt in
+      r)
+        app-conf set maven.repo "$OPTARG"
+        shift 2
+        OPTIND=1
+        ;;
+      *)
+        usage "Invalid option: $OPTARG" 
+        ;;
+    esac
+  done
+
+  local file=${1-}
+
+  if [[ ! -r "$file" ]]
+  then
+    fatal "Can't read file: $file"
+  fi
+
+  app-conf set file.path "$file"
+}
+
+resolve_version() {
+  path=$(app-conf get file.path)
+
+  local s=$(stat -c %Z $path)
+
+  app-conf set app.version "$s"
+}
+
+download_version() {
+  target=""
+  while getopts "v:f:" opt
+  do
+    case $opt in
+      v)
+        # Ignored
+        ;;
+      f)
+        target="$OPTARG"
+        ;;
+      *)
+        usage "Invalid option: $OPTARG" 
+        ;;
+    esac
+  done
+
+  if [[ $target == "" ]]
+  then
+    usage
+  fi
+
+  path=$(app-conf get file.path)
+
+  ln -s "$path" "$target"
+}
+
+command="$1"; shift
+
+case "$command" in
+  init)
+    init "$@"
+    ;;
+  resolve-version)
+    resolve_version
+    ;;
+  download-version)
+    download_version "$@"
+    ;;
+  *)
+    usage
+    ;;
+esac
+
+exit 0
