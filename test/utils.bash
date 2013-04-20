@@ -61,16 +61,16 @@ app_libexec() {
   run "$x" $@
 }
 
-fix_path=`uname -s`
+fix_path_uname=`uname -s`
 fix_path() {
-  local path=$1
-
-  case $fix_path in
+  case $fix_path_uname in
     CYGWIN_NT*)
-      x=$(cygpath -wa $1)
+      cygpath -wa $1
+      ;;
+    *)
+      echo $1
       ;;
   esac
-  echo $x
 }
 
 describe() {
@@ -100,8 +100,8 @@ can_not_read() {
 is_directory() {
   if [ ! -d "$1" ]
   then
-	echo "Not a directory: $1" 2>&1
-	return 1
+    echo "Not a directory: $1" 2>&1
+    return 1
   fi
 }
 
@@ -112,10 +112,26 @@ eq() {
 
   if [[ $e == $a ]]
   then
-	return 0
+    return 0
   fi
 
   echo "Assertion failed: $ex"
+  echo "Expected: $e"
+  echo "Actual:   $a"
+  exit 1
+}
+
+neq() {
+  local ex="$1"
+  local e="$2"
+  local a="`eval echo $ex`"
+
+  if [[ $e != $a ]]
+  then
+    return 0
+  fi
+
+  echo "Not-equal assertion failed: $ex"
   echo "Expected: $e"
   echo "Actual:   $a"
   exit 1
@@ -128,7 +144,7 @@ match() {
 
   if [[ $a =~ $regex ]]
   then
-	return 0
+    return 0
   fi
 
   echo "Assertion failed: $ex =~ $a"

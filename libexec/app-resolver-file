@@ -44,7 +44,7 @@ resolve_version() {
 
   local s=$(stat -c %Z $path)
 
-  app-conf set app.version "$s"
+  app-conf set app.resolved_version "$s"
 }
 
 download_version() {

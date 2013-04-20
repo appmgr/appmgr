@@ -226,6 +226,10 @@ run_app() {
   )
 }
 
+find_resolver() {
+  grep_path "/app-resolver-$resolver_name$" "$PATH" | head -n 1
+}
+
 #####################################################################
 # Common init
 

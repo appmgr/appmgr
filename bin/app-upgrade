@@ -1,0 +1,40 @@
+#!/bin/bash
+
+set -e
+set -u
+
+APPSH_HOME=$(cd $(dirname "$0")/.. && pwd)
+
+. $APPSH_HOME/lib/common
+# HEADER END
+
+usage_text() {
+  echo "usage: $usage_app"
+}
+
+if [ $# != 0 ]
+then
+  usage
+fi
+
+assert_is_app
+
+resolver_name=`app-conf get app.resolver`
+resolver=`find_resolver "$resolver_name"`
+
+old_version=`app-conf get app.version`
+echo "Resolving version $old_version"
+"$resolver" resolve-version
+new_version=`app-conf get app.version`
+
+if [[ $new_version == $old_version ]]
+then
+  echo "No new version available" 2>&1
+  exit
+fi
+
+echo "Resolved version to $new_version"
+
+"$resolver" download-version -v "$new_version" -f .app/latest.zip
+
+app-install-file -v "$new_version" -f .app/latest.zip

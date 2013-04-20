@@ -91,7 +91,7 @@ resolve_version() {
 
   if [[ ! $version == *-SNAPSHOT ]]
   then
-    app-conf set app.version "$version"
+    app-conf set app.resolved_version "$version"
     exit 0
   fi
 
@@ -116,7 +116,7 @@ resolve_snapshot() {
   local r=$repo/$base_path/maven-metadata.xml
 
   get $r $l
-  x=$(xmlstarlet sel -t -m '/metadata/versioning/snapshot' -v "timestamp|buildNumber" $l)
+  x=$(xmlstarlet sel -t -m '/metadata/versioning/snapshot' -v timestamp -o ' ' -v buildNumber $l)
   set -- $x
 
   if [[ $# != 2 ]]
@@ -133,7 +133,7 @@ resolve_snapshot() {
   fi
 
   app-conf set maven.snapshotVersion "$snapshot_version"
-  app-conf set app.version "${version%-SNAPSHOT}-$snapshot_version"
+  app-conf set app.resolved_version "${version%-SNAPSHOT}-$snapshot_version"
 }
 
 download_version() {
@@ -200,7 +200,7 @@ init() {
 
   if [[ $# != 3 || $1 == "" || $2 == "" || $3 == "" ]]
   then
-    fatal "Invalid Maven coordinates: $coordinates"
+    usage "Invalid Maven coordinates: $coordinates"
   fi
 
   group_id=$1

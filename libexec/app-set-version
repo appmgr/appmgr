@@ -48,3 +48,5 @@ else
   echo "Creating current symlink for version $version"
   ln -s versions/$version/root current
 fi
+
+app-conf set app.version "$version"

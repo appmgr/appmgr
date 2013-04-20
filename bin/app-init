@@ -40,7 +40,7 @@ then
   fatal "Already initialized: $dir" 2>&1
 fi
 
-resolver=`grep_path "/app-resolver-$resolver_name$" "$PATH" | head -n 1`
+resolver=`find_resolver "$resolver_name"`
 
 if [ -z "$resolver" ]
 then
@@ -61,18 +61,18 @@ app-conf set app.resolver "$resolver_name"
 "$resolver" init "$@"
 "$resolver" resolve-version
 
-version=`app-conf get app.version`
+resolved_version=`app-conf get app.resolved_version`
 
-if [[ $version == "" ]]
+if [[ $resolved_version == "" ]]
 then
   echo "Unable to resolve version" 2>&1
   exit
 fi
 
-echo "Resolved version to $version"
+echo "Resolved version to $resolved_version"
 
-"$resolver" download-version -v "$version" -f .app/latest.zip
+"$resolver" download-version -v "$resolved_version" -f .app/latest.zip
 
-app-install-file -v "$version" -f .app/latest.zip
+app-install-file -v "$resolved_version" -f .app/latest.zip
 
 ok=yes
