@@ -1,0 +1,11 @@
+#!/bin/bash
+
+set -e
+set -u
+
+APPSH_HOME=$(cd $(dirname "$0")/.. && pwd)
+
+. $APPSH_HOME/lib/common
+# HEADER END
+
+exec $APPSH_HOME/libexec/app-operate "status" "$@"

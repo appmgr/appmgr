@@ -95,7 +95,7 @@ resolve_version() {
     exit 0
   fi
 
-  echo "Resolving version $version..."
+  echo "Resolving Maven version $version..."
   resolve_snapshot $group_id $artifact_id $version
 }
 

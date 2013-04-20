@@ -83,14 +83,14 @@ command_stop() {
   case `do_status` in
     stopped)
       echo "The application not running."
-      exit 1
+      return 1
       ;;
     crashed)
       echo "The application crashed. Was running as $PID"
       # TODO: should this remove the PID file? That makes it
       # possible to run "stop" to stop "status" from showing
       # "crashed". Perhaps just a "clear" goal to clear the pid file.
-      exit 1
+      return 1
       ;;
   esac
 
@@ -140,6 +140,13 @@ command_status() {
   esac
 }
 
+command_restart() {
+  set +e
+  command_stop
+  set -e
+  command_start
+}
+
 APP_HOME=${APP_HOME-}
 
 if [[ $APP_HOME == "" ]]
@@ -158,8 +165,10 @@ fi
 command="$1"
 
 case "$command" in
-  start|stop|status)
+  start|stop|status|restart)
     command_$command
+    ret=$?
+    exit $ret
     ;;
   *)
     fatal "Invalid command: $command"
