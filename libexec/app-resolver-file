@@ -71,7 +71,7 @@ download_version() {
 
   path=$(app-conf get file.path)
 
-  ln -s "$path" "$target"
+  ln -f -s "$path" "$target"
 }
 
 command="$1"; shift

@@ -25,7 +25,7 @@ resolver=`find_resolver "$resolver_name"`
 old_version=`app-conf get app.version`
 echo "Resolving version $old_version"
 "$resolver" resolve-version
-new_version=`app-conf get app.version`
+new_version=`app-conf get app.resolved_version`
 
 if [[ $new_version == $old_version ]]
 then

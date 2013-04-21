@@ -14,17 +14,18 @@ load utils
   app conf get maven.version
   match '${lines[0]}' "1.0-SNAPSHOT"
   maven_version="${lines[0]}" 
-  describe maven_version=$maven_version
 
   app conf get app.version
   match '${lines[0]}' "1.0-.*"
   app_version="${lines[0]}" 
-  describe app_version=$app_version
 
   app conf get app.resolved_version
   match '${lines[0]}' "1.0-.*"
   eq    '${lines[0]}' "$app_version"
   resolved_version="${lines[0]}" 
+
+  describe maven_version=$maven_version
+  describe app_version=$app_version
   describe resolved_version=$resolved_version
 
   install_artifact
