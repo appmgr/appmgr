@@ -43,7 +43,13 @@ then
   exit 0
 fi
 
-# TODO: remove after
-#chmod +x $bin
+chmod +x $bin
+
+if [[ ! -e $bin ]]
+then
+  info "Not executable: $bin"
+  exit 0
+fi
+
 debug "Running hook: $hook"
 run_app -v $version hooks/$hook

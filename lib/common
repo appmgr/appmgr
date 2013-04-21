@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Asserts that the cwd is an app directory.
+# By default it checks that there is a 'current' link.
 assert_is_app() {
   local check_link=yes
   local version=
@@ -51,6 +53,8 @@ show_help() {
   if [ "`declare -f usage_text >/dev/null; echo $?`" = 0 ]
   then
     usage_text
+  else
+    echo "The command $usage_app does not have any usage info."
   fi
   exit 1
 }
@@ -205,14 +209,15 @@ run_app() {
       cd "versions/$version"
     fi
 
+    path=/bin:/usr/bin
+
     # This magically get the expansion of $u correct.
     IFS="
 "
 
-    # Set a default PATH which can be overridden by the application's settings
     set +e
     env -i \
-      PATH=/bin:/usr/bin \
+      PATH="$PATH" \
       $e \
       PWD="$PWD" \
       APPSH_HOME="$APPSH_HOME" \

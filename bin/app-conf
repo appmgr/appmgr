@@ -65,6 +65,7 @@ conf_import() {
   local dst=$1; shift
   local src=$1; shift
 
+  echo "Importing config from $src"
   app-cat-conf -f "$src" -f "$dst" > "$dst.tmp"
   mv "$dst.tmp" "$dst" 
 }

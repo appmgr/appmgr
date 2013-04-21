@@ -175,6 +175,7 @@ download_version() {
   echo "Downloading $group_id:$artifact_id:$resolved_version..."
   get $r $l
 
+  rm -f "$target"
   ln -s "`pwd`/$l" "$target"
 }
 

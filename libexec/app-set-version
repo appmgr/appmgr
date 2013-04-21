@@ -8,6 +8,10 @@ APPSH_HOME=$(cd $(dirname "$0")/.. && pwd)
 . $APPSH_HOME/lib/common
 # HEADER END
 
+usage_text() {
+  echo "usage: $usage_app -v <version>"
+}
+
 version=
 
 while getopts "v:" opt
@@ -43,7 +47,8 @@ then
   prev=${prev:1}
   prev=${prev/%?root}
   echo "Changing current symlink from $prev to $version"
-  ln -f -s versions/$version/root current
+  rm current
+  ln -s versions/$version/root current
 else
   echo "Creating current symlink for version $version"
   ln -s versions/$version/root current

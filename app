@@ -53,8 +53,12 @@ bin=`grep_path "/app-$command$" "$APPSH_HOME/bin"`
 
 if [ ! -x "$bin" ]
 then
-  echo "Unknown command: $command" 2>&1
-  exit 1
+  bin=`grep_path "/app-$command$" "$APPSH_HOME/libexec"`
+  if [ ! -x "$bin" ]
+  then
+    echo "Unknown command: $command" 2>&1
+    exit 1
+  fi
 fi
 
 PATH=$APPSH_HOME/bin:$PATH
