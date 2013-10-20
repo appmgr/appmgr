@@ -159,6 +159,53 @@ find_versions() {
   )
 }
 
+validate_location() {
+  local name=$1; shift
+
+  case "${!name}" in
+    s|system)
+      eval ${name}=1
+      ;;
+    u|user)
+      eval ${name}=2
+      ;;
+    a|app)
+      eval ${name}=3
+      ;;
+    *)
+      fatal "Invalid location: ${!name}, must be one of 's', 'system', 'u', 'user', 'a' or 'app'."
+    ;;
+  esac
+}
+
+location_to_file() {
+  case "${!1}" in
+    s|system|1)
+      _get_config_file_system $1
+      ;;
+    u|user|2)
+      _get_config_file_user $1
+      ;;
+    a|app|3)
+      _get_config_file_app $1
+      ;;
+    *)
+      fatal "Invalid location: ${!1}, must be one of 's', 'system', 'u', 'user', 'a' or 'app'."
+  esac
+}
+
+_get_config_file_system() {
+  eval $1="${APPSH_DEFAULT_CONFIG-$APPSH_HOME/lib/default-config}"
+}
+
+_get_config_file_user() {
+  eval $1="$HOME/.appconfig"
+}
+
+_get_config_file_app() {
+  eval $1=".app/config"
+}
+
 grep_path() {
   local regex="$1"; shift
   local path="$1"; shift

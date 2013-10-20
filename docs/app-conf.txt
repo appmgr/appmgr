@@ -1,0 +1,24 @@
+app-conf(1)
+===========
+
+NAME
+----
+app-conf - configuration management
+
+
+SYNOPSIS
+--------
+[verse]
+'app-conf' get <name>
+'app-conf' list
+'app-conf' set <name> <value>
+'app-conf' delete <name>
+'app-conf' import <file>
+
+DESCRIPTION
+-----------
+
+Interface to the configuration values used by 'app.sh'. Modelled after
+the 'git-config' command. 'list' is the default command
+
+// vim: set ft=asciidoc:

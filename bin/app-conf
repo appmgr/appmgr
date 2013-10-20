@@ -10,8 +10,15 @@ APPSH_HOME=$(cd $(dirname "$0")/.. && pwd)
 
 # TODO: Add a 'get' command that returns a single value
 # If -r (required) given, exit with 0 if found, 1 otherwise.
-# TODO: Add -s (shell) output, `app-conf get -s maven.artifact_id` => MAVEN_ARTIFACT_ID=..
-# Can be used like set -- `app-conf get -s maven.artifact_id maven.group_id`
+#
+# TODO: Add -s (shell) output:
+#
+#     $ app-conf get -s maven.artifact_id
+#     MAVEN_ARTIFACT_ID=..
+#
+# Can be used like this:
+#
+#     set -- `app-conf get -s maven.artifact_id maven.group_id`
 
 PATH=$APPSH_HOME/libexec:$PATH
 
@@ -44,13 +51,19 @@ conf_set() {
 
   assert_valid_config_name "$name"
 
-  if [ -r $file ]
+  local d=`dirname "$file"`
+  if [ ! -d "$d" ]
   then
-    sed "/^$name[ ]*=.*/d" $file > $file.tmp
+    fatal "Not a directory: $d"
   fi
 
-  echo "$name=$value" >> $file.tmp
-  mv $file.tmp $file
+  if [ -r "$file" ]
+  then
+    sed "/^$name[ ]*=.*/d" "$file" > "$file.tmp"
+  fi
+
+  echo "$name=$value" >> "$file.tmp"
+  mv "$file.tmp" "$file"
 }
 
 conf_delete() {
@@ -73,7 +86,7 @@ conf_import() {
 }
 
 usage_text() {
-  echo "usage: $0 conf <command>"
+  echo "usage: $0 conf [-l location] <command>"
   echo ""
   echo "Available commands:"
   echo "  get [name]         - returns a single value"
@@ -83,12 +96,34 @@ usage_text() {
   echo "  import [file]      - import a file"
   echo ""
   echo "list is the default command."
+  echo ""
+  echo "Location is one of:"
+  echo "  a or app, selects .app/config"
+  echo "  u or user, selects ~/.appconfig"
+  echo "  s or system, selects \$APPSH_HOME/lib/default-config"
+  echo ""
+  echo "Location is ignored for import."
   exit 1
 }
 
-app_home=${APP_HOME-.}
-app_config="$app_home/.app/config"
-user_config="$HOME/.appconfig"
+_get_config_file_app config_a
+
+location=app
+while getopts "l:" opt
+do
+  case $opt in
+    l)
+      location="$OPTARG"
+      shift 2;
+      ;;
+    get|list|set|delete|import)
+      usage "Unknown command: $OPTARG"
+      ;;
+  esac
+done
+
+file=$location
+location_to_file file
 
 if [ $# -gt 0 ]
 then
@@ -105,7 +140,7 @@ case "$command" in
       usage
     fi
 
-    app-cat-conf -f "$app_config" -n "$1" | cut -f 2 -d = | format_conf | sed "s, *$,,"
+    app-cat-conf -l "$location" -n "$1" | cut -f 2 -d = | format_conf | sed "s, *$,,"
     ;;
   list)
     if [ $# -gt 0 ]
@@ -113,17 +148,7 @@ case "$command" in
       usage "Extra options."
     fi
 
-    if [ ! -r "$app_config" ]
-    then
-      app_config=""
-    fi
-
-    if [ ! -r "$user_config" ]
-    then
-      user_config=""
-    fi
-
-    app-cat-conf "${user_config+-f ${user_config}}" -f "$app_config" | format_conf
+    app-cat-conf -l "$location" | format_conf
     ;;
   set)
     if [ $# -ne 2 ]
@@ -131,9 +156,7 @@ case "$command" in
       usage
     fi
 
-    assert_is_app -C
-
-    conf_set "$app_config" "$1" "$2"
+    conf_set "$file" "$1" "$2"
     ;;
   delete)
     if [ $# -ne 1 ]
@@ -141,9 +164,7 @@ case "$command" in
       usage "Missing [name] argument."
     fi
 
-    assert_is_app -C
-
-    conf_delete "$app_config" "$1"
+    conf_delete "$file" "$1"
     ;;
   import)
     if [ $# -ne 1 ]
@@ -154,7 +175,7 @@ case "$command" in
 
     assert_is_app -C
 
-    conf_import "$app_config" "$1"
+    conf_import "$config_a" "$1"
     ;;
   *)
     if [ -z "$command" ]

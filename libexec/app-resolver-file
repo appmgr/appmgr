@@ -24,7 +24,7 @@ init() {
         OPTIND=1
         ;;
       *)
-        usage "Invalid option: $OPTARG" 
+        usage "Invalid option: $OPTARG"
         ;;
     esac
   done
@@ -59,7 +59,7 @@ download_version() {
         target="$OPTARG"
         ;;
       *)
-        usage "Invalid option: $OPTARG" 
+        usage "Invalid option: $OPTARG"
         ;;
     esac
   done

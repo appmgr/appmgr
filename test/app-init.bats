@@ -22,7 +22,7 @@ load utils
   mkzip app-a
   install_artifact
 
-  app init -d my-app maven -r "file://$BATS_TMPDIR/repo" org.example:app-a:1.0-SNAPSHOT; echo_lines
+  app init -d my-app maven -r "file://$BATS_TMPDIR/repo" org.example:app-a:1.0-SNAPSHOT
   eq    '$status' 0
   eq    '${lines[0]}' "Resolving Maven version 1.0-SNAPSHOT..."
   match '${lines[1]}' "Resolved version to 1.0-*"
@@ -42,8 +42,8 @@ load utils
   mkzip app-a
   install_artifact 1.0
 
-  app init -d my-app maven -r "file://$BATS_TMPDIR/repo" org.example:app-a:1.0; echo_lines
-  eq    '$status' 0
+  app conf -l user set maven.repo "file://$BATS_TMPDIR/repo"
+  app init -d my-app maven org.example:app-a:1.0
   match '${lines[0]}' "Resolved version to 1.0"
   match '${lines[1]}' "Downloading org.example:app-a:1.0-*"
   eq    '${lines[2]}' "Unpacking..."

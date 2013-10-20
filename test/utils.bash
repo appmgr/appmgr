@@ -15,6 +15,11 @@ setup() {
 
   rm -rf $BATS_TMPDIR/app.sh
   mkdir $BATS_TMPDIR/app.sh
+
+  HOME=$BATS_TMPDIR/app.sh-home
+  mkdir -p $HOME
+  rm -f $HOME/.appconfig
+
   cd $BATS_TMPDIR/app.sh
 
   REPO=$BATS_TMPDIR/repo
@@ -49,9 +54,19 @@ install_artifact() {
     -DgroupId=org.example -DartifactId=app-a -Dversion=$version -Dpackaging=zip
 }
 
+check_status=yes
+
 app() {
   echo app $@
   run $APPSH_HOME/app $@
+  echo_lines
+
+  if [ "$check_status" = yes ]
+  then
+    eq '$status' 0
+  fi
+
+  check_status=yes
 }
 
 app_libexec() {
@@ -60,6 +75,15 @@ app_libexec() {
   echo libexec/$@
   shift
   run "$x" $@
+
+  echo_lines
+
+  if [ "$check_status" = yes ]
+  then
+    eq '$status' 0
+  fi
+
+  check_status=yes
 }
 
 fix_path_uname=`uname -s`

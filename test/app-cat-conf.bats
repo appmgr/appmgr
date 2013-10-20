@@ -65,7 +65,7 @@ foo.wat=bar" ]]
   eq '${#lines[*]}' 1
 }
 
-@test "uses \$APPSH_DEFAULT_CONFIG, check order" {
+@test "uses \$APPSH_DEFAULT_CONFIG, with lowest priority" {
   app_libexec app-cat-conf -f $APPSH_HOME/test/data/app-cat-conf/config-3
   echo_lines
   eq '${lines[0]}' "foo.bar=baz"
@@ -73,7 +73,7 @@ foo.wat=bar" ]]
   eq '${#lines[*]}' 2
 }
 
-@test "app-cat-conf read from installation's, user's and then app's config" {
+@test "app-cat-conf - read installation's and user's config when outside app" {
   HOME=$APPSH_HOME/test/data/app-cat-conf/home
   APPSH_DEFAULT_CONFIG=$APPSH_HOME/test/data/app-cat-conf/config-2
   app_libexec app-cat-conf; echo_lines
@@ -83,15 +83,24 @@ foo.wat=bar" ]]
   eq '${#lines[*]}' 2
 }
 
-# With home directory, outside app
-@test "./app conf - should read user's conf too, in app" {
+@test "app-cat-conf - read \$HOME/.appconfig and .app/config when inside app" {
   HOME=$APPSH_HOME/test/data/app-cat-conf/home
   APPSH_DEFAULT_CONFIG=$APPSH_HOME/test/data/app-cat-conf/config-2
   cd $APPSH_HOME/test/data/app-cat-conf/my-app
   app_libexec app-cat-conf; echo_lines
   eq '$status' 0
-  eq '${lines[0]}' "foo.bar=2" 
-  eq '${lines[1]}' "foo.baz=3" 
-  eq '${lines[2]}' "foo.foo=2" 
+  eq '${lines[0]}' "foo.bar=2"
+  eq '${lines[1]}' "foo.baz=3"
+  eq '${lines[2]}' "foo.foo=2"
   eq '${#lines[*]}' 3
+}
+
+@test "app-cat-conf -l u - read only \$HOME/.appconfig even when in an app" {
+  HOME=$APPSH_HOME/test/data/app-cat-conf/home
+  cd $APPSH_HOME/test/data/app-cat-conf/my-app
+  app_libexec app-cat-conf -l u; echo_lines
+  eq '$status' 0
+  eq '${lines[0]}' "foo.bar=1"
+  eq '${lines[1]}' "foo.foo=2"
+  eq '${#lines[*]}' 2
 }

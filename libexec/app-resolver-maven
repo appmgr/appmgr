@@ -18,7 +18,6 @@ slash() {
   echo $1 | sed "s,\.,/,g"
 }
 
-# TODO: support file:// repositories
 # TODO: look in the local repository first
 get() {
   local url=$1; shift
@@ -149,7 +148,7 @@ download_version() {
         target="$OPTARG"
         ;;
       *)
-        usage "Invalid option: $OPTARG" 
+        usage "Invalid option: $OPTARG"
         ;;
     esac
   done
@@ -189,7 +188,7 @@ init() {
         OPTIND=1
         ;;
       *)
-        usage "Invalid option: $OPTARG" 
+        usage "Invalid option: $OPTARG"
         ;;
     esac
   done

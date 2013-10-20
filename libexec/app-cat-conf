@@ -16,7 +16,9 @@ declare -a arg_files
 name=""
 use_default_files=yes
 
-while getopts "f:Dn:" opt
+location=app
+
+while getopts "f:Dn:l:" opt
 do
   case $opt in
     f)
@@ -33,26 +35,33 @@ do
     n)
       name=$OPTARG
       ;;
+    l)
+      location=$OPTARG
+      ;;
     \?)
-      usage "Invalid option: $OPTARG"
+      usage "Invalid option: $opt"
       ;;
   esac
 done
 
+validate_location location
+
 if [[ $use_default_files == yes ]]
 then
-  app_home=${APP_HOME-.}
+  _get_config_file_system config_s
+  _get_config_file_user config_u
+  _get_config_file_app config_a
 
-  files+=(${APPSH_DEFAULT_CONFIG-$APPSH_HOME/lib/default-config})
+  files+=($config_s)
 
-  if [ -r "$HOME/.appconfig" ]
+  if [ "$location" -ge 2 -a -r "$config_u" ]
   then
-    files+=("$HOME/.appconfig")
+    files+=("$config_u")
   fi
 
-  if [ -r "$app_home/.app/config" ]
+  if [ "$location" -ge 3 -a -r "$config_a" ]
   then
-    files+=("$app_home/.app/config")
+    files+=("$config_a")
   fi
 fi
 

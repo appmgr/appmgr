@@ -1,4 +1,4 @@
-all: test
+all: test docs
 
 BINS=$(wildcard bin/app-*) $(wildcard libexec/app-*)
 
@@ -16,6 +16,10 @@ show-tests:
 
 test: show-tests $(TESTS)
 .PHONY: test
+
+docs:
+	@make -C docs
+.PHONY: docs
 
 define set_header
 set_header-$(1):

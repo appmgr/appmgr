@@ -48,3 +48,5 @@ Resources
 ---------
 
 * Parameter expansion: <http://wiki.bash-hackers.org/syntax/pe>
+
+<!-- vim: set ft=markdown: -->
