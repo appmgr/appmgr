@@ -4,10 +4,14 @@ usage_text() {
   echo "usage: $usage_app <command>"
   echo ""
   echo "Available porcelain commands:"
-  grep_path "/app-.*$" "$APPSH_HOME/bin" | sed "s,^.*/app-,    ,"
+  grep_path "/app-.*$" "$APPSH_HOME/bin" | \
+    sed "s,^.*/app-,    ," | \
+    sort -n
   echo ""
   echo "Available plumbing commands:"
-  grep_path "/app-.*$" "$APPSH_HOME/libexec" | sed "s,^.*/app-,    ,"
+  grep_path "/app-.*$" "$APPSH_HOME/libexec" | \
+    sed "s,^.*/app-,    ," | \
+    sort -n
 }
 
 PRG="$0"
