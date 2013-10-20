@@ -172,8 +172,7 @@ match() {
     return 0
   fi
 
-  echo "Assertion failed: $ex =~ $a"
-  echo "Expected: $e"
-  echo "Actual:   $a"
+  echo "Match failed: $ex =~ $regex"
+  echo "Value:    $a"
   exit 1
 }

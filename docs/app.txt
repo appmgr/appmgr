@@ -1,0 +1,83 @@
+app(1)
+======
+
+NAME
+----
+app - your favorite application manager
+
+
+SYNOPSIS
+--------
+[verse]
+'app' <options>
+
+INSTALLING AN APPLICATION
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This resolved and downloads an appliaction from a Maven repository:
+
+    $ app init -d my-app maven org.example:my-app:1.0-SNAPSHOT
+
+By default it will download from the central repository, but this is
+not always what you want. To get it to use another repository give the
+`-r` option:
+
+    $ app init -d my-app maven -f http://repo.example.org/snapshots org.example:my-app:1.0-SNAPSHOT
+
+UPGRADING AN APPLICATION
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+If your application is configured with the Maven resolver and the
+version is a SNAPSHOT version, you can use this to upgrade your
+application through a cron job:
+
+    $ app upgrade
+
+With the resolver will try to resolve `app.version` to the latest
+version. If it's change it will automatically download and install the
+latest version.
+
+CHANGING VERSION OF AN APPLICATION
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    $ app conf set app.version 1.0
+    $ app sync-version
+
+`app-sync-version` will first run the resolver to resolve the version
+and if that has changed, it will download and install the new version.
+
+INTERNALS
+---------
+
+Concepts:
+
+resolver::
+    Something that takes a version and resolves it to a specific
+    version. Makes it possible to depend on a development version
+    which is resolved later on.
+
+Configuration properties:
+
+`app.version`::
+    The unresolved version of the application. Configured when the
+    application is installed.
+
+`app.resolved_version`::
+    The resolved version of the application. Is updated by the
+    resolved configured for the project.
+
+`app.installed_version`::
+    The installed version of the application. Is updated by
+    `app-set-version`.
+
+TODOs
+-----
+
+* Consider renaming "upgrade" to "refresh". Upgrade is an overloaded
+  word, in particular since it might mean to download a catalog of
+  applications instead of actually upgrading it. I'm always confused
+  if I should use "upgrade" or "update".
+
+* Find a way to check if an application is running.
+
+// vim: set ft=asciidoc:

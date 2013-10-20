@@ -66,7 +66,7 @@ resolved_version=`app-conf get app.resolved_version`
 if [[ $resolved_version == "" ]]
 then
   echo "Unable to resolve version" 2>&1
-  exit
+  exit 1
 fi
 
 echo "Resolved version to $resolved_version"

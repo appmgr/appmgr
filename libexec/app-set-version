@@ -54,4 +54,4 @@ else
   ln -s versions/$version/root current
 fi
 
-app-conf set app.version "$version"
+app-conf set app.installed_version "$version"

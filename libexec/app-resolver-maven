@@ -84,7 +84,7 @@ download_artifact() {
 resolve_version() {
   local group_id=`app-conf get maven.group_id`
   local artifact_id=`app-conf get maven.artifact_id`
-  local version=`app-conf get maven.version`
+  local version=`app-conf get app.version`
 
   repo=`app-conf get maven.repo`
 
@@ -131,7 +131,7 @@ resolve_snapshot() {
     exit 1
   fi
 
-  app-conf set maven.snapshotVersion "$snapshot_version"
+  app-conf set maven.snapshot "$snapshot_version"
   app-conf set app.resolved_version "${version%-SNAPSHOT}-$snapshot_version"
 }
 
@@ -161,7 +161,7 @@ download_version() {
   repo=`app-conf get maven.repo`
   group_id=`app-conf get maven.group_id`
   artifact_id=`app-conf get maven.artifact_id`
-  version=`app-conf get maven.version`
+  version=`app-conf get app.version`
 
   group_id_slash=`slash $group_id`
   base_path=$group_id_slash/$artifact_id/$version
@@ -209,7 +209,7 @@ init() {
 
   app-conf set maven.group_id "$group_id"
   app-conf set maven.artifact_id "$artifact_id"
-  app-conf set maven.version "$version"
+  app-conf set app.version "$version"
 }
 
 command="$1"; shift

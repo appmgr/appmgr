@@ -22,7 +22,7 @@ assert_is_app
 resolver_name=`app-conf get app.resolver`
 resolver=`find_resolver "$resolver_name"`
 
-old_version=`app-conf get app.version`
+old_version=`app-conf get app.resolved_version`
 echo "Resolving version $old_version"
 "$resolver" resolve-version
 new_version=`app-conf get app.resolved_version`
@@ -34,6 +34,24 @@ then
 fi
 
 echo "Resolved version to $new_version"
+
+if [ "$new_version" = "" ]
+then
+  new_version=`app-conf get app.resolved_version`
+fi
+
+if [ "$new_version" = "" ]
+then
+  fatal "app.resolved_version is not set."
+fi
+
+installed_version=`app-conf get app.installed_version`
+
+if [ "$new_version" = "$installed_version" ]
+then
+  echo "$new_version is already installed"
+  exit 0
+fi
 
 "$resolver" download-version -v "$new_version" -f .app/latest.zip
 

@@ -56,3 +56,21 @@ load utils
   # Created by post-install
   is_directory "my-app/logs"
 }
+
+@test "Install 1.0-SNAPSHOT, upgrade to 1.0" {
+  mkzip app-a
+  install_artifact
+  app conf -l user set maven.repo "file://$BATS_TMPDIR/repo"
+  app init -d my-app maven org.example:app-a:1.0-SNAPSHOT
+
+  cd my-app
+  app conf set app.version 1.0
+
+  install_artifact 1.0
+  app upgrade
+  cd current
+  run pwd -P
+
+  match '${lines[0]}' ".*/versions/1.0/root$"
+  eq    '${#lines[*]}' 1
+}
