@@ -3,11 +3,11 @@ all: test
 BINS=$(wildcard bin/app-*) $(wildcard libexec/app-*)
 
 BATS=$(sort $(patsubst test/%,%,$(filter-out test/X-%,$(wildcard test/*.bats))))
-TESTS=$(addprefix bats-,$(BATS))
+TESTS=$(addprefix test-,$(BATS))
 
-bats-%:
-	@echo === test/$(patsubst bats-%,%,$@)
-	@bats test/$(patsubst bats-%,%,$@)
+test-%:
+	@echo === $@
+	@bats $(patsubst test-%,test/%,$@)
 
 show-tests:
 	@echo BATS=$(BATS)

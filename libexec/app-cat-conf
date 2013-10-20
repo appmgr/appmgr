@@ -11,6 +11,8 @@ APPSH_HOME=$(cd $(dirname "$0")/.. && pwd)
 key_expr="[a-zA-Z][_a-zA-Z0-9]*"
 
 files=()
+arg_files=()
+declare -a arg_files
 name=""
 use_default_files=yes
 
@@ -18,12 +20,12 @@ while getopts "f:Dn:" opt
 do
   case $opt in
     f)
-      file=$OPTARG
+      file="$OPTARG"
       if [[ $file == "-" ]]
       then
         file=/dev/stdin
       fi
-      files+=($file)
+      arg_files+=($file)
       ;;
     D)
       use_default_files=no
@@ -40,12 +42,25 @@ done
 if [[ $use_default_files == yes ]]
 then
   app_home=${APP_HOME-.}
+
+  files+=(${APPSH_DEFAULT_CONFIG-$APPSH_HOME/lib/default-config})
+
+  if [ -r "$HOME/.appconfig" ]
+  then
+    files+=("$HOME/.appconfig")
+  fi
+
   if [ -r "$app_home/.app/config" ]
   then
     files+=("$app_home/.app/config")
   fi
+fi
 
-  files+=(${APPSH_DEFAULT_CONFIG-$APPSH_HOME/lib/default-config})
+# Even if arg_files is declared above, the files+= statement will fail
+# with "unbound" variable. bash-4.2.45.
+if [ "${#arg_files[@]}" -gt 0 ]
+then
+  files+=("${arg_files[@]}")
 fi
 
 # TODO: find config files in the paths above $file's paths and perhaps
@@ -61,7 +76,8 @@ fi
 debug "Using files:" "${files[@]}"
 
 # The awk script makes sure each key only appears once. The first one wins
-cat "${files[@]}" | \
+
+(for ((idx=${#files[@]}-1 ; idx>=0 ; idx-- )); do cat ${files[idx]}; done) | \
   sed -n -e "$filter" | \
   awk -F = ' (!($1 in a)){a[$1]; print }' | \
   sort

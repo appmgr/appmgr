@@ -134,7 +134,7 @@ setup_inner() {
   eq '${lines[0]}' "Importing config from config-b" 
   eq '${#lines[*]}' 1
 
-  app_libexec app-cat-conf
+  app_libexec app-cat-conf; echo_lines
   eq '${lines[0]}' "foo.bar=2" 
   eq '${lines[1]}' "foo.baz=1" 
   eq '${#lines[*]}' 2

@@ -38,6 +38,7 @@ assert_valid_config_name() {
 }
 
 conf_set() {
+  local file=$1; shift
   local name=$1; shift
   local value=$1; shift
 
@@ -53,6 +54,7 @@ conf_set() {
 }
 
 conf_delete() {
+  local file=$1; shift
   local name=$1; shift
 
   assert_valid_config_name "$name"
@@ -66,7 +68,7 @@ conf_import() {
   local src=$1; shift
 
   echo "Importing config from $src"
-  app-cat-conf -f "$src" -f "$dst" > "$dst.tmp"
+  app-cat-conf -f "$dst" -f "$src" > "$dst.tmp"
   mv "$dst.tmp" "$dst" 
 }
 
@@ -79,11 +81,14 @@ usage_text() {
   echo "  set [name] [value] - set a config parameter"
   echo "  delete [name]      - deletes a config parameter"
   echo "  import [file]      - import a file"
+  echo ""
+  echo "list is the default command."
   exit 1
 }
 
 app_home=${APP_HOME-.}
-file="$app_home/.app/config"
+app_config="$app_home/.app/config"
+user_config="$HOME/.appconfig"
 
 if [ $# -gt 0 ]
 then
@@ -93,8 +98,6 @@ else
   command=list
 fi
 
-assert_is_app -C
-
 case "$command" in
   get)
     if [ $# != 1 ]
@@ -102,7 +105,7 @@ case "$command" in
       usage
     fi
 
-    app-cat-conf -f "$file" -n "$1" | cut -f 2 -d = | format_conf | sed "s, *$,,"
+    app-cat-conf -f "$app_config" -n "$1" | cut -f 2 -d = | format_conf | sed "s, *$,,"
     ;;
   list)
     if [ $# -gt 0 ]
@@ -110,7 +113,17 @@ case "$command" in
       usage "Extra options."
     fi
 
-    app-cat-conf -f "$file" | format_conf
+    if [ ! -r "$app_config" ]
+    then
+      app_config=""
+    fi
+
+    if [ ! -r "$user_config" ]
+    then
+      user_config=""
+    fi
+
+    app-cat-conf "${user_config+-f ${user_config}}" -f "$app_config" | format_conf
     ;;
   set)
     if [ $# -ne 2 ]
@@ -118,7 +131,9 @@ case "$command" in
       usage
     fi
 
-    conf_set "$1" "$2"
+    assert_is_app -C
+
+    conf_set "$app_config" "$1" "$2"
     ;;
   delete)
     if [ $# -ne 1 ]
@@ -126,7 +141,9 @@ case "$command" in
       usage "Missing [name] argument."
     fi
 
-    conf_delete "$1"
+    assert_is_app -C
+
+    conf_delete "$app_config" "$1"
     ;;
   import)
     if [ $# -ne 1 ]
@@ -135,7 +152,9 @@ case "$command" in
       exit 1
     fi
 
-    conf_import "$file" "$1"
+    assert_is_app -C
+
+    conf_import "$app_config" "$1"
     ;;
   *)
     if [ -z "$command" ]

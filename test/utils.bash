@@ -42,10 +42,11 @@ mkzip() {
 }
 
 install_artifact() {
+  local version=${1-1.0-SNAPSHOT}
   describe -Dfile=`fix_path $APPSH_HOME/test/data/app-a.zip` -DgeneratePom
   PATH=$ORIG_PATH mvn deploy:deploy-file -Durl=$FIXED_REPO_URL \
     -Dfile=`fix_path $APPSH_HOME/test/data/app-a.zip` -DgeneratePom \
-    -DgroupId=org.example -DartifactId=app-a -Dversion=1.0-SNAPSHOT -Dpackaging=zip
+    -DgroupId=org.example -DartifactId=app-a -Dversion=$version -Dpackaging=zip
 }
 
 app() {

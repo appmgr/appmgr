@@ -27,7 +27,7 @@ APPSH_HOME=`cd "$APPSH_HOME" && pwd`
 . $APPSH_HOME/lib/common
 
 echo_debug=no
-while getopts "h" opt
+while getopts ":hD:" opt
 do
   case $opt in
     h)
@@ -35,9 +35,11 @@ do
       ;;
     D)
       echo_debug=yes
+      eval OPTIND=$((OPTIND-1))
+      shift
       ;;
-    \?)
-      usage
+    *)
+      break
       ;;
   esac
 done
@@ -66,4 +68,5 @@ PATH=$APPSH_HOME/bin:$PATH
 # TODO: this is probably a good place to clean up the environment
 exec env \
   "APPSH_HOME=$APPSH_HOME" \
+  "echo_debug=$echo_debug" \
   "$bin" "$@"
