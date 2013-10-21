@@ -14,7 +14,7 @@ show-tests:
 	@echo TESTS=$(TESTS)
 	@echo $(addprefix set_header-,$(BINS))
 
-test: show-tests $(TESTS)
+test: $(TESTS)
 .PHONY: test
 
 docs:

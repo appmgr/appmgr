@@ -28,7 +28,7 @@ format_conf() {
   local IFS==
   while read key value
   do
-    printf "%-20s %-20s" "$key" "$value"
+    printf "%-20s %s" "$key" "$value"
     echo
   done
 }
@@ -140,12 +140,12 @@ case "$command" in
       usage
     fi
 
-    app-cat-conf -l "$location" -n "$1" | cut -f 2 -d = | format_conf | sed "s, *$,,"
+    app-cat-conf -l "$location" -n "$1" | cut -f 2- -d =
     ;;
   list)
     if [ $# -gt 0 ]
     then
-      usage "Extra options."
+      usage "Extra arguments."
     fi
 
     app-cat-conf -l "$location" | format_conf
@@ -153,7 +153,7 @@ case "$command" in
   set)
     if [ $# -ne 2 ]
     then
-      usage
+      usage "Expected exactly two arguments"
     fi
 
     conf_set "$file" "$1" "$2"

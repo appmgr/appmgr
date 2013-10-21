@@ -8,10 +8,10 @@ exit_usage_wrong=0
 
 setup() {
   find test/data -name \*.zip | xargs rm -f
+  APPSH_HOME=$(cd $BATS_TEST_DIRNAME/..; echo `pwd`)
   ORIG_PATH=$PATH
   PATH=/bin:/usr/bin
   PATH=$PATH:$APPSH_HOME
-  APPSH_HOME=$(cd $BATS_TEST_DIRNAME/..; echo `pwd`)
 
   rm -rf $BATS_TMPDIR/app.sh
   mkdir $BATS_TMPDIR/app.sh
@@ -58,7 +58,7 @@ check_status=yes
 
 app() {
   echo app $@
-  run $APPSH_HOME/app $@
+  run $APPSH_HOME/app "$@"
   echo_lines
 
   if [ "$check_status" = yes ]
@@ -74,7 +74,7 @@ app_libexec() {
 
   echo libexec/$@
   shift
-  run "$x" $@
+  run "$x" "$@"
 
   echo_lines
 

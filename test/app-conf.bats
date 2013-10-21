@@ -18,12 +18,12 @@ setup_inner() {
   app conf set g.FOO bar
 
   app conf
-  eq '${lines[0]}' "app.bin              bin/app-a           " 
-  eq '${lines[1]}' "g.FOO                bar                 " 
+  eq '${lines[0]}' "app.bin              bin/app-a"
+  eq '${lines[1]}' "g.FOO                bar"
   eq '${#lines[*]}' 2
 
   app conf get g.FOO
-  eq '${lines[0]}' "bar" 
+  eq '${lines[0]}' "bar"
   eq '${#lines[*]}' 1
 
   app conf get g.foo
@@ -33,7 +33,7 @@ setup_inner() {
   eq '${#lines[*]}' 0
 
   app conf
-  eq '${lines[0]}' "app.bin              bin/app-a           " 
+  eq '${lines[0]}' "app.bin              bin/app-a"
   eq '${#lines[*]}' 1
 }
 
@@ -42,13 +42,13 @@ setup_inner() {
 
   app conf
   eq '${#lines[*]}' 1
-  eq '${lines[0]}' "app.bin              bin/app-a           " 
+  eq '${lines[0]}' "app.bin              bin/app-a"
 }
 
 @test "./app conf wat" {
   check_status=no
   app conf wat
-  eq '${lines[0]}' "Unknown command: wat" 
+  eq '${lines[0]}' "Unknown command: wat"
 }
 
 @test "./app conf list" {
@@ -56,11 +56,11 @@ setup_inner() {
 
   app conf
   eq '${#lines[*]}' 1
-  eq '${lines[0]}' "app.bin              bin/app-a           " 
+  eq '${lines[0]}' "app.bin              bin/app-a"
 
   app conf list
   eq '${#lines[*]}' 1
-  eq '${lines[0]}' "app.bin              bin/app-a           " 
+  eq '${lines[0]}' "app.bin              bin/app-a"
 
   check_status=no
   app conf list foo
@@ -72,7 +72,7 @@ setup_inner() {
   echo "foo.bar=awesome" >> .app/config
 
   app conf list
-  eq '${lines[0]}' "foo.bar              awesome             " 
+  eq '${lines[0]}' "foo.bar              awesome"
   eq '${#lines[*]}' 1
 }
 
@@ -98,16 +98,27 @@ setup_inner() {
   eq '${#lines[*]}' 0
 
   app conf
-  eq '${lines[0]}' "app.bin              bin/app-a           " 
-  eq '${lines[1]}' "group.foo            bar                 " 
+  eq '${lines[0]}' "app.bin              bin/app-a"
+  eq '${lines[1]}' "group.foo            bar"
   eq '${#lines[*]}' 2
+}
+
+@test "./app conf set - values with '=' and spaces" {
+  echo > .app/config
+  app conf set app.env "JAVA_OPTS=-Xmx1G -Dawesome=true"
+  app_libexec app-cat-conf
+  eq '${lines[0]}' "app.env=JAVA_OPTS=-Xmx1G -Dawesome=true"
+  eq '${#lines[*]}' 1
+  app conf get app.env
+  eq '${lines[0]}' "JAVA_OPTS=-Xmx1G -Dawesome=true"
+  eq '${#lines[*]}' 1
 }
 
 @test "./app conf -l app set" {
   echo > .app/config
   app conf -l app set a.x 2
   app_libexec app-cat-conf
-  eq '${lines[0]}' "a.x=2" 
+  eq '${lines[0]}' "a.x=2"
   eq '${#lines[*]}' 1
 }
 
@@ -115,7 +126,7 @@ setup_inner() {
   echo > .app/config
   app conf -l user set a.x 3
   app_libexec app-cat-conf -l user
-  eq '${lines[0]}' "a.x=3" 
+  eq '${lines[0]}' "a.x=3"
   eq '${#lines[*]}' 1
 }
 
@@ -125,11 +136,11 @@ setup_inner() {
   echo "foo.bar=2" >> config-b
 
   app conf import config-b
-  eq '${lines[0]}' "Importing config from config-b" 
+  eq '${lines[0]}' "Importing config from config-b"
   eq '${#lines[*]}' 1
 
   app_libexec app-cat-conf
-  eq '${lines[0]}' "foo.bar=2" 
-  eq '${lines[1]}' "foo.baz=1" 
+  eq '${lines[0]}' "foo.bar=2"
+  eq '${lines[1]}' "foo.baz=1"
   eq '${#lines[*]}' 2
 }

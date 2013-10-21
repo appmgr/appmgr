@@ -199,7 +199,12 @@ _get_config_file_system() {
 }
 
 _get_config_file_user() {
-  eval $1="$HOME/.appconfig"
+  if [[ -z $HOME ]]
+  then
+    eval $1=""
+  else
+    eval $1="$HOME/.appconfig"
+  fi
 }
 
 _get_config_file_app() {
@@ -288,6 +293,9 @@ find_resolver() {
 # Add the app-* apps to PATH. They're added last to allow the user to
 # overload their implementations.
 PATH=$PATH:$APPSH_HOME/bin:$APPSH_HOME/libexec
+
+# Make sure that $HOME is present to prevent unbound errors
+HOME=${HOME:-}
 
 # Save for later
 usage_app=${0##*/}

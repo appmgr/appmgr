@@ -12,6 +12,7 @@ usage_text() {
   echo "usage: $usage_app -d dir <resolver> <resolver args>"
 }
 
+dir=
 while getopts "d:" opt
 do
   case $opt in
@@ -32,7 +33,7 @@ resolver_name="$1"; shift
 
 if [ -z "$dir" ]
 then
-  usage
+  usage "-d is required"
 fi
 
 if [ -e "$dir" ]
