@@ -5,11 +5,11 @@ all: $(HTML) $(MAN)
 
 %.html: %.txt
 	@echo asciidoc $<
-	@asciidoc -a data-uri -a icons -a toc -a max-width=55em $<
+	@asciidoc -f asciidoc.conf --backend=html5 $<
 
 %.1: %.txt
 	@echo a2x $<
-	@a2x --doctype manpage --format manpage $<
+	@a2x --format manpage $<
 
 clean:
 	rm -rf $(wildcard *.html) $(wildcard *.1)

@@ -17,6 +17,10 @@ show-tests:
 test: $(TESTS)
 .PHONY: test
 
+clean:
+	@make -C docs clean
+.PHONY: clean
+
 docs:
 	@make -C docs
 .PHONY: docs

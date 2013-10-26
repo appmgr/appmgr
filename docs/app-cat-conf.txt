@@ -39,11 +39,11 @@ LOCATIONS AND DEFAULT FILES
 
 'app-cat-conf' will by default look for configuration files in three places:
 
-. $APPSH_HOME/lib/default-config
+* '$APPSH_HOME/lib/default-config'
 
-. $HOME/.appconfig
+* '$HOME/.appconfig'
 
-. .app/config
+* '.app/config'
 
 SEE ALSO
 --------

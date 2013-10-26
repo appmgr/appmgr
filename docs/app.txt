@@ -5,7 +5,6 @@ NAME
 ----
 app - your favorite application manager
 
-
 SYNOPSIS
 --------
 [verse]
@@ -83,17 +82,16 @@ Configuration properties:
 TODOs
 -----
 
-* Consider renaming "upgrade" to "refresh". Upgrade is an overloaded
-  word, in particular since it might mean to download a catalog of
-  applications instead of actually upgrading it. I'm always confused
-  if I should use "upgrade" or "update".
+* Consider renaming "upgrade" to "refresh" or "sync". Upgrade is an
+  overloaded word, in particular since it might mean to download a
+  catalog of applications instead of actually upgrading it. I'm always
+  confused if I should use "upgrade" or "update".
 
 * Find a way to check if an application is running.
 
 SEE ALSO
 --------
 
-* app-conf
-* app-cat-conf
+linkman:app-conf[1]
 
 // vim: set ft=asciidoc:
