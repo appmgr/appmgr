@@ -247,7 +247,7 @@ run_app() {
   done
 
   local bin=$1; shift
-  local e=`app-cat-conf -n "env\..*" | cut -f 2- -d .`
+  local e=`app-cat-conf -g env | cut -f 2- -d .`
 
   local app_home=`pwd`
 

@@ -11,6 +11,16 @@ SYNOPSIS
 [verse]
 'app' <options>
 
+QUICK START
+~~~~~~~~~~~
+
+    $ app init -d my-app maven org.example:my-app:1.0-SNAPSHOT
+    $ cd my-app
+    $ app start
+    $ app conf set app.version 1.0
+    $ app upgrade
+    $ app restart
+
 INSTALLING AN APPLICATION
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -79,5 +89,11 @@ TODOs
   if I should use "upgrade" or "update".
 
 * Find a way to check if an application is running.
+
+SEE ALSO
+--------
+
+* app-conf
+* app-cat-conf
 
 // vim: set ft=asciidoc:

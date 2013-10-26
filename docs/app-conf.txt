@@ -5,7 +5,6 @@ NAME
 ----
 app-conf - configuration management
 
-
 SYNOPSIS
 --------
 [verse]

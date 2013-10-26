@@ -140,7 +140,7 @@ case "$command" in
       usage
     fi
 
-    app-cat-conf -l "$location" -n "$1" | cut -f 2- -d =
+    app-cat-conf -l "$location" -k "$1" | cut -f 2- -d =
     ;;
   list)
     if [ $# -gt 0 ]

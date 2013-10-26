@@ -13,12 +13,12 @@ key_expr="[a-zA-Z][_a-zA-Z0-9]*"
 files=()
 arg_files=()
 declare -a arg_files
-name=""
 use_default_files=yes
 
 location=app
+mode=all
 
-while getopts "f:Dn:l:" opt
+while getopts "f:Dk:g:l:" opt
 do
   case $opt in
     f)
@@ -32,17 +32,39 @@ do
     D)
       use_default_files=no
       ;;
-    n)
-      name=$OPTARG
+    k)
+      key=$OPTARG
+      mode=key
+      if [[ ! $key =~ $key_expr\.$key_expr ]]
+      then
+        echo Invalid key name: $key
+        exit 1
+      fi
+      ;;
+    g)
+      group=$OPTARG
+      mode=group
+      if [[ ! $group =~ $key_expr ]]
+      then
+        echo Invalid group name: $group
+        exit 1
+      fi
       ;;
     l)
       location=$OPTARG
       ;;
-    \?)
+    *)
       usage "Invalid option: $opt"
       ;;
   esac
 done
+
+shift $(($OPTIND - 1))
+
+if [[ $# != 0 ]]
+then
+  usage "extra arguments"
+fi
 
 validate_location location
 
@@ -72,19 +94,21 @@ then
   files+=("${arg_files[@]}")
 fi
 
-# TODO: find config files in the paths above $file's paths and perhaps
-# /etc/appsh/config.
+case $mode in
+  all)
+    filter="$key_expr\.$key_expr"
+    ;;
+  group)
+    filter="$group\.$key_expr"
+    ;;
+  key)
+    filter=$key
+    ;;
+esac
 
-if [ -z "$name" ]
-then
-  filter="s,^[ ]*\($key_expr\.$key_expr\)[ ]*=[ ]*\(.*\)$,\1=\2,p"
-else
-  filter="s,^\($name\)=\(.*\),\1=\2,p"
-fi
+filter="s,^[ ]*\($filter\)[ ]*=[ ]*\(.*\)$,\1=\2,p"
 
 debug "Using files:" "${files[@]}"
-
-# The awk script makes sure each key only appears once. The first one wins
 
 (for ((idx=${#files[@]}-1 ; idx>=0 ; idx-- )); do cat ${files[idx]}; done) | \
   sed -n -e "$filter" | \

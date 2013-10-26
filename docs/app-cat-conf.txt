@@ -1,0 +1,53 @@
+app-cat-conf(1)
+===============
+
+NAME
+----
+app-cat-conf - outputs a combined configuration file in a parseable
+format
+
+SYNOPSIS
+--------
+[verse]
+'app-cat-conf' [-f <file>] [-D] [-l <location>] [-k <key>]
+
+DESCRIPTION
+-----------
+Outputs the combined file from all the input files. It will only
+output a key once, the last value for each key seen will win.
+
+A configuration file is a collection of grouped keys and values,
+similar to Git.
+
+The keys consits of two parts: a _group_ and a _name_. Both have to
+match the regex `[a-zA-Z0-9]` and are combined with a dot.
+
+OPTIONS
+-------
+-f::
+  The config file to use. If the value is '-', stdin will be used as
+  input. The option can be given multiple times.
+-D::
+  Disables the inclusion of the default files.
+-k::
+  Looks up the given key.
+-l::
+  Selects the location to use.
+
+LOCATIONS AND DEFAULT FILES
+---------------------------
+
+'app-cat-conf' will by default look for configuration files in three places:
+
+. $APPSH_HOME/lib/default-config
+
+. $HOME/.appconfig
+
+. .app/config
+
+SEE ALSO
+--------
+
+git-config(1)
+
+// vim: set ft=asciidoc:
