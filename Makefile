@@ -18,11 +18,11 @@ test: $(TESTS)
 .PHONY: test
 
 clean:
-	@make -C docs clean
+	@make -s -C docs clean
 .PHONY: clean
 
 docs:
-	@make -C docs
+	@make -s -C docs
 .PHONY: docs
 
 define set_header

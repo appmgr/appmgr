@@ -45,6 +45,14 @@ LOCATIONS AND DEFAULT FILES
 
 * '.app/config'
 
+TODOs
+-----
+
+Support comments::
+  1) ignore comments (lines that start with #), 2) add a flag (-C) to
+  include comments in the output but still filter the lines. (2) is
+  required for app-conf set to work. (1) can be done first.
+
 SEE ALSO
 --------
 

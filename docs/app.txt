@@ -55,30 +55,6 @@ CHANGING VERSION OF AN APPLICATION
 `app-sync-version` will first run the resolver to resolve the version
 and if that has changed, it will download and install the new version.
 
-INTERNALS
----------
-
-Concepts:
-
-resolver::
-    Something that takes a version and resolves it to a specific
-    version. Makes it possible to depend on a development version
-    which is resolved later on.
-
-Configuration properties:
-
-`app.version`::
-    The unresolved version of the application. Configured when the
-    application is installed.
-
-`app.resolved_version`::
-    The resolved version of the application. Is updated by the
-    resolved configured for the project.
-
-`app.installed_version`::
-    The installed version of the application. Is updated by
-    `app-set-version`.
-
 TODOs
 -----
 
@@ -92,6 +68,7 @@ TODOs
 SEE ALSO
 --------
 
-linkman:app-conf[1]
+linkman:app-conf[1],
+linkman:appinternals[1],
 
 // vim: set ft=asciidoc:
