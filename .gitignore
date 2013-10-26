@@ -2,6 +2,7 @@ apps.list
 downloads
 target
 docs/*.html
+docs/*.1
 .app/var
 /*/.gitignore
 

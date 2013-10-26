@@ -103,6 +103,26 @@ setup_inner() {
   eq '${#lines[*]}' 2
 }
 
+@test "./app conf set -f" {
+  echo "" > .app/config
+
+  app conf set -f myconfig group.foo bar
+  eq '${#lines[*]}' 0
+
+  app_libexec app-cat-conf -f myconfig
+  eq '${lines[0]}' "group.foo=bar"
+  eq '${#lines[*]}' 1
+
+  run cat .app/config
+  eq '$status' 0
+  eq '${#lines[*]}' 0
+
+  run cat myconfig
+  eq '$status' 0
+  eq '${lines[0]}' "group.foo=bar"
+  eq '${#lines[*]}' 1
+}
+
 @test "./app conf set - values with '=' and spaces" {
   echo > .app/config
   app conf set app.env "JAVA_OPTS=-Xmx1G -Dawesome=true"

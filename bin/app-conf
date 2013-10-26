@@ -151,9 +151,22 @@ case "$command" in
     app-cat-conf -l "$location" | format_conf
     ;;
   set)
+    while getopts "f:" opt
+    do
+      case $opt in
+        f)
+          file="$OPTARG"
+          shift 2;
+          ;;
+        *)
+          usage "Unknown argument: $OPTARG"
+          ;;
+      esac
+    done
+
     if [ $# -ne 2 ]
     then
-      usage "Expected exactly two arguments"
+      usage "Expected exactly two arguments."
     fi
 
     conf_set "$file" "$1" "$2"
