@@ -69,6 +69,7 @@ SEE ALSO
 --------
 
 linkman:app-conf[1],
+linkman:app-cat-conf[1],
 linkman:appinternals[1],
 
 // vim: set ft=asciidoc:

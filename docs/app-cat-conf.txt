@@ -52,6 +52,16 @@ Support comments::
   1) ignore comments (lines that start with #), 2) add a flag (-C) to
   include comments in the output but still filter the lines. (2) is
   required for app-conf set to work. (1) can be done first.
+Better support for scripting::
+  Support _required keys_: exit with non-null value when a key is
+  missing. Suggested option: '-r'.
++
+Support _default values_: when a key is missing, return the default
+value instead. Suggested option: '-d'.
++
+Support _$APP_HOME_: If '$APP_HOME' is set, use that when reading the
+app's config values. Makes it easier to script as the user may move
+around directories, but still read values from the right place.
 
 SEE ALSO
 --------

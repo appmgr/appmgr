@@ -29,5 +29,10 @@ Configuration properties:
     The installed version of the application. Is updated by
     `app-set-version`.
 
+ENVIRONMENT VARIABLES
+---------------------
+
+`APPSH_HOME`::
+`APP_HOME`::
 
 // vim: set ft=asciidoc:
