@@ -68,4 +68,9 @@ SEE ALSO
 
 git-config(1)
 
+APP.SH
+------
+
+Part of the linkman:app[1] suite.
+
 // vim: set ft=asciidoc:

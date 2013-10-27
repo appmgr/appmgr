@@ -3,6 +3,7 @@ downloads
 target
 docs/*.html
 docs/*.1
+docs/*.7
 .app/var
 /*/.gitignore
 

@@ -1,0 +1,23 @@
+#!/bin/bash
+
+set -e
+set -u
+
+APPSH_HOME=$(cd $(dirname "$0")/.. && pwd)
+
+. $APPSH_HOME/lib/common
+# HEADER END
+
+usage_text() {
+  echo "usage: $usage_app [args]"
+}
+
+IFS=" "
+app-ls-apps | while read app
+do
+  unset IFS
+  (cd $app; "$@") | while read line
+  do
+    echo "$app: $line"
+  done
+done

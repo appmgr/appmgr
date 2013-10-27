@@ -33,6 +33,14 @@ ENVIRONMENT VARIABLES
 ---------------------
 
 `APPSH_HOME`::
+	..
+
 `APP_HOME`::
+	..
+
+APP.SH
+------
+
+Part of the linkman:app[1] suite.
 
 // vim: set ft=asciidoc:

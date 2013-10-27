@@ -20,4 +20,9 @@ DESCRIPTION
 Interface to the configuration values used by 'app.sh'. Modelled after
 the 'git-config' command. 'list' is the default command
 
+APP.SH
+------
+
+Part of the linkman:app[1] suite.
+
 // vim: set ft=asciidoc:

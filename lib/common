@@ -208,7 +208,8 @@ _get_config_file_user() {
 }
 
 _get_config_file_app() {
-  eval $1=".app/config"
+  local home=
+  eval $1="${APP_HOME-.}/.app/config"
 }
 
 grep_path() {

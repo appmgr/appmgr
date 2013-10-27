@@ -13,11 +13,31 @@ usage_text() {
 }
 
 dir=
-while getopts "d:" opt
+prepend_config=
+append_config=
+while getopts "d:C:c:" opt
 do
   case $opt in
     d)
       dir=$OPTARG
+      shift 2
+      OPTIND=1
+      ;;
+    C)
+      prepend_config=$OPTARG
+      if [[ ! prepend_config =~ ^/ ]]
+      then
+        prepend_config="`pwd`/$prepend_config"
+      fi
+      shift 2
+      OPTIND=1
+      ;;
+    c)
+      append_config=$OPTARG
+      if [[ ! append_config =~ ^/ ]]
+      then
+        append_config="`pwd`/$append_config"
+      fi
       shift 2
       OPTIND=1
       ;;
@@ -52,7 +72,7 @@ fi
 mkdir -p -- "$dir" "$dir/.app"
 
 ok=no
-clean_dir=`cd "$dir">/dev/null; pwd`
+clean_dir=`cd "$dir" && pwd`
 trap '[[ $ok == yes ]] || rm -rf "$clean_dir"' EXIT
 
 cd "$dir"
@@ -74,6 +94,10 @@ echo "Resolved version to $resolved_version"
 
 "$resolver" download-version -v "$resolved_version" -f .app/latest.zip
 
-app-install-file -v "$resolved_version" -f .app/latest.zip
+app-install-file \
+    -v "$resolved_version" \
+    ${prepend_config:+-C "$prepend_config"} \
+    ${append_config:+-c "$append_config"} \
+    -f .app/latest.zip
 
 ok=yes

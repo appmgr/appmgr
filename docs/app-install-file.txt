@@ -1,0 +1,24 @@
+app-install-file(1)
+===================
+
+NAME
+----
+app-install-file - Low-level installation of an app
+
+SYNOPSIS
+--------
+[verse]
+'app-operator-pid' ...
+
+TODOs
+-----
+
+Tests for prepending and appending configuration::
+    Missing.
+
+APP.SH
+------
+
+Part of the linkman:app[1] suite.
+
+// vim: set ft=asciidoc:

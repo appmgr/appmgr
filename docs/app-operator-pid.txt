@@ -1,0 +1,27 @@
+app-operator-pid(1)
+===================
+
+NAME
+----
+app-operator-pid - Controls the running instance of the app
+
+SYNOPSIS
+--------
+[verse]
+'app-operator-pid' ...
+
+TODOs
+-----
+
+Support configurable signal to send on shutdown::
+    TERM might be exessive for some apps.
+
+Tests for app.pid_management=launcher::
+    Missing.
+
+APP.SH
+------
+
+Part of the linkman:app[1] suite.
+
+// vim: set ft=asciidoc:

@@ -1,0 +1,27 @@
+#!/bin/bash
+
+set -e
+set -u
+
+APPSH_HOME=$(cd $(dirname "$0")/.. && pwd)
+
+. $APPSH_HOME/lib/common
+# HEADER END
+
+usage_text() {
+  echo "usage: $usage_app [dir]"
+}
+
+case $# in
+  0)
+    dir=*
+    ;;
+  1)
+    dir="$1/*"; shift
+    ;;
+  *)
+    usage
+    ;;
+esac
+
+find $dir -type d -name .app | sed "s,/\.app$,,"

@@ -23,7 +23,7 @@ do_status() {
 }
 
 find_launcher() {
-  launcher=`app-conf get app.launcher`
+  local launcher=`app-conf get app.launcher`
 
   if [ ! -z "$launcher" ]
   then
@@ -59,8 +59,34 @@ find_launcher() {
   echo $launcher
 }
 
+find_pid_management() {
+  pid_management=`app-conf get app.pid_management`
+
+  if [[ $pid_management == "" ]]
+  then
+    echo "appsh"
+    return
+  fi
+
+  case "$pid_management" in
+    launcher)
+      echo "$pid_management"
+      ;;
+    *)
+      fatal "Invalid app.pid_management: $pid_management"
+      ;;
+  esac
+}
+
 command_start() {
   launcher=`find_launcher`
+  set -x
+  echo pwd=`pwd`
+  pid_management=`find_pid_management`
+
+  debug "launcher=$launcher"
+  debug "pid_management=$pid_management"
+  debug "pwd=`pwd`"
 
   case `do_status` in
     running)
@@ -69,12 +95,37 @@ command_start() {
       ;;
   esac
 
-  echo "Starting app with $launcher, pwd=`pwd`"
-  $launcher <&- 1<&- 2<&- &
-
+  echo "Starting app..."
+  $launcher <&- 1>&- 2>&- &
+  
   PID=$!
-  echo "Application launched as $PID"
-  echo $PID > $pid_file
+
+  case "$pid_management" in
+    appsh)
+      echo "Application launched as $PID"
+      echo $PID > $pid_file
+      ;;
+    launcher)
+      launch_timeout=`app conf get app.launch_timeout`
+      if [[ ! $launch_timeout =~ [0-9] ]]
+      then
+        launch_timeout=10
+      fi
+      # the PID file is managed by the launcher, so wait for it to show up
+      for ((x = 0; x < "$launch_timeout"; x++))
+      do
+        echo "Waiting for PID to show up..."
+        sleep 1
+        if [ -r $pid_file ]
+        then
+          return 0
+        fi
+      done
+
+      echo "Appliation failed to start"
+      return 1
+      ;;
+  esac
 
   return 0
 }
@@ -94,7 +145,7 @@ command_stop() {
       ;;
   esac
 
-  echo -n "Sending kill TERM to $PID, waiting for shutdown"
+  echo -n "Sending TERM to $PID, waiting for shutdown"
   kill -TERM $PID
 
   for i in {1..10}

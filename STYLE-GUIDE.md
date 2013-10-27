@@ -18,7 +18,6 @@ because the user explicitly requested so. If the user gives some form
 of invalid argument or there is any other error the usage should go to
 stderr because the user might be using pipes.
 
-
 How app.sh does it
 ------------------
 
@@ -43,6 +42,12 @@ Executing Commands
 ==================
 
 * http://unix.stackexchange.com/q/23026
+
+Parsing options
+===============
+
+Applications should always check for extra options or define how
+they're handled.
 
 Resources
 ---------

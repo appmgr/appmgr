@@ -9,13 +9,15 @@ APPSH_HOME=$(cd $(dirname "$0")/.. && pwd)
 # HEADER END
 
 usage_text() {
-  echo "usage: $0 -v <version> -f <file>"
+  echo "usage: $0 -v <version> -f <file> [-C <config>] [-c <config>]"
 }
 
 version=
 file=
+prepend_config=
+append_config=
 
-while getopts "v:f:" opt
+while getopts "v:f:C:c:" opt
 do
   case $opt in
     v)
@@ -25,6 +27,16 @@ do
       ;;
     f)
       file=$OPTARG
+      shift 2
+      OPTIND=1
+      ;;
+    C)
+      prepend_config=$OPTARG
+      shift 2
+      OPTIND=1
+      ;;
+    c)
+      append_config=$OPTARG
       shift 2
       OPTIND=1
       ;;
@@ -53,10 +65,22 @@ then
   exit 1
 fi
 
+if [ -n "$prepend_config" ]
+then
+  debug "Prepending config from $prepend_config"
+  app-conf import "$prepend_config"
+fi
+
 if [ -r versions/$version/app.config ]
 then
   debug "Importing config from package"
   app-conf import versions/$version/app.config
+fi
+
+if [ -n "$append_config" ]
+then
+  debug "Appending config from $append_config"
+  app-conf import "$append_config"
 fi
 
 app-run-hook -v "$version" -h pre-install

@@ -10,28 +10,37 @@ SYNOPSIS
 [verse]
 'app' <options>
 
+DOCUMENTATION
+-------------
+
 QUICK START
 ~~~~~~~~~~~
 
-    $ app init -d my-app maven org.example:my-app:1.0-SNAPSHOT
-    $ cd my-app
-    $ app start
-    $ app conf set app.version 1.0
-    $ app upgrade
-    $ app restart
+------------------------------------------------------------------------
+$ app init -d my-app maven org.example:my-app:1.0-SNAPSHOT
+$ cd my-app
+$ app start
+$ app conf set app.version 1.0
+$ app upgrade
+$ app restart
+------------------------------------------------------------------------
 
 INSTALLING AN APPLICATION
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This resolved and downloads an appliaction from a Maven repository:
 
-    $ app init -d my-app maven org.example:my-app:1.0-SNAPSHOT
+------------------------------------------------------------------------
+$ app init -d my-app maven org.example:my-app:1.0-SNAPSHOT
+------------------------------------------------------------------------
 
 By default it will download from the central repository, but this is
 not always what you want. To get it to use another repository give the
 `-r` option:
 
-    $ app init -d my-app maven -f http://repo.example.org/snapshots org.example:my-app:1.0-SNAPSHOT
+------------------------------------------------------------------------
+$ app init -d my-app maven -f http://repo.example.org/snapshots org.example:my-app:1.0-SNAPSHOT
+------------------------------------------------------------------------
 
 UPGRADING AN APPLICATION
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -40,7 +49,9 @@ If your application is configured with the Maven resolver and the
 version is a SNAPSHOT version, you can use this to upgrade your
 application through a cron job:
 
-    $ app upgrade
+------------------------------------------------------------------------
+$ app upgrade
+------------------------------------------------------------------------
 
 With the resolver will try to resolve `app.version` to the latest
 version. If it's change it will automatically download and install the
@@ -49,11 +60,33 @@ latest version.
 CHANGING VERSION OF AN APPLICATION
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    $ app conf set app.version 1.0
-    $ app sync-version
+------------------------------------------------------------------------
+$ app conf set app.version 1.0
+$ app sync-version
+------------------------------------------------------------------------
 
 `app-sync-version` will first run the resolver to resolve the version
 and if that has changed, it will download and install the new version.
+
+CREATING APPS
+-------------
+
+TODO
+
+CREATING HOOKS
+~~~~~~~~~~~~~~
+
+TODO
+
+CREATING LAUNCHERS
+~~~~~~~~~~~~~~~~~~
+
+Trick when you don't know why your app won't start:
+
+------------------------------------------------------------------------
+exec 1>/tmp/myapp.out
+exec 2>/tmp/myapp.err
+------------------------------------------------------------------------
 
 TODOs
 -----
@@ -68,8 +101,10 @@ TODOs
 SEE ALSO
 --------
 
-linkman:app-conf[1],
 linkman:app-cat-conf[1],
-linkman:appinternals[1],
+linkman:app-conf[1],
+linkman:app-install-file[1],
+linkman:app-operator-pid[1],
+linkman:appinternals[1]
 
 // vim: set ft=asciidoc:
