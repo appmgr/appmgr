@@ -289,11 +289,17 @@ find_resolver() {
 }
 
 #####################################################################
+# Values
+
+key_expr="[a-zA-Z][-_a-zA-Z0-9]*"
+
+#####################################################################
 # Common init
 
 # Add the app-* apps to PATH. They're added last to allow the user to
 # overload their implementations.
-PATH=$PATH:$APPSH_HOME/bin:$APPSH_HOME/libexec
+# Ideally we should parse the path here and remove duplicates.
+PATH=$APPSH_HOME:$APPSH_HOME/bin:$APPSH_HOME/libexec:$PATH
 
 # Make sure that $HOME is present to prevent unbound errors
 HOME=${HOME:-}

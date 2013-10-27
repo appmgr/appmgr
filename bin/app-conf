@@ -3,7 +3,7 @@
 set -e
 set -u
 
-APPSH_HOME=$(cd $(dirname "$0")/.. && pwd)
+export APPSH_HOME=$(cd $(dirname "$0")/.. && pwd)
 
 . $APPSH_HOME/lib/common
 # HEADER END
@@ -22,8 +22,6 @@ APPSH_HOME=$(cd $(dirname "$0")/.. && pwd)
 
 PATH=$APPSH_HOME/libexec:$PATH
 
-key_expr="[a-zA-Z][_a-zA-Z0-9]*"
-
 format_conf() {
   local IFS==
   while read key value
@@ -34,13 +32,11 @@ format_conf() {
 }
 
 assert_valid_config_name() {
-  local name=$1
-
-  local x=`echo $name | sed -n "/^$key_expr\\.$key_expr$/p"`
-  if [ -z "$x" ]
+  local name=$1; shift
+  local x="^$key_expr\\.$key_expr$"
+  if [[ ! $name =~ $x ]]
   then
-    echo "Invalid name: $name" >&2
-    exit 1
+    fatal "Invalid name: $name"
   fi
 }
 
@@ -64,7 +60,7 @@ conf_set() {
 
   echo "$name=$value" >> "$file.tmp"
   mv "$file.tmp" "$file"
-}
+}; shift
 
 conf_delete() {
   local file=$1; shift
@@ -82,7 +78,7 @@ conf_import() {
 
   echo "Importing config from $src"
   app-cat-conf -f "$dst" -f "$src" > "$dst.tmp"
-  mv "$dst.tmp" "$dst" 
+  mv "$dst.tmp" "$dst"
 }
 
 usage_text() {

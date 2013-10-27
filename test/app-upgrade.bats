@@ -13,17 +13,17 @@ load utils
 
   app conf get app.version
   eq    '${lines[0]}' "1.0-SNAPSHOT"
-  app_version="${lines[0]}" 
+  app_version="${lines[0]}"
   describe app_version = $app_version
 
   app conf get app.resolved_version
   match '${lines[0]}' "1.0-.*"
-  resolved_version="${lines[0]}" 
+  resolved_version="${lines[0]}"
   describe resolved_version = $resolved_version
 
   app conf get app.installed_version
   match '${lines[0]}' "1.0-.*"
-  installed_version="${lines[0]}" 
+  installed_version="${lines[0]}"
   describe installed_version = $installed_version
 
   eq    '$installed_version' "$resolved_version"
@@ -34,7 +34,7 @@ load utils
 
   app conf get app.resolved_version
   match '${lines[0]}' "1.0-.*"
-  new_resolved_version="${lines[0]}" 
+  new_resolved_version="${lines[0]}"
   describe new_resolved_version = $new_resolved_version
   neq   $new_resolved_version $resolved_version
 }

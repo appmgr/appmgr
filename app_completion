@@ -65,7 +65,7 @@ _complete_appsh() {
     then
     opts="-n $opts"
     fi
-    COMPREPLY=($(compgen -W "${opts}" -- ${cur}))  
+    COMPREPLY=($(compgen -W "${opts}" -- ${cur}))
     return 0
   fi
 
@@ -116,7 +116,7 @@ _complete_appsh() {
       ;;
   esac
 
-  COMPREPLY=($(compgen -W "${opts}" -- ${cur}))  
+  COMPREPLY=($(compgen -W "${opts}" -- ${cur}))
   set +x
 }
 
