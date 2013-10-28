@@ -9,7 +9,7 @@ export APPSH_HOME=$(cd $(dirname "$0")/.. && pwd)
 # HEADER END
 
 usage_text() {
-  echo "usage: $0 -v <version> -f <file> [-C <config>] [-c <config>]"
+  echo "usage: $usage_app -v <version> -f <file> [-C <config>] [-c <config>]"
 }
 
 version=

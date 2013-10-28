@@ -36,7 +36,7 @@ Formatting of usage output
 
 ----------------------------------------------------------------------
 usage_text() {
-  echo "usage: $0 -v <version> [-h hook]"
+  echo "usage: $usage_app -v <version> [-h hook]"
 }
 ----------------------------------------------------------------------
 
