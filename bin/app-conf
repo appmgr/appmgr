@@ -20,8 +20,6 @@ export APPSH_HOME=$(cd $(dirname "$0")/.. && pwd)
 #
 #     set -- `app-conf get -s maven.artifact_id maven.group_id`
 
-PATH=$APPSH_HOME/libexec:$PATH
-
 format_conf() {
   local IFS==
   while read key value
@@ -60,7 +58,7 @@ conf_set() {
 
   echo "$name=$value" >> "$file.tmp"
   mv "$file.tmp" "$file"
-}; shift
+}
 
 conf_delete() {
   local file=$1; shift
@@ -82,7 +80,7 @@ conf_import() {
 }
 
 usage_text() {
-  echo "usage: $0 conf [-l location] <command>"
+  echo "usage: $usage_app conf [-l location] <command>"
   echo ""
   echo "Available commands:"
   echo "  get [name]         - returns a single value"
@@ -112,8 +110,8 @@ do
       location="$OPTARG"
       shift 2;
       ;;
-    get|list|set|delete|import)
-      usage "Unknown command: $OPTARG"
+    *)
+      break
       ;;
   esac
 done
