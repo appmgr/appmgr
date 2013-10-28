@@ -1,13 +1,13 @@
-Style Guide
------------
+Bash Style Guide
+================
 
 Basic
-=====
+-----
 
 * Indent: two spaces. Spaces >> tabs.
 
 Creating `usage()` and `help()`
-===============================
+-------------------------------
 
 The general semantics
 ---------------------
@@ -34,9 +34,11 @@ Formatting of usage output
 * Enclose required arguments in angle brackets: `-v <version>`
 * Enclose optional arguments in square brackets: `[-h hook]`
 
-    usage_text() {
-      echo "usage: $0 -v <version> [-h hook]"
-    }
+----------------------------------------------------------------------
+usage_text() {
+  echo "usage: $0 -v <version> [-h hook]"
+}
+----------------------------------------------------------------------
 
 Executing Commands
 ==================
@@ -49,9 +51,39 @@ Parsing options
 Applications should always check for extra options or define how
 they're handled.
 
+By always shifting out processed arguments `$@` will be an array with
+the remaining arguments. If only command options are allowed they can
+be shifted in one go with the expression `shift $(($OPTIND - 1))`.
+
+----------------------------------------------------------------------
+while getopts "f:" opt
+do
+  case $opt in
+    f)
+      file="$OPTARG"
+      shift 2;
+      ;;
+    *)
+      usage "Unknown argument: $OPTARG"
+      ;;
+  esac
+done
+
+shift $(($OPTIND - 1))
+----------------------------------------------------------------------
+
+After all arguments have been processed, check for extra arguments:
+
+----------------------------------------------------------------------
+if [[ $# != 0 ]]
+then
+  usage "Extra arguments"
+fi
+----------------------------------------------------------------------
+
 Resources
 ---------
 
 * Parameter expansion: <http://wiki.bash-hackers.org/syntax/pe>
 
-<!-- vim: set ft=markdown: -->
+// vim: set ft=asciidoc:
