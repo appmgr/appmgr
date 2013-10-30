@@ -81,6 +81,44 @@ download_artifact() {
   fi
 }
 
+
+which() {
+  /usr/bin/which "$1" 2>/dev/null
+}
+
+# Wrapper to cache the lookup of the xmlstarlet command.
+# Remember that xmlstarlet on at least SLES requires single quotes
+# instead of double quotes when building the selector, e.g.:
+# use [text()='zip'] instead of [text()="zip"].
+
+_xmlstarlet=""
+xmlstarlet() {
+  if [ ! -z "$_xmlstarlet" ]
+  then
+    "$_xmlstarlet" "$@"
+    return
+  fi
+
+  _xmlstarlet="`which xmlstarlet`"
+
+  if [ ! -z "$_xmlstarlet" ]
+  then
+    "$_xmlstarlet" "$@"
+    return
+  fi
+
+  _xmlstarlet="`which xml`"
+
+  if [ ! -z "$_xmlstarlet" ]
+  then
+    "$_xmlstarlet" "$@"
+    return
+  fi
+
+  echo "Could not find xmlstarlet." >&2
+  exit 1
+}
+
 resolve_version() {
   local group_id=`app-conf get maven.group_id`
   local artifact_id=`app-conf get maven.artifact_id`
