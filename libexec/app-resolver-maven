@@ -12,6 +12,8 @@ usage_text() {
   echo "usage: $usage_app init -r <repo> <maven url>"
   echo "usage: $usage_app resolve-version"
   echo "usage: $usage_app download-version -v <version> -f <download target>"
+  echo "Maven url can be one of: <group id>:<artifact id>:<version> and"
+  echo "<group id>:<artifact id>:<classifier>:<version>"
 }
 
 slash() {
@@ -122,6 +124,7 @@ xmlstarlet() {
 resolve_version() {
   local group_id=`app-conf get maven.group_id`
   local artifact_id=`app-conf get maven.artifact_id`
+  local classifier=`app-conf get app.classifier`
   local version=`app-conf get app.version`
 
   repo=`app-conf get maven.repo`
@@ -199,15 +202,17 @@ download_version() {
   repo=`app-conf get maven.repo`
   group_id=`app-conf get maven.group_id`
   artifact_id=`app-conf get maven.artifact_id`
+  classifier=`app-conf get maven.classifier`
   version=`app-conf get app.version`
 
   group_id_slash=`slash $group_id`
   base_path=$group_id_slash/$artifact_id/$version
+  file_name=$artifact_id-$resolved_version${classifier:+-}$classifier.zip
 
   mkdir -p .app/cache/$base_path
 
-  l=.app/cache/$base_path/$artifact_id-$resolved_version.zip
-  r=$repo/$base_path/$artifact_id-$resolved_version.zip
+  l=.app/cache/$base_path/$file_name
+  r=$repo/$base_path/$file_name
 
   echo "Downloading $group_id:$artifact_id:$resolved_version..."
   get $r $l
@@ -236,17 +241,35 @@ init() {
   x=${x//:/ }
   set -- $x
 
-  if [[ $# != 3 || $1 == "" || $2 == "" || $3 == "" ]]
-  then
-    usage "Invalid Maven coordinates: $coordinates"
-  fi
-
-  group_id=$1
-  artifact_id=$2
-  version=$3
+  case $# in
+    3)
+      if [[ $1 == "" || $2 == "" || $3 == "" ]]
+      then
+        usage "Invalid Maven coordinates: $coordinates"
+      fi
+      group_id=$1; shift
+      artifact_id=$1; shift
+      classifier=
+      version=$1; shift
+      ;;
+    4)
+      if [[ $1 == "" || $2 == "" || $3 == "" || $4 == "" ]]
+      then
+        usage "Invalid Maven coordinates: $coordinates"
+      fi
+      group_id=$1; shift
+      artifact_id=$1; shift
+      classifier=$1; shift
+      version=$1; shift
+      ;;
+    *)
+      usage "Invalid Maven coordinates: $coordinates"
+      ;;
+  esac
 
   app-conf set maven.group_id "$group_id"
   app-conf set maven.artifact_id "$artifact_id"
+  [[ ! -z $classifier ]] && app-conf set maven.classifier "$classifier"
   app-conf set app.version "$version"
 }
 
