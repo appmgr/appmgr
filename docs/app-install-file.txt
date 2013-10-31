@@ -8,7 +8,7 @@ app-install-file - Low-level installation of an app
 SYNOPSIS
 --------
 [verse]
-'app-operator-pid' ...
+'app-install-file' ...
 
 TODOs
 -----

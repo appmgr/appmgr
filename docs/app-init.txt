@@ -1,0 +1,58 @@
+app-init(1)
+===========
+
+NAME
+----
+app-init - Installs an application
+
+SYNOPSIS
+--------
+[verse]
+'app-init' [-s group.name=key ...] -d <dir> <resolver> <resolver args>
+
+DESCRIPTION
+-----------
+
+Similar to 'git clone', 'app-init' is the first command you use when
+you want to deploy an application. It performs the following tasks:
+
+1. Create the '.app' directory and the config file.
+2. Initialize the resolver
+3. Run 'app upgrade' to install the initial version. 'app upgrade'
+   will also run any hooks defined in the application.
+
+OPTIONS
+-------
+
+-d::
+  The directory to create the application in. If the initialization
+  fails, the directory will be removed.
+-s group.name=key::
+  Add a configuration parameter before the resolver and any hooks are
+  fired.
++
+This option can be given multiple times.
+<resolver>::
+  The name of the resolver to use. 'app-init' will search the path for
+  an executable called 'app-resolver-<resolver>'.
+<resolver args>::
+  A list of arguments passed on directly to the resolver. See the
+  documentation of the resolver you're using for more details.
+
+BUILT-IN RESOLVERS
+------------------
+
+Appsh comes with two built-it resolvers:
+
+maven::
+  See linkman:app-resolver-maven[1].
+file::
+  See linkman:app-resolver-file[1].
+
+APP.SH
+------
+
+Part of the linkman:app[1] suite.
+
+// vim: set ft=asciidoc:
+

@@ -5,6 +5,7 @@ docs/*.xml
 docs/*.html
 docs/*.1
 docs/*.7
+docs/*.txt.bak
 .app/var
 /*/.gitignore
 

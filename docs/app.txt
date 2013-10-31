@@ -26,7 +26,7 @@ $ app restart
 ---------------------------------------------------------------------
 
 appsh is a pragmatic approach to managing a set of apps on a server.
-It is heavily inspired by git's approach in its command line interface
+It is heavily inspired by Git's approach in its command line interface
 and scriptability.
 
 It handles installation aspects: downloading, unpacking and upgrading,
@@ -38,7 +38,7 @@ command line, or through your own extensions.
 Requirements
 ^^^^^^^^^^^^
 
-* Linux. OSX and Cygwin are possible to support, but it's not tested
+* Linux. OS X and Cygwin are possible to support, but it's not tested
   there yet. Solaris is also doable.
 * Bash 4 and "standard" GNU userland.
 * If using Maven: xmlstarlet
@@ -46,7 +46,7 @@ Requirements
 INSTALLING AN APPLICATION
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-This resolved and downloads an appliaction from a Maven repository:
+This resolved and downloads an application from a Maven repository:
 
 ---------------------------------------------------------------------
 $ app init -d my-app maven org.example:my-app:1.0-SNAPSHOT
@@ -89,13 +89,13 @@ and if that has changed, it will download and install the new version.
 CREATING APPS
 -------------
 
-An "app" is in itself nothing more than a zip archive with a particular
-layout. In the root of the zip archive there must be a directory called
-`root`. You can also place a file called `app.config` at the root. The
-config file will be imported into the app's configuration. It is also
-possible to run appliations before and after appliations are installed
-through hooks. These are placed in a `hooks` directory, also at the
-root of the archive.
+An "app" is in itself nothing more than a zip archive with a
+particular layout. In the root of the zip archive there must be a
+directory called `root`. You can also place a file called `app.config`
+at the root. The configuration file will be imported into the app's
+configuration. It is also possible to run applications before and
+after applications are installed through hooks. These are placed in a
+`hooks` directory, also at the root of the archive.
 
 To summarize, this is what an application zip archive looks like:
 
@@ -125,18 +125,18 @@ CREATING LAUNCHERS
 Trick when you don't know why your app won't start:
 
 ---------------------------------------------------------------------
-exec 1>/tmp/myapp.out
-exec 2>/tmp/myapp.err
+exec 1>/tmp/my-app.out
+exec 2>/tmp/my-app.err
 ---------------------------------------------------------------------
 
 Make sure you _always_ use `exec` when spawning the actual app. This
-makes sure that the pid operator records the correct PID. If you don't
+makes sure that the PID operator records the correct PID. If you don't
 do this the application will run, but will be reported as crashed when
 you run 'app status'.
 
-If you can't use `exec` or the application demands to deamonize itself
+If you can't use `exec` or the application demands to demonize itself
 (like Apache Httpd), you have to set the configuration option
-`app.pid_management=launcher`. Then the launcher is responsible for
+`app.PID_management=launcher`. Then the launcher is responsible for
 creating the PID file under $APP_HOME/.app/pid. You can create a
 symlink to the actual PID file if you can't customize where the app
 places the file.
@@ -160,7 +160,8 @@ SEE ALSO
 linkman:app-cat-conf[1],
 linkman:app-conf[1],
 linkman:app-install-file[1],
-linkman:app-operator-pid[1],
-linkman:appinternals[1]
+linkman:app-init[1],
+linkman:app-operator-PID[1],
+linkman:appinternals[7]
 
 // vim: set ft=asciidoc:

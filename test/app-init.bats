@@ -3,20 +3,22 @@
 
 load utils
 
-#@test "Invalid resolver" {
-#  app init -d my-app wat; echo_lines
-#  eq '$status' 1
-#  eq '${#lines[*]}' 1
-#  eq '${lines[0]}' "No such resolver: wat"
-#}
+@test "Invalid resolver" {
+  check_status=no
+  app init -d my-app wat
+  eq '$status' 1
+  eq '${#lines[*]}' 1
+  eq '${lines[0]}' "No such resolver: wat"
+}
 
-#@test "Already installed" {
-#  mkdir -p my-app/.apps
-#  app init -d my-app maven; echo_lines
-#  eq '$status' 1
-#  eq '${#lines[*]}' 1
-#  match '${lines[0]}' "my-app"
-#}
+@test "Already installed" {
+  mkdir -p my-app/.app
+  check_status=no
+  app init -d my-app maven
+  eq '$status' 1
+  eq '${#lines[*]}' 1
+  match '${lines[0]}' "my-app"
+}
 
 @test "Happy day" {
   mkzip app-a
@@ -73,4 +75,18 @@ load utils
 
   match '${lines[0]}' ".*/versions/1.0/root$"
   eq    '${#lines[*]}' 1
+}
+
+@test "app-init: Can pass configuration variables" {
+  mkzip app-a
+  app init -d my-app \
+    -s "foo.bar=awesome" \
+    -s "foo.baz=i love space" \
+    -s "foo.wat=2+2=5" file $APPSH_HOME/test/data/app-a.zip
+  cd my-app
+  app cat-conf -g foo
+  match '${lines[0]}' "foo.bar=awesome"
+  match '${lines[1]}' "foo.baz=i love space"
+  match '${lines[2]}' "foo.wat=2\+2=5"
+  eq '${#lines[*]}' 3
 }

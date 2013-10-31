@@ -9,13 +9,15 @@ export APPSH_HOME=$(cd $(dirname "$0")/.. && pwd)
 # HEADER END
 
 usage_text() {
-  echo "usage: $usage_app -d dir <resolver> <resolver args>"
+  echo "usage: $usage_app [-s group.name=value] -d dir <resolver> <resolver args>"
 }
 
 dir=
 prepend_config=
 append_config=
-while getopts "d:C:c:" opt
+declare -A conf
+conf=()
+while getopts "d:C:c:s:" opt
 do
   case $opt in
     d)
@@ -38,6 +40,19 @@ do
       then
         append_config="`pwd`/$append_config"
       fi
+      shift 2
+      OPTIND=1
+      ;;
+    s)
+      keyvalue=$OPTARG
+      re="^$key_expr\\.$key_expr=.*$"
+      if [[ ! $keyvalue =~ $re ]]
+      then
+        usage "Invalid -s argument."
+      fi
+      key="${keyvalue%%=*}"
+      value="${keyvalue#*=}"
+      conf[$key]="$value"
       shift 2
       OPTIND=1
       ;;
@@ -76,6 +91,12 @@ clean_dir=`cd "$dir" && pwd`
 trap '[[ $ok == yes ]] || rm -rf "$clean_dir"' EXIT
 
 cd "$dir"
+
+for key in "${!conf[@]}"
+do
+  app-conf set $key "${conf[$key]}"
+done
+unset IFS
 
 app-conf set app.resolver "$resolver_name"
 

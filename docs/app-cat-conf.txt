@@ -3,7 +3,7 @@ app-cat-conf(1)
 
 NAME
 ----
-app-cat-conf - outputs a combined configuration file in a parseable
+app-cat-conf - outputs a combined configuration file in a parsable
 format
 
 SYNOPSIS
@@ -19,14 +19,14 @@ output a key once, the last value for each key seen will win.
 A configuration file is a collection of grouped keys and values,
 similar to Git.
 
-The keys consits of two parts: a _group_ and a _name_. Both have to
+The keys consist of two parts: a _group_ and a _name_. Both have to
 match the regex `[a-zA-Z0-9]` and are combined with a dot.
 
 OPTIONS
 -------
 -f::
-  The config file to use. If the value is '-', stdin will be used as
-  input. The option can be given multiple times.
+  The configuration file to use. If the value is '-', stdin will be
+  used as input. The option can be given multiple times.
 -D::
   Disables the inclusion of the default files.
 -k::
@@ -37,9 +37,10 @@ OPTIONS
 LOCATIONS AND DEFAULT FILES
 ---------------------------
 
-'app-cat-conf' will by default look for configuration files in three places:
+'app-cat-conf' will by default look for configuration files in three
+places:
 
-* '$APPSH_HOME/lib/default-config'
+* '$APPSH_HOME/lib/default-configuration'
 
 * '$HOME/.appconfig'
 
@@ -60,13 +61,13 @@ Support _default values_: when a key is missing, return the default
 value instead. Suggested option: '-d'.
 +
 Support _$APP_HOME_: If '$APP_HOME' is set, use that when reading the
-app's config values. Makes it easier to script as the user may move
-around directories, but still read values from the right place.
+app's configuration values. Makes it easier to script as the user may
+move around directories, but still read values from the right place.
 
 SEE ALSO
 --------
 
-git-config(1)
+git-configuration(1)
 
 APP.SH
 ------

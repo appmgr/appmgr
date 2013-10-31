@@ -39,11 +39,12 @@ echo_lines() {
 }
 
 mkzip() {
-(
-  cd $BATS_TEST_DIRNAME/data/$1
-  rm -f ../$1.zip
-  zip -qr ../$1.zip *
-)
+  local name=$1; shift
+  pushd .
+  cd $BATS_TEST_DIRNAME/data/$name
+  rm -f ../$name.zip
+  zip -qr ../$name.zip *
+  popd
 }
 
 install_artifact() {
