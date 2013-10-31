@@ -25,6 +25,24 @@ $ app upgrade
 $ app restart
 ---------------------------------------------------------------------
 
+appsh is a pragmatic approach to managing a set of apps on a server.
+It is heavily inspired by git's approach in its command line interface
+and scriptability.
+
+It handles installation aspects: downloading, unpacking and upgrading,
+operational aspects: starting, stopping and basic configuration.
+
+The package contains a set of tools that can be used directly on the
+command line, or through your own extensions.
+
+Requirements
+^^^^^^^^^^^^
+
+* Linux. OSX and Cygwin are possible to support, but it's not tested
+  there yet. Solaris is also doable.
+* Bash 4 and "standard" GNU userland.
+* If using Maven: xmlstarlet
+
 INSTALLING AN APPLICATION
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -132,6 +150,9 @@ TODOs
   confused if I should use "upgrade" or "update".
 
 * Find a way to check if an application is running.
+
+* Make `app.state` a core feature. Possible values are `enabled` and
+  `disabled`.
 
 SEE ALSO
 --------
