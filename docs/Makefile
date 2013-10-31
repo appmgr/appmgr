@@ -3,11 +3,16 @@ TXT=$(wildcard *.txt)
 MAN=$(shell ls *.txt|xargs -n 1 head -n 1|sed "s,\(.*\)(\([0-9]\)),\1.\2,")
 HTML=$(patsubst %.txt,%.html,$(TXT))
 
-all: $(HTML) $(MAN)
+all: html man
+
+html: $(HTML)
+man: $(MAN)
+
+.PHONY: html man
 
 %.html: %.txt
 	@echo asciidoc $<
-	@asciidoc -f asciidoc.conf --backend=html5 $<
+	@asciidoc -f asciidoc.conf --backend=xhtml11 -aappsh_version=0.2-dev $<
 
 %.1: %.txt
 	$(call man,$<)

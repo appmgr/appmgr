@@ -1,6 +1,7 @@
 apps.list
 downloads
 target
+docs/*.xml
 docs/*.html
 docs/*.1
 docs/*.7

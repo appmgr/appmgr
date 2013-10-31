@@ -5,6 +5,10 @@ NAME
 ----
 appinternals - Appsh internals
 
+SYNOPSIS
+--------
+appinternals
+
 DESCRIPTION
 -----------
 
