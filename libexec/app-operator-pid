@@ -94,7 +94,7 @@ command_start() {
   esac
 
   export APPSH_HOME
-  echo "Starting app..."
+  debug "Starting app..."
   $launcher <&- 1>&- 2>&- &
 
   PID=$!
