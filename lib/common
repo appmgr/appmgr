@@ -2,6 +2,7 @@
 
 # Asserts that the cwd is an app directory.
 # By default it checks that there is a 'current' link.
+# TODO: make check_link default to no if version is set
 assert_is_app() {
   local check_link=yes
   local version=
@@ -241,8 +242,8 @@ run_app() {
     case $opt in
       v)
         version=$OPTARG
-		shift 2
-		OPTIND=1
+        shift 2
+        OPTIND=1
         ;;
     esac
   done
@@ -258,13 +259,13 @@ run_app() {
       assert_is_app
       cd current
     else
-      assert_is_app -v "$version"
+      assert_is_app -C -v "$version"
       cd "versions/$version"
     fi
 
     path=/bin:/usr/bin
 
-    # This magically get the expansion of $u correct.
+    # This will magically get the expansion of $u correct.
     IFS="
 "
 
