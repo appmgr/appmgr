@@ -47,7 +47,7 @@ init() {
 resolve_version() {
   path=$(app-conf get file.path)
 
-  local s=$(stat -c %Z $path)
+  local s=$(stat -c %Y $path)
 
   app-conf set app.resolved_version "$s"
 }

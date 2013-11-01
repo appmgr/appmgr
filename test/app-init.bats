@@ -31,9 +31,10 @@ load utils
   match '${lines[2]}' "Downloading org.example:app-a:1.0-*"
   eq    '${lines[3]}' "Unpacking..."
   match '${lines[4]}' "Importing config from versions/1.0-*"
-  match '${lines[5]}' "Creating current symlink for version 1.0-*"
-  eq    '${lines[6]}' "Post install"
-  eq    '${#lines[*]}' 7
+  eq    '${lines[5]}' "pre-install"
+  match '${lines[6]}' "Creating current symlink for version 1.0-*"
+  eq    '${lines[7]}' "post-install"
+  eq    '${#lines[*]}' 8
 
   is_directory "my-app/.app"
   # Created by post-install
@@ -50,9 +51,10 @@ load utils
   match '${lines[1]}' "Downloading org.example:app-a:1.0-*"
   eq    '${lines[2]}' "Unpacking..."
   match '${lines[3]}' "Importing config from versions/1.0-*"
-  match '${lines[4]}' "Creating current symlink for version 1.0-*"
-  eq    '${lines[5]}' "Post install"
-  eq    '${#lines[*]}' 6
+  eq    '${lines[4]}' "pre-install"
+  match '${lines[5]}' "Creating current symlink for version 1.0-*"
+  eq    '${lines[6]}' "post-install"
+  eq    '${#lines[*]}' 7
 
   is_directory "my-app/.app"
   # Created by post-install

@@ -2,7 +2,13 @@
 
 set -u
 
-echo "Post install"
+echo "post-install"
+
+if [[ -e $APP_HOME/fail-post-install ]]
+then
+  echo "Simulating failure."
+  exit 1
+fi
 
 NAME=`basename $APP_HOME`
 

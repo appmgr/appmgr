@@ -1,0 +1,11 @@
+#!/bin/bash -e
+
+set -u
+
+echo "pre-install"
+
+if [[ -e $APP_HOME/fail-pre-install ]]
+then
+  echo "Simulating failure."
+  exit 1
+fi

@@ -38,3 +38,33 @@ load utils
   describe new_resolved_version = $new_resolved_version
   neq   $new_resolved_version $resolved_version
 }
+
+@test "app-upgrade - when pre-install fails the first run" {
+  mkzip app-a
+  file=$APPSH_HOME/test/data/app-a.zip
+  touch -t 01010101 $file
+
+  app init -d my-app file $file
+
+  cd my-app
+
+  # A new version is available, but make sure pre-install fails.
+  touch -t 02020202 $file
+  touch fail-pre-install
+  check_status=no
+  app upgrade
+  eq '${status}' 1
+
+  # Try to reinstall the same file
+  rm fail-pre-install
+  app upgrade
+  eq    '${lines[0]}' "Resolving version "
+  eq    '${lines[1]}' "Resolved version to 1359766920"
+  eq    '${lines[2]}' "Version 1359766920 is already unpacked"
+  eq    '${lines[3]}' "Importing config from versions/1359766920/app.config"
+  eq    '${lines[4]}' "pre-install"
+  eq    '${lines[5]}' "Changing current symlink from 1356998460 to 1359766920"
+  eq    '${lines[6]}' "post-install"
+
+  eq '${#lines[*]}' 7
+}

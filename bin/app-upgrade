@@ -19,40 +19,34 @@ fi
 
 assert_is_app
 
+version=`app-conf get app.version`
+installed_version=`app-conf get app.installed_version`
+
+# TODO: should this explicitly check for a discrepancy between
+# resolved_version and installed_version? This indicates an app that's
+# not completely installed.
+
+# Find the resolver and resolve the version
 resolver_name=`app-conf get app.resolver`
 resolver=`find_resolver "$resolver_name"`
 
-old_version=`app-conf get app.resolved_version`
-echo "Resolving version $old_version"
+echo "Resolving version $version"
 "$resolver" resolve-version
-new_version=`app-conf get app.resolved_version`
+resolved_version=`app-conf get app.resolved_version`
 
-if [[ $new_version == $old_version ]]
+if [[ $resolved_version == $installed_version ]]
 then
   echo "No new version available" 2>&1
   exit
 fi
 
-echo "Resolved version to $new_version"
-
-if [ "$new_version" = "" ]
-then
-  new_version=`app-conf get app.resolved_version`
-fi
-
-if [ "$new_version" = "" ]
+if [ "$resolved_version" = "" ]
 then
   fatal "app.resolved_version is not set."
 fi
 
-installed_version=`app-conf get app.installed_version`
+echo "Resolved version to $resolved_version"
 
-if [ "$new_version" = "$installed_version" ]
-then
-  echo "$new_version is already installed"
-  exit 0
-fi
+"$resolver" download-version -v "$resolved_version" -f .app/latest.zip
 
-"$resolver" download-version -v "$new_version" -f .app/latest.zip
-
-app-install-file -v "$new_version" -f .app/latest.zip
+app-install-file -v "$resolved_version" -f .app/latest.zip
