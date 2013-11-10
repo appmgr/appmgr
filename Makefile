@@ -7,15 +7,18 @@ TESTS=$(addprefix test-,$(BATS))
 
 test-%:
 	@echo === $@
-	@bats $(patsubst test-%,test/%,$@)
+	@PATH=test/bats/bin:$(PATH) bats $(patsubst test-%,test/%,$@)
 
 show-tests:
 	@echo BATS=$(BATS)
 	@echo TESTS=$(TESTS)
 	@echo $(addprefix set_header-,$(BINS))
 
-test: $(TESTS)
+test: test/bats $(TESTS)
 .PHONY: test
+
+test/bats:
+	cd test && git clone git://github.com/sstephenson/bats.git
 
 clean:
 	@make -s -C docs clean

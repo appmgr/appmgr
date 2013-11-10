@@ -58,13 +58,12 @@ load utils
   # Try to reinstall the same file
   rm fail-pre-install
   app upgrade
-  eq    '${lines[0]}' "Resolving version "
-  eq    '${lines[1]}' "Resolved version to 1359766920"
-  eq    '${lines[2]}' "Version 1359766920 is already unpacked"
-  eq    '${lines[3]}' "Importing config from versions/1359766920/app.config"
-  eq    '${lines[4]}' "pre-install"
-  eq    '${lines[5]}' "Changing current symlink from 1356998460 to 1359766920"
-  eq    '${lines[6]}' "post-install"
-
+  eq '${lines[0]}' "Resolving version "
+  eq '${lines[1]}' "Resolved version to 1359766920"
+  eq '${lines[2]}' "Version 1359766920 is already unpacked"
+  eq '${lines[3]}' "Importing config from versions/1359766920/app.config"
+  eq '${lines[4]}' "pre-install"
+  eq '${lines[5]}' "Changing current symlink from 1356998460 to 1359766920"
+  eq '${lines[6]}' "post-install"
   eq '${#lines[*]}' 7
 }

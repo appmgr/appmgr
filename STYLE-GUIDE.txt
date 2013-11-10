@@ -43,7 +43,20 @@ usage_text() {
 Executing Commands
 ==================
 
+When chaining commands look at `pipefail`.
+
 * http://unix.stackexchange.com/q/23026
+
+If you want to fail this shell if a sub-shell fails, use this form:
+
+----------------------------------------------------------------------
+ENV=$(app conf get app.env) || false
+----------------------------------------------------------------------
+
+The sub-shell will exit with a non-zero exit code, but even with `-e`
+set bash won't exit the current shell.
+
+See also http://www.fvue.nl/wiki/Bash:_Error_handling.
 
 Parsing options
 ===============
