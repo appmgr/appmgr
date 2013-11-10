@@ -10,3 +10,4 @@ docs/*.txt.bak
 /*/.gitignore
 
 /test/data/*.zip
+test/bats
