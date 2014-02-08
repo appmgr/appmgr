@@ -94,6 +94,10 @@ setup_inner() {
   app conf set group.foo
   eq '$status' 1
 
+  check_status=no
+  app conf set group.foo.wat bar
+  eq '$status' 1
+
   app conf set group.foo bar
   eq '${#lines[*]}' 0
 
