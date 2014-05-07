@@ -1,0 +1,41 @@
+app-start(1)
+===========
+
+NAME
+----
+app-run - Starts an application in the foreground
+
+SYNOPSIS
+--------
+[verse]
+'app-run'
+
+DESCRIPTION
+-----------
+
+Launches an application in the foreground. The application will be controlled by the
+launcher configured for the application, or
+linkman:app-operator-pid[1] if a launcher is not configured.
+A launcher can check for the presence of "APP_FOREGROUND" to determine if it should
+disable input/output streams.
+Arguments may be given to the run command.
+
+ENABLING AND DISABLING APPLICATIONS
+-----------------------------------
+When using 'app-run' an application will run regardless of the enable/disable status.
+
+SEE ALSO
+--------
+
+linkman:app-stop[1],
+linkman:app-start[1],
+linkman:app-enable[1],
+linkman:app-disable[1]
+
+APP.SH
+------
+
+Part of the linkman:app[1] suite.
+
+// vim: set ft=asciidoc:
+

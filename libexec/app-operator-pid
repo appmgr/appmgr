@@ -78,6 +78,28 @@ find_pid_management() {
   esac
 }
 
+command_run() {
+  launcher=`find_launcher`
+  pid_management=`find_pid_management`
+
+  debug "launcher=$launcher"
+  debug "pid_management=$pid_management"
+  debug "pwd=`pwd`"
+
+  case `do_status` in
+    running)
+      echo "The application is already running as $PID."
+      exit 1
+      ;;
+  esac
+
+  export APPSH_HOME
+  export APP_FOREGROUND=1
+  debug "Starting app in foreground..."
+  exec $launcher @*
+  return $?
+}
+
 command_start() {
   launcher=`find_launcher`
   pid_management=`find_pid_management`
@@ -218,7 +240,7 @@ fi
 command="$1"
 
 case "$command" in
-  start|stop|status|restart)
+  run|start|stop|status|restart)
     command_$command
     ret=$?
     exit $ret
