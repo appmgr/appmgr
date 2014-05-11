@@ -42,10 +42,16 @@ do_test() {
 
   can_read "logs/app-a.log"
   can_read "logs/app-a.env"
-  can_read "current/foo.conf"
-
   [ "`cat logs/app-a.env`" = "TEST_PROPERTY=awesome" ]
+
+  can_read "current/foo.conf"
   [ "`cat current/foo.conf`" = "hello" ]
+
+  app conf get mark.pre-install
+  eq '${lines[0]}' "done"
+
+  app conf get mark.post-install
+  eq '${lines[0]}' "done"
 }
 
 @test "install+upgrade; resolver=maven" {

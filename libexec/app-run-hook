@@ -9,13 +9,14 @@ export APPSH_HOME=$(cd $(dirname "$0")/.. && pwd)
 # HEADER END
 
 usage_text() {
-  echo "usage: $usage_app -v [version] -h [hook]"
+  echo "usage: $usage_app <-l user> -v [version] -h [hook]"
 }
 
 version=
 hook=
+location=
 
-while getopts "v:h:" opt
+while getopts "v:h:l:" opt
 do
   case $opt in
     v)
@@ -28,6 +29,11 @@ do
       shift 2
       OPTIND=1
       ;;
+    l)
+      location=$OPTARG
+      shift 2
+      OPTIND=1
+      ;;
   esac
 done
 
@@ -36,13 +42,26 @@ then
   usage
 fi
 
-bin=versions/$version/hooks/$hook
+if [[ ! -z $location && $location != "user" ]]
+then
+  usage
+fi
+
+if [[ ! -z $location ]]
+then
+  bin="$HOME/.app/hooks/$hook"
+  exe="$bin"
+else
+  bin="versions/$version/hooks/$hook"
+  exe="hooks/$hook"
+fi
 
 if [[ ! -r $bin ]]
 then
   exit 0
 fi
 
+# TODO: remove
 chmod +x $bin
 
 if [[ ! -e $bin ]]
@@ -52,4 +71,4 @@ then
 fi
 
 debug "Running hook: $hook"
-run_app -v $version hooks/$hook
+run_app -v $version "$exe"

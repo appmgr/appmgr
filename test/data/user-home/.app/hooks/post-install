@@ -1,0 +1,3 @@
+#!/bin/bash
+
+app conf set mark.post-install done

@@ -17,7 +17,8 @@ setup() {
   mkdir $BATS_TMPDIR/app.sh
 
   HOME=$BATS_TMPDIR/app.sh-home
-  mkdir -p $HOME
+  rm -rf $HOME
+  cp -rp test/data/user-home $HOME
   rm -f $HOME/.appconfig
 
   cd $BATS_TMPDIR/app.sh

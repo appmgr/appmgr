@@ -91,8 +91,12 @@ then
   app-conf import "$append_config"
 fi
 
+app-run-hook -l user -v "$version" -h pre-install
+
 app-run-hook -v "$version" -h pre-install
 
 app-set-version -v "$version"
 
 app-run-hook -v "$version" -h post-install
+
+app-run-hook -l user -v "$version" -h post-install
