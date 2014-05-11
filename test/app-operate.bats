@@ -3,13 +3,15 @@
 
 load utils
 
-@test "app-upgrade" {
+@test "app-operate" {
   mkzip app-a
 
   app init -d my-app file $APPSH_HOME/test/data/app-a.zip
 
   cd my-app
+  check_status=no
   app status
+  eq    '$status' 3
   eq    '${lines[0]}' "Not running"
   eq    '${#lines[*]}' 1
 

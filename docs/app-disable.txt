@@ -1,0 +1,33 @@
+app-disable(1)
+==============
+
+NAME
+----
+app-disable - Marks an application as disabled
+
+SYNOPSIS
+--------
+[verse]
+'app-disable'
+
+DESCRIPTION
+-----------
+
+Marks this application as disabled so that `app start` will refuse to start it.
+
+See linkman:app-start[1] for the full description on how the start, stop, enable and disable commands interact.
+
+SEE ALSO
+--------
+
+linkman:app-start[1],
+linkman:app-stop[1],
+linkman:app-enable[1]
+
+APP.SH
+------
+
+Part of the linkman:app[1] suite.
+
+// vim: set ft=asciidoc:
+

@@ -180,12 +180,15 @@ command_status() {
   case `do_status` in
     running)
       echo "Running as $PID"
+      return 2
       ;;
     stopped)
       echo "Not running"
+      return 3
       ;;
     crashed)
       echo "Crashed. Was running as $PID"
+      return 4
       ;;
   esac
 }

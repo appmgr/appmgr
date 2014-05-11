@@ -1,0 +1,41 @@
+app-start(1)
+===========
+
+NAME
+----
+app-start - Starts an application
+
+SYNOPSIS
+--------
+[verse]
+'app-start'
+
+DESCRIPTION
+-----------
+
+Launches an application. The application will be controlled by the
+launcher configured for the application, or
+linkman:app-operator-pid[1] if a launcher is not configured.
+
+ENABLING AND DISABLING APPLICATIONS
+-----------------------------------
+
+If the application is disabled, `app start` will refuse to start the
+application. If a running application is disabled while running it
+will not be stopped, but left running until stopped with `app stop` or
+until the machine is restarted.
+
+SEE ALSO
+--------
+
+linkman:app-stop[1],
+linkman:app-enable[1],
+linkman:app-disable[1]
+
+APP.SH
+------
+
+Part of the linkman:app[1] suite.
+
+// vim: set ft=asciidoc:
+

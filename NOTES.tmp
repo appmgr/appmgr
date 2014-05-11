@@ -27,6 +27,4 @@ TODO:
   * SLES/OpenSuse
   * Cygwin
 * Document patterns for parsing command line arguments
-* Support sending in config to an app when running init. Has to be
-  installed before running the hooks, useful to controlling
-  environment through config.
+* Add filtering to app-ls-apps so it can list only enabled apps.

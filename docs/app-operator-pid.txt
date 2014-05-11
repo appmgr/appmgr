@@ -10,6 +10,20 @@ SYNOPSIS
 [verse]
 'app-operator-pid' ...
 
+EXIT CODES
+----------
+
+`app-operator-pid status`
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+[options="header",cols=",>"]
+|====================
+| State   | Exit code
+| Running | `2`
+| Stopped | `3`
+| Crashed | `4`
+|====================
+
 TODOs
 -----
 

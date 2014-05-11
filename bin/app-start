@@ -8,4 +8,12 @@ export APPSH_HOME=$(cd $(dirname "$0")/.. && pwd)
 . $APPSH_HOME/lib/common
 # HEADER END
 
+enabled=`app-conf get app.enabled`
+
+if [[ $enabled == "false" ]]
+then
+  echo "The app is disabled, refusing to start"
+  exit 1
+fi
+
 exec $APPSH_HOME/libexec/app-operate "start" "$@"

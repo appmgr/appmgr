@@ -1,0 +1,33 @@
+app-stop(1)
+===========
+
+NAME
+----
+app-stop - Stops an application
+
+SYNOPSIS
+--------
+[verse]
+'app-stop'
+
+DESCRIPTION
+-----------
+
+Marks this application as enabled so that `app start` will allow to start it.
+
+See linkman:app-start[1] for the full description on how the start, stop, enable and disable commands interact.
+
+SEE ALSO
+--------
+
+linkman:app-start[1],
+linkman:app-stop[1],
+linkman:app-disable[1]
+
+APP.SH
+------
+
+Part of the linkman:app[1] suite.
+
+// vim: set ft=asciidoc:
+

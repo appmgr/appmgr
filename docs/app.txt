@@ -159,9 +159,13 @@ SEE ALSO
 
 linkman:app-cat-conf[1],
 linkman:app-conf[1],
-linkman:app-install-file[1],
+linkman:app-disable[1],
+linkman:app-enable[1],
 linkman:app-init[1],
+linkman:app-install-file[1],
 linkman:app-operator-pid[1],
+linkman:app-start[1],
+linkman:app-stop[1],
 linkman:appinternals[7]
 
 // vim: set ft=asciidoc:

@@ -1,0 +1,11 @@
+#!/bin/bash
+
+set -e
+set -u
+
+export APPSH_HOME=$(cd $(dirname "$0")/.. && pwd)
+
+. $APPSH_HOME/lib/common
+# HEADER END
+
+exec app conf set app.enabled false

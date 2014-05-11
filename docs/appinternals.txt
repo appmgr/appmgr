@@ -33,6 +33,9 @@ Configuration properties:
     The installed version of the application. Is updated by
     `app-set-version`.
 
+`app.enabled`::
+    Set to `false` if the application is disabled.
+
 ENVIRONMENT VARIABLES
 ---------------------
 
