@@ -50,10 +50,58 @@ mkzip() {
 
 install_artifact() {
   local version=${1-1.0-SNAPSHOT}
-  describe -Dfile=`fix_path $APPSH_HOME/test/data/app-a.zip` -DgeneratePom
-  PATH=$ORIG_PATH mvn deploy:deploy-file -Durl=$FIXED_REPO_URL \
-    -Dfile=`fix_path $APPSH_HOME/test/data/app-a.zip` -DgeneratePom \
-    -DgroupId=org.example -DartifactId=app-a -Dversion=$version -Dpackaging=zip
+  local v
+  local groupId=org.example
+  local artifactId=app-a
+
+  if [[ ${version} =~ '-SNAPSHOT' ]]
+  then
+    local now=$(date +%Y%m%d.%H%M%S)
+    local cnt=`ls $p/*.zip 2>/dev/null|wc -l`
+    local build_number=$((cnt+1))
+    v=${version%%-SNAPSHOT}-$now-$build_number
+  else
+    v=$version
+  fi
+
+  local p=$REPO/${groupId/./\//}/${artifactId}
+  local pv=$p/$version
+
+  mkdir -p $pv
+  cp "$APPSH_HOME/test/data/app-a.zip" "$pv/app-a-$v.zip"
+  md5sum "$pv/app-a-$v.zip" > "$pv/app-a-$v.zip.md5"
+
+  cat > $pv/maven-metadata.xml <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata modelVersion="1.1.0">
+  <groupId>${groupId}</groupId>
+  <artifactId>${artifactId}</artifactId>
+  <version>${version}</version>
+  <versioning>
+    <snapshot>
+      <timestamp>${now}</timestamp>
+      <buildNumber>${build_number}</buildNumber>
+    </snapshot>
+<!-- app.sh doesn't need this part
+    <lastUpdated>20140610193134</lastUpdated>
+-->
+<!-- app.sh doesn't need this part
+    <snapshotVersions>
+      <snapshotVersion>
+        <extension>zip</extension>
+        <value>1.0-20140610.193134-2</value>
+        <updated>20140610193134</updated>
+      </snapshotVersion>
+      <snapshotVersion>
+        <extension>pom</extension>
+        <value>1.0-20140610.193134-2</value>
+        <updated>20140610193134</updated>
+      </snapshotVersion>
+    </snapshotVersions>
+-->
+  </versioning>
+</metadata>
+EOF
 }
 
 check_status=yes
