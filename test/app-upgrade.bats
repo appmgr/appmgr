@@ -42,14 +42,14 @@ load utils
 @test "app-upgrade - when pre-install fails the first run" {
   mkzip app-a
   file=$APPSH_HOME/test/data/app-a.zip
-  touch -d '@1000000000' $file
+  touch_time '1000000000' $file
 
   app init -d my-app file $file
 
   cd my-app
 
   # A new version is available, but make sure pre-install fails.
-  touch -d '@2000000000' $file
+  touch_time '2000000000' $file
   touch fail-pre-install
   check_status=no
   app upgrade

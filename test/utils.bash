@@ -10,7 +10,7 @@ setup() {
   find test/data -name \*.zip | xargs rm -f
   APPSH_HOME=$(cd $BATS_TEST_DIRNAME/..; echo `pwd`)
   ORIG_PATH=$PATH
-  PATH=/bin:/usr/bin
+  PATH=/bin:/usr/bin:/usr/local/bin
   PATH=$PATH:$APPSH_HOME
 
   rm -rf $BATS_TMPDIR/app.sh
@@ -177,6 +177,15 @@ is_directory() {
   then
     echo "Not a directory: $1" 2>&1
     return 1
+  fi
+}
+
+touch_time() {
+  if [[ $OSTYPE = darwin* ]]; then
+    FORMAT=$(date -j -r $1 +%Y%m%d%H%M.%S)
+    touch -t $FORMAT $2
+  else
+    touch -d "@$1" $2
   fi
 }
 
