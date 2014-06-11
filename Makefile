@@ -11,8 +11,8 @@ install: docs
 	cp -r bin/ lib/ libexec/ $(DESTDIR)/usr/
 	mkdir -p $(DESTDIR)/usr/share/man/man1
 	cp docs/*.1 $(DESTDIR)/usr/share/man/man1/
-	mkdir -p $(DESTDIR)/usr/share/doc/app.sh
-	cp docs/*.html $(DESTDIR)/usr/share/doc/app.sh/
+	mkdir -p $(DESTDIR)/usr/share/doc/appmgr
+	cp docs/*.html $(DESTDIR)/usr/share/doc/appmgr/
 
 test-%:
 	@echo === $@
