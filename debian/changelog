@@ -1,0 +1,30 @@
+appmgr (0.3+3) saucy; urgency=low
+
+  * Version without even dependencies on Maven.
+  * Now including an actual 'install' target too.
+
+ -- Trygve Laugstøl <trygvis@inamo.no>  Tue, 10 Jun 2014 22:10:23 +0200
+
+appmgr (0.3+2) saucy; urgency=low
+
+  * Version without Maven.
+
+ -- Trygve Laugstøl <trygvis@inamo.no>  Sat, 31 May 2014 14:13:09 +0200
+
+appmgr (0.3+1) saucy; urgency=low
+
+  * Adding missing dependencies.
+
+ -- Trygve Laugstøl <trygvis@inamo.no>  Sat, 31 May 2014 14:13:09 +0200
+
+appmgr (0.3) saucy; urgency=low
+
+  * Extra release
+
+ -- Trygve Laugstøl <trygvis@inamo.no>  Thu, 29 May 2014 18:01:21 +0200
+
+appmgr (0.2) saucy; urgency=low
+
+  * Initial Release.
+
+ -- Trygve Laugstøl <trygvis@inamo.no>  Thu, 29 May 2014 16:25:59 +0200

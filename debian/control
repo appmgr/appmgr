@@ -1,0 +1,15 @@
+Source: appmgr
+Section: utils
+Priority: optional
+Maintainer: Trygve Laugstøl <trygvis@inamo.no>
+Build-Depends: debhelper (>= 8.1.3), asciidoc, xmlto, zip, unzip, xmlstarlet, procps
+Standards-Version: 3.9.5
+Homepage: https://github.com/trygvis/appmgr
+Vcs-Git: git://github.com/trygvis/appmgr.git
+Vcs-Browser: https://github.com/trygvis/appmgr
+
+Package: appmgr
+Architecture: all
+Depends: ${misc:Depends}, xmlstarlet, procps
+Description: Utilities for managing a set of apps
+ Utilities for starting, stopping and managing applications on a server
