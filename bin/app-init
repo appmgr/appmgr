@@ -15,7 +15,8 @@ usage_text() {
 dir=
 prepend_config=
 append_config=
-declare -A conf
+
+declare -a conf
 conf=()
 while getopts "d:C:c:s:" opt
 do
@@ -50,9 +51,7 @@ do
       then
         usage "Invalid -s argument."
       fi
-      key="${keyvalue%%=*}"
-      value="${keyvalue#*=}"
-      conf[$key]="$value"
+      conf+=("$keyvalue")
       shift 2
       OPTIND=1
       ;;
@@ -92,9 +91,11 @@ trap '[[ $ok == yes ]] || rm -rf "$clean_dir"' EXIT
 
 cd "$dir"
 
-for key in "${!conf[@]}"
+for kv in "${conf[@]:+${conf[@]}}"
 do
-  app-conf set $key "${conf[$key]}"
+ key="${kv%%=*}"
+ value="${kv#*=}"
+ app-conf set "$key" "$value"
 done
 unset IFS
 

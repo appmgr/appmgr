@@ -217,7 +217,7 @@ grep_path() {
   local regex="$1"; shift
   local path="$1"; shift
 
-  find `echo $path | tr : " "` -type f -executable 2>/dev/null | (egrep "$regex" || exit 0)
+  find `echo $path | tr : " "` -type f -perm +0111 2>/dev/null | (egrep "$regex" || exit 0)
 #  IFS=:
 #  for x in $path
 #  do

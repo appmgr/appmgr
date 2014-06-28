@@ -46,8 +46,13 @@ init() {
 
 resolve_version() {
   path=$(app-conf get file.path)
+  if [[ $OSTYPE = darwin* ]]; then
+    STAT_ARGS="-f %m"
+  else
+    STAT_ARGS="-c %Y"
+  fi
 
-  local s=$(stat -c %Y $path)
+  local s=$(stat $STAT_ARGS $path)
 
   app-conf set app.resolved_version "$s"
 }
