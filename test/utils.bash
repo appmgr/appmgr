@@ -69,7 +69,11 @@ install_artifact() {
 
   mkdir -p $pv
   cp "$APPSH_HOME/test/data/app-a.zip" "$pv/app-a-$v.zip"
-  md5sum "$pv/app-a-$v.zip" > "$pv/app-a-$v.zip.md5"
+  if [[ $OSTYPE = darwin* ]]; then
+    /sbin/md5 -r "$pv/app-a-$v.zip" > "$pv/app-a-$v.zip.md5"
+  else
+    md5sum "$pv/app-a-$v.zip" > "$pv/app-a-$v.zip.md5"
+  fi
 
   cat > $pv/maven-metadata.xml <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
