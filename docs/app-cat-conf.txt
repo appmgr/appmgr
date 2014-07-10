@@ -40,7 +40,7 @@ LOCATIONS AND DEFAULT FILES
 'app-cat-conf' will by default look for configuration files in three
 places:
 
-* '$APPSH_HOME/lib/default-configuration'
+* '$APPMGR_HOME/lib/default-configuration'
 
 * '$HOME/.appconfig'
 
@@ -69,7 +69,7 @@ SEE ALSO
 
 git-configuration(1)
 
-APP.SH
+APPMGR
 ------
 
 Part of the linkman:app[1] suite.

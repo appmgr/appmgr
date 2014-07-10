@@ -4,12 +4,12 @@ usage_text() {
   echo "usage: $usage_app <command>"
   echo ""
   echo "Available porcelain commands:"
-  grep_path "/app-.*$" "$APPSH_HOME/bin" | \
+  grep_path "/app-.*$" "$APPMGR_HOME/bin" | \
     sed "s,^.*/app-,    ," | \
     sort -n
   echo ""
   echo "Available plumbing commands:"
-  grep_path "/app-.*$" "$APPSH_HOME/libexec" | \
+  grep_path "/app-.*$" "$APPMGR_HOME/libexec" | \
     sed "s,^.*/app-,    ," | \
     sort -n
 }
@@ -25,10 +25,10 @@ while [ -h "$PRG" ] ; do
   fi
 done
 
-APPSH_HOME=`dirname "$PRG"`
-APPSH_HOME=`cd "$APPSH_HOME" && pwd`
+APPMGR_HOME=`dirname "$PRG"`
+APPMGR_HOME=`cd "$APPMGR_HOME" && pwd`
 
-. $APPSH_HOME/lib/common
+. $APPMGR_HOME/lib/common
 
 echo_debug=no
 while getopts ":hD:" opt
@@ -55,11 +55,11 @@ fi
 
 command=$1; shift
 
-bin=`grep_path "/app-$command$" "$APPSH_HOME/bin"`
+bin=`grep_path "/app-$command$" "$APPMGR_HOME/bin"`
 
 if [ ! -x "$bin" ]
 then
-  bin=`grep_path "/app-$command$" "$APPSH_HOME/libexec"`
+  bin=`grep_path "/app-$command$" "$APPMGR_HOME/libexec"`
   if [ ! -x "$bin" ]
   then
     echo "Unknown command: $command" 2>&1
@@ -67,10 +67,10 @@ then
   fi
 fi
 
-PATH=$APPSH_HOME/bin:$PATH
+PATH=$APPMGR_HOME/bin:$PATH
 
 # TODO: this is probably a good place to clean up the environment
 exec env \
-  "APPSH_HOME=$APPSH_HOME" \
+  "APPMGR_HOME=$APPMGR_HOME" \
   "echo_debug=$echo_debug" \
   "$bin" "$@"

@@ -8,20 +8,20 @@ exit_usage_wrong=0
 
 setup() {
   find test/data -name \*.zip | xargs rm -f
-  APPSH_HOME=$(cd $BATS_TEST_DIRNAME/..; echo `pwd`)
+  APPMGR_HOME=$(cd $BATS_TEST_DIRNAME/..; echo `pwd`)
   ORIG_PATH=$PATH
   PATH=/bin:/usr/bin:/usr/local/bin
-  PATH=$PATH:$APPSH_HOME
+  PATH=$PATH:$APPMGR_HOME
 
-  rm -rf $BATS_TMPDIR/app.sh
-  mkdir $BATS_TMPDIR/app.sh
+  rm -rf $BATS_TMPDIR/appmgr
+  mkdir $BATS_TMPDIR/appmgr
 
-  HOME=$BATS_TMPDIR/app.sh-home
+  HOME=$BATS_TMPDIR/appmgr-home
   rm -rf $HOME
   cp -rp test/data/user-home $HOME
   rm -f $HOME/.appconfig
 
-  cd $BATS_TMPDIR/app.sh
+  cd $BATS_TMPDIR/appmgr
 
   REPO=$BATS_TMPDIR/repo
   REPO_URL="file://$REPO"
@@ -68,7 +68,7 @@ install_artifact() {
   local pv=$p/$version
 
   mkdir -p $pv
-  cp "$APPSH_HOME/test/data/app-a.zip" "$pv/app-a-$v.zip"
+  cp "$APPMGR_HOME/test/data/app-a.zip" "$pv/app-a-$v.zip"
   if [[ $OSTYPE = darwin* ]]; then
     /sbin/md5 -r "$pv/app-a-$v.zip" > "$pv/app-a-$v.zip.md5"
   else
@@ -86,10 +86,10 @@ install_artifact() {
       <timestamp>${now}</timestamp>
       <buildNumber>${build_number}</buildNumber>
     </snapshot>
-<!-- app.sh doesn't need this part
+<!-- appmgr doesn't need this part
     <lastUpdated>20140610193134</lastUpdated>
 -->
-<!-- app.sh doesn't need this part
+<!-- appmgr doesn't need this part
     <snapshotVersions>
       <snapshotVersion>
         <extension>zip</extension>
@@ -112,7 +112,7 @@ check_status=yes
 
 app() {
   echo app $@
-  run $APPSH_HOME/app "$@"
+  run $APPMGR_HOME/app "$@"
   echo_lines
 
   if [ "$check_status" = yes ]
@@ -124,7 +124,7 @@ app() {
 }
 
 app_libexec() {
-  local x=`PATH=$APPSH_HOME/libexec:/bin:/usr/bin which $1`
+  local x=`PATH=$APPMGR_HOME/libexec:/bin:/usr/bin which $1`
 
   echo libexec/$@
   shift

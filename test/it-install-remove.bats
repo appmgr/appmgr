@@ -59,5 +59,5 @@ do_test() {
 }
 
 @test "install+upgrade; resolver=file" {
-  do_test install_file "file $APPSH_HOME/test/data/app-a.zip"
+  do_test install_file "file $APPMGR_HOME/test/data/app-a.zip"
 }

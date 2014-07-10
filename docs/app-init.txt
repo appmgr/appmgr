@@ -42,14 +42,14 @@ This option can be given multiple times.
 BUILT-IN RESOLVERS
 ------------------
 
-Appsh comes with two built-it resolvers:
+Appmgr comes with two built-it resolvers:
 
 maven::
   See linkman:app-resolver-maven[1].
 file::
   See linkman:app-resolver-file[1].
 
-APP.SH
+APPMGR
 ------
 
 Part of the linkman:app[1] suite.

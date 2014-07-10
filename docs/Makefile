@@ -12,7 +12,7 @@ man: $(MAN)
 
 %.html: %.txt
 	@echo asciidoc $<
-	@asciidoc -f asciidoc.conf --backend=xhtml11 -aappsh_version=0.2-dev $<
+	@asciidoc -f asciidoc.conf --backend=xhtml11 -aappmgr_version=0.2-dev $<
 
 %.1: %.txt
 	$(call man,$<)
@@ -28,7 +28,7 @@ endef
 spell: $(patsubst %,spell-%,$(TXT))
 .PHONY: spell
 spell-%:
-	$(ASPELL) check -p appsh.dict -l en --encoding utf-8 $(patsubst spell-%,%,$@)
+	$(ASPELL) check -p appmgr.dict -l en --encoding utf-8 $(patsubst spell-%,%,$@)
 
 clean:
 	rm -rf $(wildcard *.html) $(wildcard *.1) $(wildcard *.7)

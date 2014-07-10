@@ -6,7 +6,7 @@ load utils
 @test "start/stop, enable/disable" {
   mkzip "app-a"
 
-  app init -d my-app/a file $APPSH_HOME/test/data/app-a.zip; echo_lines
+  app init -d my-app/a file $APPMGR_HOME/test/data/app-a.zip; echo_lines
   cd my-app/a
 
   # Start the application
