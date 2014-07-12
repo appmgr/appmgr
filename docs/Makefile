@@ -22,7 +22,7 @@ man: $(MAN)
 
 define man
 	@echo a2x $(1)
-	@a2x --format manpage $(1)
+	@a2x -L --format manpage $(1)
 endef
 
 spell: $(patsubst %,spell-%,$(TXT))
