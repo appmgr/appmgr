@@ -6,7 +6,7 @@ load utils
 @test "app-operate" {
   mkzip app-a
 
-  app init -d my-app file $APPSH_HOME/test/data/app-a.zip
+  app init -d my-app file $APPMGR_HOME/test/data/app-a.zip
 
   cd my-app
   check_status=no

@@ -18,7 +18,7 @@ because the user explicitly requested so. If the user gives some form
 of invalid argument or there is any other error the usage should go to
 stderr because the user might be using pipes.
 
-How app.sh does it
+How appmgr does it
 ------------------
 
 Each command should implement `usage_text`. The command should call

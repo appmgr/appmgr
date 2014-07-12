@@ -41,7 +41,7 @@ load utils
 
 @test "app-upgrade - when pre-install fails the first run" {
   mkzip app-a
-  file=$APPSH_HOME/test/data/app-a.zip
+  file=$APPMGR_HOME/test/data/app-a.zip
   touch_time '1000000000' $file
 
   app init -d my-app file $file

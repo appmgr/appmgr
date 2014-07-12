@@ -4,8 +4,8 @@
 load utils
 
 setup_inner() {
-  export APPSH_DEFAULT_CONFIG=/dev/null
-  cd $APPSH_HOME/test/data/app-cat-conf
+  export APPMGR_DEFAULT_CONFIG=/dev/null
+  cd $APPMGR_HOME/test/data/app-cat-conf
 }
 
 @test "app-cat-conf" {
@@ -33,7 +33,7 @@ setup_inner() {
 
 @test "app-cat-conf can use stdin and multiple files" {
   x=$(cat config-3 | \
-  $APPSH_HOME/libexec/app-cat-conf -D -f - -f config-2)
+  $APPMGR_HOME/libexec/app-cat-conf -D -f - -f config-2)
   [[ $x == "foo.bar=wat
 foo.wat=bar" ]]
 }
@@ -46,14 +46,14 @@ foo.wat=bar" ]]
   eq '${#lines[*]}' 1
 }
 
-@test "uses \$APPSH_DEFAULT_CONFIG" {
-  APPSH_DEFAULT_CONFIG=`pwd`/config-2
+@test "uses \$APPMGR_DEFAULT_CONFIG" {
+  APPMGR_DEFAULT_CONFIG=`pwd`/config-2
   app_libexec app-cat-conf -f /dev/null
   eq '${lines[0]}' "foo.bar=wat"
   eq '${#lines[*]}' 1
 }
 
-@test "uses \$APPSH_DEFAULT_CONFIG, with lowest priority" {
+@test "uses \$APPMGR_DEFAULT_CONFIG, with lowest priority" {
   app_libexec app-cat-conf -f config-3
   eq '${lines[0]}' "foo.bar=baz"
   eq '${lines[1]}' "foo.wat=bar"
@@ -62,7 +62,7 @@ foo.wat=bar" ]]
 
 @test "app-cat-conf - read installation's and user's config when outside app" {
   HOME=`pwd`/home
-  APPSH_DEFAULT_CONFIG=config-2
+  APPMGR_DEFAULT_CONFIG=config-2
   app_libexec app-cat-conf
   eq '${lines[0]}' "foo.bar=1"
   eq '${lines[1]}' "foo.foo=2"
@@ -71,7 +71,7 @@ foo.wat=bar" ]]
 
 @test "app-cat-conf - read \$HOME/.appconfig and .app/config when inside app" {
   HOME=`pwd`/home
-  APPSH_DEFAULT_CONFIG=`pwd`/config-2
+  APPMGR_DEFAULT_CONFIG=`pwd`/config-2
   cd my-app
   app_libexec app-cat-conf
   eq '${lines[0]}' "foo.bar=2"
@@ -81,7 +81,7 @@ foo.wat=bar" ]]
 }
 
 @test "app-cat-conf -l u - read only \$HOME/.appconfig even when in an app" {
-  HOME=$APPSH_HOME/test/data/app-cat-conf/home
+  HOME=$APPMGR_HOME/test/data/app-cat-conf/home
   cd my-app
   app_libexec app-cat-conf -l u
   eq '${lines[0]}' "foo.bar=1"

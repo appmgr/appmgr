@@ -84,7 +84,7 @@ load utils
   app init -d my-app \
     -s "foo.bar=awesome" \
     -s "foo.baz=i love space" \
-    -s "foo.wat=2+2=5" file $APPSH_HOME/test/data/app-a.zip
+    -s "foo.wat=2+2=5" file $APPMGR_HOME/test/data/app-a.zip
   cd my-app
   app cat-conf -g foo
   match '${lines[0]}' "foo.bar=awesome"

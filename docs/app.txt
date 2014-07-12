@@ -25,7 +25,7 @@ $ app upgrade
 $ app restart
 ---------------------------------------------------------------------
 
-appsh is a pragmatic approach to managing a set of apps on a server.
+appmgr is a pragmatic approach to managing a set of apps on a server.
 It is heavily inspired by Git's approach in its command line interface
 and scriptability.
 

@@ -1,26 +1,26 @@
 #!/bin/bash
 
-_appsh_find() {
+_appmgr_find() {
   local e
   for e in "${@:2}"; do [[ "$e" == "$1" ]] && echo $1 && return; done
 }
 
-_appsh_method_groups=(
+_appmgr_method_groups=(
     "instance"
     "conf"
     "operate"
     )
 
-_appsh_methods=(
+_appmgr_methods=(
     "install"
     )
 
-_appsh_resolvers=(
+_appmgr_resolvers=(
     "file"
     "maven"
     )
 
-_appsh_parse_opts() {
+_appmgr_parse_opts() {
   local prev=""
   local has_method
   for ((i=0, j=0; i < ${#COMP_WORDS[@]}; i++, j++)); do
@@ -33,8 +33,8 @@ _appsh_parse_opts() {
       echo "local has_i=$curr"
     fi
 
-    has_method_group="$has_method_group$(_appsh_find "$curr" ${_appsh_method_groups[@]})"
-    has_method="$has_method$(_appsh_find "$curr" ${_appsh_methods[@]})"
+    has_method_group="$has_method_group$(_appmgr_find "$curr" ${_appmgr_method_groups[@]})"
+    has_method="$has_method$(_appmgr_find "$curr" ${_appmgr_methods[@]})"
     prev="${COMP_WORDS[$i]}"
   done
   echo "local has_method_group='$has_method_group'"
@@ -47,19 +47,19 @@ _appsh_parse_opts() {
   esac
 }
 
-_complete_appsh() {
+_complete_appmgr() {
   COMPREPLY=()
   local cur="${COMP_WORDS[COMP_CWORD]}"
   local prev="${COMP_WORDS[COMP_CWORD-1]}"
   local opts=""
 
-  local x=`_appsh_parse_opts`
+  local x=`_appmgr_parse_opts`
   eval "$x"
 #  set | grep ^has_
 
   if [ $COMP_CWORD == 1 ]
   then
-    opts="${_appsh_method_groups[@]}"
+    opts="${_appmgr_method_groups[@]}"
     opts="$opts"
     if [ "$in_option" = "yes" ]
     then
@@ -84,7 +84,7 @@ _complete_appsh() {
       fi
       ;;
     -r)
-      COMPREPLY="${_appsh_resolvers[@]}"
+      COMPREPLY="${_appmgr_resolvers[@]}"
       COMPREPLY=($(compgen -W "$COMPREPLY" -- ${cur}))
       return
       ;;
@@ -120,4 +120,4 @@ _complete_appsh() {
   set +x
 }
 
-complete -F _complete_appsh app
+complete -F _complete_appmgr app

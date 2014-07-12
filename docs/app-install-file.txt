@@ -16,7 +16,7 @@ TODOs
 Tests for prepending and appending configuration::
     Missing.
 
-APP.SH
+APPMGR
 ------
 
 Part of the linkman:app[1] suite.

@@ -17,10 +17,10 @@ SYNOPSIS
 DESCRIPTION
 -----------
 
-Interface to the configuration values used by 'app.sh'. Modelled after
+Interface to the configuration values used by 'appmgr'. Modelled after
 the 'git-config' command. 'list' is the default command
 
-APP.SH
+APPMGR
 ------
 
 Part of the linkman:app[1] suite.

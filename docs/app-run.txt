@@ -32,7 +32,7 @@ linkman:app-start[1],
 linkman:app-enable[1],
 linkman:app-disable[1]
 
-APP.SH
+APPMGR
 ------
 
 Part of the linkman:app[1] suite.

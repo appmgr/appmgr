@@ -6,7 +6,7 @@ load utils
 setup_inner() {
   mkdir .app;
   echo > .app/config
-  export APPSH_DEFAULT_CONFIG=/dev/null
+  export APPMGR_DEFAULT_CONFIG=/dev/null
 }
 
 @test "./app conf - happy day" {

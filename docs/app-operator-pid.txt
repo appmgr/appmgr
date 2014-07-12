@@ -33,7 +33,7 @@ Support configurable signal to send on shutdown::
 Tests for app.pid_management=launcher::
     Missing.
 
-APP.SH
+APPMGR
 ------
 
 Part of the linkman:app[1] suite.
