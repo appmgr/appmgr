@@ -100,7 +100,7 @@ after applications are installed through hooks. These are placed in a
 To summarize, this is what an application zip archive looks like:
 
 ---------------------------------------------------------------------
-/app.conf
+/app.config
 /root
 /root/bin
 /root/bin/my-app
