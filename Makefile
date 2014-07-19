@@ -4,15 +4,20 @@ BINS=$(wildcard bin/app-*) $(wildcard libexec/app-*)
 
 BATS=$(sort $(patsubst test/%,%,$(filter-out test/X-%,$(wildcard test/*.bats))))
 TESTS=$(addprefix test-,$(BATS))
+OUT=out
+GIT_VERSION:=$(shell git describe --dirty --always)
+M=make -j8 -s VERSION=$(GIT_VERSION)
 
 install: docs
 	@if [ "$(DESTDIR)" = "" ]; then echo "You have to set DESTDIR"; exit 1; fi; fi
 	mkdir -p $(DESTDIR)/usr
 	cp -r bin/ lib/ libexec/ $(DESTDIR)/usr/
 	mkdir -p $(DESTDIR)/usr/share/man/man1
-	cp docs/*.1 $(DESTDIR)/usr/share/man/man1/
+	cp docs/$(OUT)/*.1 $(DESTDIR)/usr/share/man/man1/
+	mkdir -p $(DESTDIR)/usr/share/man/man7
+	cp docs/$(OUT)/*.7 $(DESTDIR)/usr/share/man/man7/
 	mkdir -p $(DESTDIR)/usr/share/doc/appmgr
-	cp docs/*.html $(DESTDIR)/usr/share/doc/appmgr/
+	cp docs/$(OUT)/*.html $(DESTDIR)/usr/share/doc/appmgr/
 
 test-%:
 	@echo === $@
@@ -30,11 +35,12 @@ test/bats:
 	cd test && git clone git://github.com/sstephenson/bats.git
 
 clean:
-	@make -s -C docs clean
+	@rm -rf $(OUT)
+	@$(M) -C docs clean
 .PHONY: clean
 
 docs:
-	@make -s -C docs
+	@$(M) -C docs
 .PHONY: docs
 
 define set_header
@@ -51,3 +57,6 @@ $(foreach f,$(BINS),$(eval $(call set_header,$(f))))
 set-headers: $(addprefix set_header-,$(BINS))
 
 .PHONY: set-headers
+
+# If you want to add your own goals or utilities, put them in Makefile.local
+-include Makefile.local

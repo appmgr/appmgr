@@ -1,11 +1,6 @@
-apps.list
+Makefile.local
 downloads
-target
-docs/*.xml
-docs/*.html
-docs/*.1
-docs/*.7
-docs/*.txt.bak
+out
 .app/var
 /*/.gitignore
 
