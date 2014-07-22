@@ -9,7 +9,7 @@ usage_text() {
     sort -n
   echo ""
   echo "Available plumbing commands:"
-  grep_path "/app-.*$" "$APPMGR_HOME/libexec" | \
+  grep_path "/app-.*$" "$APPMGR_HOME/lib/exec" | \
     sed "s,^.*/app-,    ," | \
     sort -n
 }
@@ -28,7 +28,7 @@ done
 APPMGR_HOME=`dirname "$PRG"`
 APPMGR_HOME=`cd "$APPMGR_HOME" && pwd`
 
-. $APPMGR_HOME/lib/common
+. $APPMGR_HOME/share/appmgr/common
 
 echo_debug=no
 while getopts ":hD:" opt
@@ -59,7 +59,7 @@ bin=`grep_path "/app-$command$" "$APPMGR_HOME/bin"`
 
 if [ ! -x "$bin" ]
 then
-  bin=`grep_path "/app-$command$" "$APPMGR_HOME/libexec"`
+  bin=`grep_path "/app-$command$" "$APPMGR_HOME/lib/appmgr"`
   if [ ! -x "$bin" ]
   then
     echo "Unknown command: $command" 2>&1

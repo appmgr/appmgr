@@ -28,6 +28,7 @@ load utils
 
   eq    '$installed_version' "$resolved_version"
 
+  sleep 1
   install_artifact
 
   app upgrade

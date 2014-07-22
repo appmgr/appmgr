@@ -196,7 +196,7 @@ location_to_file() {
 }
 
 _get_config_file_system() {
-  eval $1="${APPMGR_DEFAULT_CONFIG-$APPMGR_HOME/lib/default-config}"
+  eval $1="${APPMGR_DEFAULT_CONFIG-$APPMGR_HOME/share/appmgr/default-config}"
 }
 
 _get_config_file_user() {
@@ -300,7 +300,7 @@ key_expr="[a-zA-Z][-_a-zA-Z0-9]*"
 # Add the app-* apps to PATH. They're added last to allow the user to
 # overload their implementations.
 # Ideally we should parse the path here and remove duplicates.
-PATH=$APPMGR_HOME:$APPMGR_HOME/bin:$APPMGR_HOME/libexec:$PATH
+PATH=$APPMGR_HOME:$APPMGR_HOME/bin:$APPMGR_HOME/lib/appmgr:$PATH
 
 # Make sure that $HOME is present to prevent unbound errors
 HOME=${HOME:-}

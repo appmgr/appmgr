@@ -23,7 +23,7 @@ How appmgr does it
 
 Each command should implement `usage_text`. The command should call
 `show_help()` and `usage()` as appropriate. These functions are
-defined in `lib/common` and will both call `usage_app()` to get the
+defined in `share/appmgr/common` and will both call `usage_app()` to get the
 usage info. `usage()` will send the info to stderr.
 
 * `show_help()` will exit with 0, while `usage()` will exit with code 1.

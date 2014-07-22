@@ -33,7 +33,7 @@ setup_inner() {
 
 @test "app-cat-conf can use stdin and multiple files" {
   x=$(cat config-3 | \
-  $APPMGR_HOME/libexec/app-cat-conf -D -f - -f config-2)
+  $APPMGR_HOME/lib/appmgr/app-cat-conf -D -f - -f config-2)
   [[ $x == "foo.bar=wat
 foo.wat=bar" ]]
 }

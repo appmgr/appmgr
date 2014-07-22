@@ -4,10 +4,10 @@ set -e
 set -u
 
 APPMGR_HOME=$(dirname "$0")
-APPMGR_HOME=$(cd "$APPMGR_HOME/.." && pwd)
+APPMGR_HOME=$(cd "$APPMGR_HOME/../.." && pwd)
 export APPMGR_HOME
 
-. "$APPMGR_HOME/lib/common"
+. "$APPMGR_HOME/share/appmgr/common"
 # HEADER END
 
 assert_is_app
@@ -15,7 +15,7 @@ assert_is_app
 method="$1"; shift
 
 bin=$(app-conf get app.operator)
-bin=${bin:-$APPMGR_HOME/libexec/app-operator-pid}
+bin=${bin:-$APPMGR_HOME/lib/appmgr/app-operator-pid}
 
 if [ ! -x "$bin" ]
 then

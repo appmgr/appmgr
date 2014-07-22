@@ -4,10 +4,7 @@ set -e
 set -u
 
 APPMGR_HOME=$(dirname "$0")
-APPMGR_HOME=$(cd "$APPMGR_HOME/.." && pwd)
+APPMGR_HOME=$(cd "$APPMGR_HOME/../.." && pwd)
 export APPMGR_HOME
 
 . "$APPMGR_HOME/share/appmgr/common"
-# HEADER END
-
-exec app conf set app.enabled false

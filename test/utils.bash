@@ -124,9 +124,9 @@ app() {
 }
 
 app_libexec() {
-  local x=`PATH=$APPMGR_HOME/libexec:/bin:/usr/bin which $1`
+  local x=`PATH=$APPMGR_HOME/lib/appmgr:/bin:/usr/bin which $1`
 
-  echo libexec/$@
+  echo lib/appmgr/$@
   shift
   run "$x" "$@"
 

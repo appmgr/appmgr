@@ -7,7 +7,7 @@ APPMGR_HOME=$(dirname "$0")
 APPMGR_HOME=$(cd "$APPMGR_HOME/.." && pwd)
 export APPMGR_HOME
 
-. "$APPMGR_HOME/lib/common"
+. "$APPMGR_HOME/share/appmgr/common"
 # HEADER END
 
-exec "$APPMGR_HOME/libexec/app-operate" "stop" "$@"
+exec "$APPMGR_HOME/lib/appmgr/app-operate" "stop" "$@"

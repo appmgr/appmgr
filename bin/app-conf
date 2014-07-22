@@ -7,7 +7,7 @@ APPMGR_HOME=$(dirname "$0")
 APPMGR_HOME=$(cd "$APPMGR_HOME/.." && pwd)
 export APPMGR_HOME
 
-. "$APPMGR_HOME/lib/common"
+. "$APPMGR_HOME/share/appmgr/common"
 # HEADER END
 
 # TODO: Add a 'get' command that returns a single value
@@ -96,7 +96,7 @@ usage_text() {
   echo "Location is one of:"
   echo "  a or app, selects .app/config"
   echo "  u or user, selects ~/.appconfig"
-  echo "  s or system, selects \$APPMGR_HOME/lib/default-config"
+  echo "  s or system, selects \$APPMGR_HOME/share/appmgr/default-config"
   echo ""
   echo "Location is ignored for import."
   exit 1

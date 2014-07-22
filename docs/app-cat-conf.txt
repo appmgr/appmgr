@@ -40,7 +40,7 @@ LOCATIONS AND DEFAULT FILES
 'app-cat-conf' will by default look for configuration files in three
 places:
 
-* '$APPMGR_HOME/lib/default-configuration'
+* '$APPMGR_HOME/share/appmgr/default-configuration'
 
 * '$HOME/.appconfig'
 
