@@ -3,17 +3,19 @@
 set -e
 set -u
 
-export APPMGR_HOME=$(cd $(dirname "$0")/.. && pwd)
+APPMGR_HOME=$(dirname "$0")
+APPMGR_HOME=$(cd "$APPMGR_HOME/.." && pwd)
+export APPMGR_HOME
 
-. $APPMGR_HOME/lib/common
+. "$APPMGR_HOME/lib/common"
 # HEADER END
 
 do_status() {
-  if [ -z "$PID" ]
+  if [[ -z $PID ]]
   then
     echo stopped
   else
-    if [ `ps -p "$PID" 2>/dev/null | wc -l` -gt 1 ]
+    if [[ $(ps -p "$PID" 2>/dev/null | wc -l) -gt 1 ]]
     then
       echo running
     else
@@ -23,23 +25,23 @@ do_status() {
 }
 
 find_launcher() {
-  local launcher=`app-conf get app.launcher`
+  local launcher=$(app-conf get app.launcher)
 
-  if [ ! -z "$launcher" ]
+  if [[ $launcher != "" ]]
   then
-    if [ ! -r "$launcher" ]
+    if [[ ! -r $launcher ]]
     then
       fatal "No such file: $launcher" >&2
     fi
   else
     # Search for the launcher
-    if [ -d bin ]
+    if [[ -d bin ]]
     then
-      launcher=`grep_path ".*" bin`
+      launcher=$(grep_path ".*" bin)
 
       # This will happen if grep_path returns multiple files.
       # As we don't know which to choose, we'll fail.
-      if [ ! -x "$launcher" ]
+      if [[ ! -x $launcher ]]
       then
         launcher=""
       fi
@@ -60,7 +62,7 @@ find_launcher() {
 }
 
 find_pid_management() {
-  pid_management=`app-conf get app.pid_management`
+  pid_management=$(app-conf get app.pid_management)
 
   if [[ $pid_management == "" ]]
   then
@@ -79,14 +81,14 @@ find_pid_management() {
 }
 
 command_run() {
-  launcher=`find_launcher`
-  pid_management=`find_pid_management`
+  launcher=$(find_launcher)
+  pid_management=$(find_pid_management)
 
   debug "launcher=$launcher"
   debug "pid_management=$pid_management"
-  debug "pwd=`pwd`"
+  debug "pwd=$(pwd)"
 
-  case `do_status` in
+  case $(do_status) in
     running)
       echo "The application is already running as $PID."
       exit 1
@@ -96,19 +98,20 @@ command_run() {
   export APPMGR_HOME
   export APP_FOREGROUND=1
   debug "Starting app in foreground..."
-  exec $launcher @*
+  # shellcheck disable=SC2093
+  exec "$launcher" @*
   return $?
 }
 
 command_start() {
-  launcher=`find_launcher`
-  pid_management=`find_pid_management`
+  launcher=$(find_launcher)
+  pid_management=$(find_pid_management)
 
   debug "launcher=$launcher"
   debug "pid_management=$pid_management"
-  debug "pwd=`pwd`"
+  debug "pwd=$(pwd)"
 
-  case `do_status` in
+  case $(do_status) in
     running)
       echo "The application is already running as $PID."
       exit 1
@@ -124,10 +127,10 @@ command_start() {
   case "$pid_management" in
     appmgr)
       echo "Application launched as $PID"
-      echo $PID > $pid_file
+      echo "$PID" > "$pid_file"
       ;;
     launcher)
-      launch_timeout=`app conf get app.launch_timeout`
+      launch_timeout=$(app conf get app.launch_timeout)
       if [[ ! $launch_timeout =~ [0-9] ]]
       then
         launch_timeout=10
@@ -137,7 +140,7 @@ command_start() {
       do
         echo "Waiting for PID to show up..."
         sleep 1
-        if [ -r $pid_file ]
+        if [[ -r $pid_file ]]
         then
           return 0
         fi
@@ -152,7 +155,7 @@ command_start() {
 }
 
 command_stop() {
-  case `do_status` in
+  case $(do_status) in
     stopped)
       echo "The application not running."
       return 1
@@ -167,11 +170,11 @@ command_stop() {
   esac
 
   echo -n "Sending TERM to $PID, waiting for shutdown"
-  kill -TERM $PID
+  kill -TERM "$PID"
 
-  for i in {1..10}
+  for ((i=1; i<10; i++))
   do
-    if [ "`do_status`" != "running" ]
+    if [[ $(do_status) != running ]]
     then
       PID=
       break
@@ -184,9 +187,9 @@ command_stop() {
   if [[ $PID != "" ]]
   then
     echo "This is taking too long, sending KILL to $PID "
-    kill -KILL $PID
+    kill -KILL "$PID"
 
-    while [ "`do_status`" == "running" ]
+    while [[ $(do_status) == running ]]
     do
       sleep 1
       echo -n .
@@ -194,12 +197,12 @@ command_stop() {
   fi
 
   echo " OK"
-  rm -f $pid_file
+  rm -f "$pid_file"
   return 0
 }
 
 command_status() {
-  case `do_status` in
+  case $(do_status) in
     running)
       echo "Running as $PID"
       return 2
@@ -229,19 +232,19 @@ then
   fatal "\$APP_HOME has to be set."
 fi
 
-pid_file=$APP_HOME/.app/pid
+pid_file="$APP_HOME/.app/pid"
 
 PID=
-if [ -r $pid_file ]
+if [[ -r $pid_file ]]
 then
-  PID="`cat $pid_file`"
+  PID=$(<"$pid_file")
 fi
 
 command="$1"
 
 case "$command" in
   run|start|stop|status|restart)
-    command_$command
+    "command_$command"
     ret=$?
     exit $ret
     ;;

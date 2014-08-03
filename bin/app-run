@@ -3,9 +3,11 @@
 set -e
 set -u
 
-export APPMGR_HOME=$(cd $(dirname "$0")/.. && pwd)
+APPMGR_HOME=$(dirname "$0")
+APPMGR_HOME=$(cd "$APPMGR_HOME/.." && pwd)
+export APPMGR_HOME
 
-. $APPMGR_HOME/lib/common
+. "$APPMGR_HOME/lib/common"
 # HEADER END
 
-exec $APPMGR_HOME/libexec/app-operate "run" "$@"
+exec "$APPMGR_HOME/libexec/app-operate" "run" "$@"

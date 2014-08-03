@@ -3,9 +3,11 @@
 set -e
 set -u
 
-export APPMGR_HOME=$(cd $(dirname "$0")/.. && pwd)
+APPMGR_HOME=$(dirname "$0")
+APPMGR_HOME=$(cd "$APPMGR_HOME/.." && pwd)
+export APPMGR_HOME
 
-. $APPMGR_HOME/lib/common
+. "$APPMGR_HOME/lib/common"
 # HEADER END
 
 usage_text() {
@@ -62,7 +64,7 @@ then
 fi
 
 # TODO: remove
-chmod +x $bin
+chmod +x "$bin"
 
 if [[ ! -e $bin ]]
 then
@@ -71,4 +73,4 @@ then
 fi
 
 debug "Running hook: $hook"
-run_app -v $version "$exe"
+run_app -v "$version" "$exe"

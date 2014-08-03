@@ -3,9 +3,11 @@
 set -e
 set -u
 
-export APPMGR_HOME=$(cd $(dirname "$0")/.. && pwd)
+APPMGR_HOME=$(dirname "$0")
+APPMGR_HOME=$(cd "$APPMGR_HOME/.." && pwd)
+export APPMGR_HOME
 
-. $APPMGR_HOME/lib/common
+. "$APPMGR_HOME/lib/common"
 # HEADER END
 
 usage_text() {
@@ -19,22 +21,22 @@ fi
 
 assert_is_app
 
-version=`app-conf get app.version`
-installed_version=`app-conf get app.installed_version`
+version=$(app-conf get app.version)
+installed_version=$(app-conf get app.installed_version)
 
 # TODO: should this explicitly check for a discrepancy between
 # resolved_version and installed_version? This indicates an app that's
 # not completely installed.
 
 # Find the resolver and resolve the version
-resolver_name=`app-conf get app.resolver`
-resolver=`find_resolver "$resolver_name"`
+resolver_name=$(app-conf get app.resolver)
+resolver=$(find_resolver "$resolver_name")
 
 echo "Resolving version $version"
 "$resolver" resolve-version
-resolved_version=`app-conf get app.resolved_version`
+resolved_version=$(app-conf get app.resolved_version)
 
-if [[ $resolved_version == $installed_version ]]
+if [[ $resolved_version == "$installed_version" ]]
 then
   echo "No new version available" 2>&1
   exit

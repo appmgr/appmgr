@@ -3,9 +3,11 @@
 set -e
 set -u
 
-export APPMGR_HOME=$(cd $(dirname "$0")/.. && pwd)
+APPMGR_HOME=$(dirname "$0")
+APPMGR_HOME=$(cd "$APPMGR_HOME/.." && pwd)
+export APPMGR_HOME
 
-. $APPMGR_HOME/lib/common
+. "$APPMGR_HOME/lib/common"
 # HEADER END
 
 files=()
@@ -35,7 +37,7 @@ do
       mode=key
       if [[ ! $key =~ $key_expr\.$key_expr ]]
       then
-        echo Invalid key name: $key
+        echo "Invalid key name: $key"
         exit 1
       fi
       ;;
@@ -44,7 +46,7 @@ do
       mode=group
       if [[ ! $group =~ $key_expr ]]
       then
-        echo Invalid group name: $group
+        echo "Invalid group name: $group"
         exit 1
       fi
       ;;
@@ -57,7 +59,7 @@ do
   esac
 done
 
-shift $(($OPTIND - 1))
+shift $((OPTIND - 1))
 
 if [[ $# != 0 ]]
 then

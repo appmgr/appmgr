@@ -3,9 +3,11 @@
 set -e
 set -u
 
-export APPMGR_HOME=$(cd $(dirname "$0")/.. && pwd)
+APPMGR_HOME=$(dirname "$0")
+APPMGR_HOME=$(cd "$APPMGR_HOME/.." && pwd)
+export APPMGR_HOME
 
-. $APPMGR_HOME/lib/common
+. "$APPMGR_HOME/lib/common"
 # HEADER END
 
 usage_text() {
@@ -17,7 +19,8 @@ usage_text() {
 }
 
 slash() {
-  echo $1 | sed "s,\.,/,g"
+  local x=$1; shift
+  echo "${x//.//}"
 }
 
 # TODO: look in the local repository first
@@ -40,10 +43,10 @@ get_file() {
 }
 
 get_http() {
-  curl -o $file $url -D curl.tmp
+  curl -o "$file" "$url" -D curl.tmp
 
-  exit=`grep "^HTTP/[0-9]\.[0-9] 200 .*" curl.tmp >/dev/null; echo $?`
-  head=`head -n 1 curl.tmp`
+  exit=$(grep "^HTTP/[0-9]\.[0-9] 200 .*" curl.tmp >/dev/null; echo $?)
+  head=$(head -n 1 curl.tmp)
   rm -f curl.tmp
   if [ "$exit" != 0 ]
   then
@@ -57,12 +60,12 @@ download_artifact() {
   local url="$1"; shift
 
   echo "Downloading $url.md5"
-  get $url.md5 $file.md5
-  local expected_md5="`cat $file.md5`"
+  get "$url.md5" "$file.md5"
+  local expected_md5=$(<"$file.md5")
 
-  if [ -r $file ]
+  if [[ -r $file ]]
   then
-    if [ "$expected_md5" == "`calculate_md5 $file`" ]
+    if [[ $expected_md5 == $(calculate_md5 "$file") ]]
     then
       echo "Artifact already downloaded."
     else
@@ -71,10 +74,10 @@ download_artifact() {
     return 0
   fi
   echo "Downloading artifact: $url"
-  get $url $file
+  get "$url" "$file"
 
-  local actual_md5="`calculate_md5 $file`"
-  if [ "$expected_md5" == "$actual_md5" ]
+  local actual_md5=$(calculate_md5 "$file")
+  if [[ $expected_md5 == "$actual_md5" ]]
   then
     echo "Artifact downloaded."
   else
@@ -101,7 +104,7 @@ xmlstarlet() {
     return
   fi
 
-  _xmlstarlet="`which xmlstarlet`"
+  _xmlstarlet="$(which xmlstarlet)"
 
   if [ ! -z "$_xmlstarlet" ]
   then
@@ -109,7 +112,7 @@ xmlstarlet() {
     return
   fi
 
-  _xmlstarlet="`which xml`"
+  _xmlstarlet="$(which xml)"
 
   if [ ! -z "$_xmlstarlet" ]
   then
@@ -122,12 +125,12 @@ xmlstarlet() {
 }
 
 resolve_version() {
-  local group_id=`app-conf get maven.group_id`
-  local artifact_id=`app-conf get maven.artifact_id`
-  local classifier=`app-conf get app.classifier`
-  local version=`app-conf get app.version`
+  local group_id=$(app-conf get maven.group_id)
+  local artifact_id=$(app-conf get maven.artifact_id)
+  local classifier=$(app-conf get app.classifier)
+  local version=$(app-conf get app.version)
 
-  repo=`app-conf get maven.repo`
+  repo=$(app-conf get maven.repo)
 
   if [[ ! $version == *-SNAPSHOT ]]
   then
@@ -136,7 +139,7 @@ resolve_version() {
   fi
 
   echo "Resolving Maven version $version..."
-  resolve_snapshot $group_id $artifact_id $version
+  resolve_snapshot "$group_id" "$artifact_id" "$version"
 }
 
 resolve_snapshot() {
@@ -144,27 +147,27 @@ resolve_snapshot() {
   local artifact_id=$1; shift
   local version=$1; shift
 
-  repo=`app-conf get maven.repo`
+  repo=$(app-conf get maven.repo)
 
-  local group_id_slash=`slash $group_id`
+  local group_id_slash=$(slash "$group_id")
 
-  local base_path=$group_id_slash/$artifact_id/$version
+  local base_path="$group_id_slash/$artifact_id/$version"
 
-  mkdir -p .app/cache/$base_path
+  mkdir -p ".app/cache/$base_path"
 
-  local l=.app/cache/$base_path/maven-metadata.xml
-  local r=$repo/$base_path/maven-metadata.xml
+  local l=".app/cache/$base_path/maven-metadata.xml"
+  local r="$repo/$base_path/maven-metadata.xml"
 
-  get $r $l
-  x=$(xmlstarlet sel -t -m '/metadata/versioning/snapshot' -v timestamp -o ' ' -v buildNumber $l)
-  set -- $x
+  get "$r" "$l"
+  local x=$(xmlstarlet sel -t -m '/metadata/versioning/snapshot' -v timestamp -o ' ' -v buildNumber "$l")
+  x=( ${x//:/ } )
 
-  if [[ $# != 2 ]]
+  if [[ ${#x[@]} != 2 ]]
   then
     fatal "Unable extract a useful timestamp from maven-metadata.xml."
   fi
 
-  snapshot_version="$1-$2"
+  snapshot_version="${x[0]}-${x[1]}"
 
   if [[ $snapshot_version == "" ]]
   then
@@ -199,26 +202,26 @@ download_version() {
     usage
   fi
 
-  repo=`app-conf get maven.repo`
-  group_id=`app-conf get maven.group_id`
-  artifact_id=`app-conf get maven.artifact_id`
-  classifier=`app-conf get maven.classifier`
-  version=`app-conf get app.version`
+  repo="$(app-conf get maven.repo)"
+  group_id="$(app-conf get maven.group_id)"
+  artifact_id="$(app-conf get maven.artifact_id)"
+  classifier="$(app-conf get maven.classifier)"
+  version="$(app-conf get app.version)"
 
-  group_id_slash=`slash $group_id`
-  base_path=$group_id_slash/$artifact_id/$version
-  file_name=$artifact_id-$resolved_version${classifier:+-}$classifier.zip
+  group_id_slash=$(slash "$group_id")
+  base_path="$group_id_slash/$artifact_id/$version"
+  file_name="$artifact_id-$resolved_version${classifier:+-}$classifier.zip"
 
-  mkdir -p .app/cache/$base_path
+  mkdir -p ".app/cache/$base_path"
 
-  l=.app/cache/$base_path/$file_name
-  r=$repo/$base_path/$file_name
+  l=".app/cache/$base_path/$file_name"
+  r="$repo/$base_path/$file_name"
 
   echo "Downloading $group_id:$artifact_id:$resolved_version..."
-  get $r $l
+  get "$r" "$l"
 
   rm -f "$target"
-  ln -s "`pwd`/$l" "$target"
+  ln -s "$(pwd)/$l" "$target"
 }
 
 init() {
@@ -237,30 +240,28 @@ init() {
   done
 
   local coordinates=${1-}
-  x=${coordinates}
-  x=${x//:/ }
-  set -- $x
+  local x=( ${coordinates//:/ } )
 
-  case $# in
+  case ${#x[@]} in
     3)
-      if [[ $1 == "" || $2 == "" || $3 == "" ]]
+      if [[ ${x[0]} == "" || ${x[1]} == "" || ${x[2]} == "" ]]
       then
         usage "Invalid Maven coordinates: $coordinates"
       fi
-      group_id=$1; shift
-      artifact_id=$1; shift
+      group_id=${x[0]}
+      artifact_id=${x[1]}
       classifier=
-      version=$1; shift
+      version=${x[2]}
       ;;
     4)
-      if [[ $1 == "" || $2 == "" || $3 == "" || $4 == "" ]]
+      if [[ ${x[0]} == "" || ${x[1]} == "" || ${x[2]} == "" || ${x[3]} == "" ]]
       then
         usage "Invalid Maven coordinates: $coordinates"
       fi
-      group_id=$1; shift
-      artifact_id=$1; shift
-      classifier=$1; shift
-      version=$1; shift
+      group_id=${x[0]}
+      artifact_id=${x[1]}
+      classifier=${x[2]}
+      version=${x[3]}
       ;;
     *)
       usage "Invalid Maven coordinates: $coordinates"

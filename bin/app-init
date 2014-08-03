@@ -3,9 +3,11 @@
 set -e
 set -u
 
-export APPMGR_HOME=$(cd $(dirname "$0")/.. && pwd)
+APPMGR_HOME=$(dirname "$0")
+APPMGR_HOME=$(cd "$APPMGR_HOME/.." && pwd)
+export APPMGR_HOME
 
-. $APPMGR_HOME/lib/common
+. "$APPMGR_HOME/lib/common"
 # HEADER END
 
 usage_text() {
@@ -28,18 +30,18 @@ do
       ;;
     C)
       prepend_config=$OPTARG
-      if [[ ! prepend_config =~ ^/ ]]
+      if [[ ! $prepend_config =~ ^/ ]]
       then
-        prepend_config="`pwd`/$prepend_config"
+        prepend_config="$(pwd)/$prepend_config"
       fi
       shift 2
       OPTIND=1
       ;;
     c)
       append_config=$OPTARG
-      if [[ ! append_config =~ ^/ ]]
+      if [[ ! $append_config =~ ^/ ]]
       then
-        append_config="`pwd`/$append_config"
+        append_config="$(pwd)/$append_config"
       fi
       shift 2
       OPTIND=1
@@ -75,7 +77,7 @@ then
   fatal "Already initialized: $dir" 2>&1
 fi
 
-resolver=`find_resolver "$resolver_name"`
+resolver=$(find_resolver "$resolver_name")
 
 if [ -z "$resolver" ]
 then
@@ -85,26 +87,30 @@ fi
 
 mkdir -p -- "$dir" "$dir/.app"
 
+# shellcheck disable=SC2034
 ok=no
-clean_dir=`cd "$dir" && pwd`
+# shellcheck disable=SC2034
+clean_dir=$(cd "$dir" && pwd)
 trap '[[ $ok == yes ]] || rm -rf "$clean_dir"' EXIT
 
 cd "$dir"
 
-for kv in "${conf[@]:+${conf[@]}}"
-do
- key="${kv%%=*}"
- value="${kv#*=}"
- app-conf set "$key" "$value"
-done
-unset IFS
+if [[ ${#conf[@]} -gt 0 ]]
+then
+  for kv in "${conf[@]}"
+  do
+	key="${kv%%=*}"
+	value="${kv#*=}"
+	app-conf set "$key" "$value"
+  done
+fi
 
 app-conf set app.resolver "$resolver_name"
 
 "$resolver" init "$@"
 "$resolver" resolve-version
 
-resolved_version=`app-conf get app.resolved_version`
+resolved_version=$(app-conf get app.resolved_version)
 
 if [[ $resolved_version == "" ]]
 then
@@ -116,10 +122,26 @@ echo "Resolved version to $resolved_version"
 
 "$resolver" download-version -v "$resolved_version" -f .app/latest.zip
 
-app-install-file \
-    -v "$resolved_version" \
-    ${prepend_config:+-C "$prepend_config"} \
-    ${append_config:+-c "$append_config"} \
-    -f .app/latest.zip
+args=()
+args+=(-v)
+args+=("$resolved_version")
 
+if [[ $prepend_config != "" ]]
+then
+  args+=(-C)
+  args+=(${prepend_config})
+fi
+
+if [[ $append_config != "" ]]
+then
+  args+=(-C)
+  args+=(${append_config})
+fi
+
+args+=(-f)
+args+=(.app/latest.zip)
+
+app-install-file "${args[@]}"
+
+# shellcheck disable=SC2034
 ok=yes

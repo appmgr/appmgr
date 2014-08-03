@@ -1,10 +1,11 @@
-all: test docs
+all: check test docs
 
 BINS=$(wildcard bin/app-*) $(wildcard libexec/app-*)
 
+OUT=out
 BATS=$(sort $(patsubst test/%,%,$(filter-out test/X-%,$(wildcard test/*.bats))))
 TESTS=$(addprefix test-,$(BATS))
-OUT=out
+CHECKS=$(addsuffix .check,$(addprefix $(OUT)/,$(BINS)))
 GIT_VERSION:=$(shell git describe --dirty --always)
 M=make -j8 -s VERSION=$(GIT_VERSION)
 
@@ -18,6 +19,14 @@ install: docs
 	cp docs/$(OUT)/*.7 $(DESTDIR)/usr/share/man/man7/
 	mkdir -p $(DESTDIR)/usr/share/doc/appmgr
 	cp docs/$(OUT)/*.html $(DESTDIR)/usr/share/doc/appmgr/
+
+check: $(CHECKS)
+.PHONY: check
+
+$(OUT)/%.check: %
+	@mkdir -p $(shell dirname $@)
+	shellcheck $(patsubst check-%,check/%,$<)
+	@touch $@
 
 test-%:
 	@echo === $@

@@ -3,9 +3,11 @@
 set -e
 set -u
 
-export APPMGR_HOME=$(cd $(dirname "$0")/.. && pwd)
+APPMGR_HOME=$(dirname "$0")
+APPMGR_HOME=$(cd "$APPMGR_HOME/.." && pwd)
+export APPMGR_HOME
 
-. $APPMGR_HOME/lib/common
+. "$APPMGR_HOME/lib/common"
 # HEADER END
 
 usage_text() {
@@ -55,22 +57,22 @@ then
   fatal "Invalid version: $version"
 fi
 
-if [ -d versions/$version ]
+if [ -d "versions/$version" ]
 then
   echo "Version $version is already unpacked"
 else
-  mkdir -p versions/$version.tmp
+  mkdir -p "versions/$version.tmp"
 
   echo "Unpacking..."
-  unzip -q -d versions/$version.tmp $file
+  unzip -q -d "versions/$version.tmp" "$file"
 
-  if [ ! -d versions/$version.tmp/root ]
+  if [ ! -d "versions/$version.tmp/root" ]
   then
     echo "Invalid zip file, did not contain a 'root' directory." >&2
-    rm -rf versions/$version.tmp
+    rm -rf "versions/$version.tmp"
     exit 1
   fi
-  mv versions/$version.tmp versions/$version
+  mv "versions/$version.tmp" "versions/$version"
 fi
 
 if [ -n "$prepend_config" ]
@@ -79,10 +81,10 @@ then
   app-conf import "$prepend_config"
 fi
 
-if [ -r versions/$version/app.config ]
+if [ -r "versions/$version/app.config" ]
 then
   debug "Importing config from package"
-  app-conf import versions/$version/app.config
+  app-conf import "versions/$version/app.config"
 fi
 
 if [ -n "$append_config" ]

@@ -3,9 +3,11 @@
 set -e
 set -u
 
-export APPMGR_HOME=$(cd $(dirname "$0")/.. && pwd)
+APPMGR_HOME=$(dirname "$0")
+APPMGR_HOME=$(cd "$APPMGR_HOME/.." && pwd)
+export APPMGR_HOME
 
-. $APPMGR_HOME/lib/common
+. "$APPMGR_HOME/lib/common"
 # HEADER END
 
 usage_text() {
@@ -16,7 +18,7 @@ IFS=" "
 app-ls-apps | while read app
 do
   unset IFS
-  (cd $app; "$@") | while read line
+  (cd "$app"; "$@") | while read line
   do
     echo "$app: $line"
   done

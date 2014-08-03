@@ -3,9 +3,11 @@
 set -e
 set -u
 
-export APPMGR_HOME=$(cd $(dirname "$0")/.. && pwd)
+APPMGR_HOME=$(dirname "$0")
+APPMGR_HOME=$(cd "$APPMGR_HOME/.." && pwd)
+export APPMGR_HOME
 
-. $APPMGR_HOME/lib/common
+. "$APPMGR_HOME/lib/common"
 # HEADER END
 
 usage_text() {
@@ -52,7 +54,7 @@ resolve_version() {
     STAT_ARGS="-c %Y"
   fi
 
-  local s=$(stat $STAT_ARGS $path)
+  local s=$(stat "$STAT_ARGS" "$path")
 
   app-conf set app.resolved_version "$s"
 }
