@@ -12,15 +12,15 @@ M=make -j8 -s VERSION=$(GIT_VERSION)
 
 install: docs
 	@if [ "$(DESTDIR)" = "" ]; then echo "You have to set DESTDIR"; exit 1; fi; fi
-	mkdir -p $(DESTDIR)/usr
-	cp -r bin/ lib/ share/ $(DESTDIR)/usr/
-	cp app $(DESTDIR)/usr/bin
-	mkdir -p $(DESTDIR)/usr/share/man/man1
-	cp docs/$(OUT)/*.1 $(DESTDIR)/usr/share/man/man1/
-	mkdir -p $(DESTDIR)/usr/share/man/man7
-	cp docs/$(OUT)/*.7 $(DESTDIR)/usr/share/man/man7/
-	mkdir -p $(DESTDIR)/usr/share/doc/appmgr
-	cp docs/$(OUT)/*.html $(DESTDIR)/usr/share/doc/appmgr/
+	mkdir -p $(DESTDIR)
+	cp -r bin/ lib/ share/ $(DESTDIR)
+	cp app $(DESTDIR)/bin
+	mkdir -p $(DESTDIR)/share/man/man1
+	cp docs/$(OUT)/*.1 $(DESTDIR)/share/man/man1/
+	mkdir -p $(DESTDIR)/share/man/man7
+	cp docs/$(OUT)/*.7 $(DESTDIR)/share/man/man7/
+	mkdir -p $(DESTDIR)/share/doc/appmgr
+	cp docs/$(OUT)/*.html $(DESTDIR)/share/doc/appmgr/
 
 check: $(CHECKS)
 .PHONY: check
