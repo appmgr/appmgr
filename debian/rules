@@ -10,6 +10,9 @@
 override_dh_auto_build:
 	true # Nothing to do really
 
+override_dh_auto_install:
+  $(MAKE) DESTDIR=$$(pwd)/debian/appmgr/usr install
+
 VERSION := $(shell dpkg-parsechangelog | sed -ne 's/^Version: \(.*\)-.*/\1/p')
 # 0.9~492-6a4e7ca -- <tag>~<rev>-<sha>
 sha1 := $(shell dpkg-parsechangelog | sed -ne 's/^Version: .*\([0-9a-f]\{7\}\)-.*/\1/ p' 2>/dev/null )
@@ -22,7 +25,7 @@ get-orig-source:: $(if $(sha1), get-orig-source-SHA, get-orig-source-tag)
 # Tempory version to build from a recent SHA1
 get-orig-source-tag::
 	rm -rf $@
-	git clone git://github.com/trygvis/app.sh.git $@/appmgr
+	git clone git://github.com/trygvis/appmgr.git $@/appmgr
 	cd $@/appmgr git checkout orig v$(tag) && git submodule update --init
 	find $@/appmgr -depth  -type d -name .git -execdir rm -rf {} +
 	cd $@ && tar -cf - appmgr | gzip -9f - > ../appmgr_$(VERSION).orig.tar.gz
@@ -30,7 +33,7 @@ get-orig-source-tag::
 
 get-orig-source-SHA::
 	rm -rf $@
-	git clone git://github.com/trygvis/app.sh.git $@/app.sh
+	git clone git://github.com/trygvis/appmgr.git $@/app.sh
 	cd $@/appmgr git checkout -b orig $(sha1) && git submodule update --init
 	find $@/appmgr -depth  -type d -name .git -execdir rm -rf {} +
 	cd $@ && tar -cf - appmgr | gzip -9f - > ../appmgr_$(VERSION).orig.tar.gz
