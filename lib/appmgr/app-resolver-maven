@@ -43,7 +43,7 @@ get_file() {
 }
 
 get_http() {
-  curl -o "$file" "$url" -D curl.tmp
+  curl -n -o "$file" "$url" -D curl.tmp
 
   exit=$(grep "^HTTP/[0-9]\.[0-9] 200 .*" curl.tmp >/dev/null; echo $?)
   head=$(head -n 1 curl.tmp)
