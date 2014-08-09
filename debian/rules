@@ -11,14 +11,12 @@ override_dh_auto_build:
 	true # Nothing to do really
 
 override_dh_auto_install:
-  $(MAKE) DESTDIR=$$(pwd)/debian/appmgr/usr install
+	$(MAKE) DESTDIR=$$(pwd)/debian/appmgr/usr install
 
 VERSION := $(shell dpkg-parsechangelog | sed -ne 's/^Version: \(.*\)-.*/\1/p')
 # 0.9~492-6a4e7ca -- <tag>~<rev>-<sha>
 sha1 := $(shell dpkg-parsechangelog | sed -ne 's/^Version: .*\([0-9a-f]\{7\}\)-.*/\1/ p' 2>/dev/null )
 tag := $(shell dpkg-parsechangelog | sed -ne 's/^Version: \([0-9\.]\+\).*/\1/ p' 2>/dev/null )
-
-DEB_CMAKE_EXTRA_FLAGS := -DENABLE_TESTS=OFF -DCMAKE_SKIP_RPATH=OFF -DCMAKE_BUILD_TYPE=Release -DLINE_EDITOR=readline
 
 get-orig-source:: $(if $(sha1), get-orig-source-SHA, get-orig-source-tag)
 
