@@ -11,16 +11,12 @@ GIT_VERSION:=$(shell git describe --dirty --always)
 M=make -j8 -s VERSION=$(GIT_VERSION)
 
 install: docs
-	@if [ "$(DESTDIR)" = "" ]; then echo "You have to set DESTDIR"; exit 1; fi; fi
-	mkdir -p $(DESTDIR)
-	cp -r bin/ lib/ share/ $(DESTDIR)
-	cp app $(DESTDIR)/bin
-	mkdir -p $(DESTDIR)/share/man/man1
-	cp docs/$(OUT)/*.1 $(DESTDIR)/share/man/man1/
-	mkdir -p $(DESTDIR)/share/man/man7
-	cp docs/$(OUT)/*.7 $(DESTDIR)/share/man/man7/
-	mkdir -p $(DESTDIR)/share/doc/appmgr
-	cp docs/$(OUT)/*.html $(DESTDIR)/share/doc/appmgr/
+	@if [ "$(DESTDIR)" = "" ]; then echo "You have to set DESTDIR"; exit 1; fi
+	@$(M) -C docs DESTDIR=$(DESTDIR) install
+	mkdir -p $(DESTDIR)/lib/appmgr
+	cp -r app bin/ lib/ share/ $(DESTDIR)/lib/appmgr
+	mkdir $(DESTDIR)/bin
+	ln -s ../lib/appmgr/app $(DESTDIR)/bin
 
 check: $(CHECKS)
 .PHONY: check

@@ -4,6 +4,8 @@ OUT=out
 MAN=$(shell ls *.txt|xargs -n 1 head -n 1|sed "s,\(.*\)(\([0-9]\)),$(OUT)/\1.\2,")
 HTML=$(patsubst %.txt,$(OUT)/%.html,$(TXT))
 ASPELL=aspell
+INSTALLED_DOCS=$(patsubst $(OUT)/%.1,$(DESTDIR)/share/man/man1/%.1,$(filter %.1,$(MAN)))
+INSTALLED_DOCS+=$(patsubst $(OUT)/%.7,$(DESTDIR)/share/man/man7/%.7,$(filter %.7,$(MAN)))
 
 all: _pre _post
 
@@ -39,6 +41,17 @@ spell: $(patsubst %,spell-%,$(TXT))
 .PHONY: spell
 spell-%:
 	$(ASPELL) check -p appmgr.dict -l en --encoding utf-8 $(patsubst spell-%,%,$@)
+
+install: $(INSTALLED_DOCS)
+
+$(DESTDIR)/share/man/man1 $(DESTDIR)/share/man/man7:
+	@mkdir -p $@
+
+$(DESTDIR)/share/man/man1/%.1: $(OUT)/%.1 $(DESTDIR)/share/man/man1
+	@cp $< $@
+
+$(DESTDIR)/share/man/man7/%.7: $(OUT)/%.7 $(DESTDIR)/share/man/man7
+	@cp $< $@
 
 clean:
 	rm -rf $(OUT)
