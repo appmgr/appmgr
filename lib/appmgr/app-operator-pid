@@ -80,6 +80,14 @@ find_pid_management() {
   esac
 }
 
+command_exec() {
+  export APPMGR_HOME
+  export APP_FOREGROUND=1
+
+  # shellcheck disable=SC2093
+  exec "$launcher" @*
+}
+
 command_run() {
   launcher=$(find_launcher)
   pid_management=$(find_pid_management)
