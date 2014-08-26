@@ -7,16 +7,17 @@ OUT=out
 BATS=$(sort $(patsubst test/%,%,$(filter-out test/X-%,$(wildcard test/*.bats))))
 TESTS=$(addprefix test-,$(BATS))
 CHECKS=$(addsuffix .check,$(addprefix $(OUT)/,$(BINS)))
-GIT_VERSION:=$(shell git describe --dirty --always)
-M=make -j8 -s VERSION=$(GIT_VERSION)
+GIT_VERSION=$(shell git describe --dirty --always)
+VERSION=${VERSION:-${GIT_VERSION}}
+M=make -j8 -s VERSION=${VERSION}
 
 install: docs
 	@if [ "$(DESTDIR)" = "" ]; then echo "You have to set DESTDIR"; exit 1; fi
 	@$(M) -C docs DESTDIR=$(DESTDIR) install
 	mkdir -p $(DESTDIR)/lib/appmgr
 	cp -r app bin/ lib/ share/ $(DESTDIR)/lib/appmgr
-	mkdir $(DESTDIR)/bin
-	ln -s ../lib/appmgr/app $(DESTDIR)/bin
+	mkdir -p $(DESTDIR)/bin
+	ln -sf ../lib/appmgr/app $(DESTDIR)/bin
 
 check: $(CHECKS)
 .PHONY: check
