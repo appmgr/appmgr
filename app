@@ -1,7 +1,7 @@
 #!/bin/bash -e
 
 usage_text() {
-  echo "usage: $usage_app <command>"
+  echo "usage: $usage_app [-C <path>] [-h] [-D] <command>"
   echo ""
   echo "Available porcelain commands:"
   grep_path "/app-.*$" "$APPMGR_HOME/bin" | \
@@ -31,11 +31,19 @@ APPMGR_HOME=`cd "$APPMGR_HOME" && pwd`
 . $APPMGR_HOME/share/appmgr/common
 
 echo_debug=no
-while getopts ":hD:" opt
+newpath=""
+while getopts ":hC:D:" opt
 do
   case $opt in
     h)
       show_help
+      ;;
+    C)
+      newpath="$OPTARG"
+
+      eval OPTIND=$((OPTIND-2))
+      shift
+      shift
       ;;
     D)
       echo_debug=yes
@@ -51,6 +59,17 @@ done
 if [ $# -eq 0 ]
 then
   usage
+fi
+
+if [[ $newpath != "" ]]
+then
+  if [[ ! -d $newpath ]]
+  then
+    echo "No such directory: $newpath" 2>&1
+    exit 1
+  fi
+
+  cd "$newpath"
 fi
 
 command=$1; shift

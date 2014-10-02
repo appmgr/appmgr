@@ -14,12 +14,21 @@ assert_is_app
 
 method="$1"; shift
 
-bin=$(app-conf get app.operator)
-bin=${bin:-$APPMGR_HOME/lib/appmgr/app-operator-pid}
+case "$method" in
+  exec)
+    bin="$1"; shift
 
-if [ ! -x "$bin" ]
-then
-  fatal "Invalid executable: $bin" >&2
-fi
+    run_app "$bin" "$@"
+    ;;
+  *)
+    bin=$(app-conf get app.operator)
+    bin=${bin:-$APPMGR_HOME/lib/appmgr/app-operator-pid}
 
-run_app "$bin" "$method" "$@"
+    if [ ! -x "$bin" ]
+    then
+      fatal "Invalid executable: $bin" >&2
+    fi
+
+    run_app "$bin" "$method" "$@"
+    ;;
+esac
