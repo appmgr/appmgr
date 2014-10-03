@@ -1,3 +1,20 @@
+appmgr (0.5.1+1) trusty; urgency=medium
+
+  [ Trygve Laugstøl ]
+  * Adding an experimental 'app exec' command to run 
+    commands with the configured environment.
+
+  [ Erlend Hamnaberg ]
+  * Makefile now allows install outside of git
+
+  [ Trygve Laugstøl ]
+  * Adding a '-C <path>' option.  
+    It will first change directory to the specified 
+    directory before execuing <command>.
+    This is similar to what tar and git does.
+
+ -- Erlend Hamnaberg <erlend@hamnaberg.net>  Thu, 02 Oct 2014 20:28:43 +0000
+
 appmgr (0.3+3) saucy; urgency=low
 
   * Version without even dependencies on Maven.
