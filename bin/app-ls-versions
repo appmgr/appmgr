@@ -1,0 +1,38 @@
+#!/bin/bash
+
+set -e
+set -u
+
+APPMGR_HOME=$(dirname "$0")
+APPMGR_HOME=$(cd "$APPMGR_HOME/.." && pwd)
+export APPMGR_HOME
+
+. "$APPMGR_HOME/share/appmgr/common"
+
+
+usage_text() {
+  echo "usage: $usage_app ls-versions"
+}
+
+
+assert_is_app
+
+app_home=.
+
+VERSIONS=$(ls $app_home/versions)
+
+INSTALLED=$(app-conf get app.installed_version)
+
+pretty() {
+  local current=$1
+  shift
+  for v in $*; do
+    if [ $v = $current ]; then
+      echo "$v (*)"
+    else
+      echo $v
+    fi
+  done
+}
+
+pretty $INSTALLED $VERSIONS
