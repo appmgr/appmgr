@@ -36,11 +36,8 @@ show-tests:
 	@echo TESTS=$(TESTS)
 	@echo $(addprefix set_header-,$(BINS))
 
-test: test/bats $(TESTS)
+test: $(TESTS)
 .PHONY: test
-
-test/bats:
-	cd test && git clone git://github.com/sstephenson/bats.git
 
 clean:
 	@rm -rf $(OUT)

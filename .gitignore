@@ -5,4 +5,4 @@ out
 /*/.gitignore
 
 /test/data/*.zip
-test/bats
+#test/bats
