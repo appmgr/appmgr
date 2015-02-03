@@ -17,17 +17,17 @@ usage_text() {
 
 assert_is_app
 
-app_home=${APP_HOME-.}
+app_home="${APP_HOME-.}"
 
-app_versions=$(ls $app_home/versions)
+app_versions="$(ls "$app_home/versions")"
 
-installed_version=$(app-conf get app.installed_version)
+installed_version="$(app-conf get app.installed_version)"
 
 pretty() {
   local current=$1
   shift
-  for v in $*; do
-    if [ $v = $current ]; then
+  for v in "$@"; do
+    if [ "$v" = "$current" ]; then
       echo "$v (*)"
     else
       echo $v
@@ -36,15 +36,15 @@ pretty() {
 }
 
 script() {
-  local current=$1
+  local current="$1"
   shift
   local versions=""
-  for v in $*; do
-    if [ $v != $current ]; then
+  for v in "$@"; do
+    if [ "$v" != "$current" ]; then
       versions="${versions} $v"
     fi
   done
-  echo $versions
+  echo "$versions"
 }
 
 is_pretty=0
@@ -63,7 +63,7 @@ done
 shift $((OPTIND-1))
 
 if [[ $is_pretty -eq 0 ]]; then
-  pretty $installed_version $app_versions
+  pretty "$installed_version" "$app_versions"
 else
-  script $installed_version $app_versions
+  script "$installed_version" "$app_versions"
 fi
