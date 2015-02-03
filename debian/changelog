@@ -1,3 +1,13 @@
+appmgr (0.5.2+1) trusty; urgency=medium
+
+  [ Erlend Hamnaberg ]
+  * List versions
+
+  [ Trygve Laugstøl ]
+  * app-cat-conf: Don't use defaults when importing new values.
+
+ -- Erlend Hamnaberg <erlend@hamnaberg.net>  Tue, 03 Feb 2015 22:34:24 +0000
+
 appmgr (0.5.1+1) trusty; urgency=medium
 
   [ Trygve Laugstøl ]
