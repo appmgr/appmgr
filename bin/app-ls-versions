@@ -23,10 +23,10 @@ app_versions="$(ls "$app_home/versions")"
 
 installed_version="$(app-conf get app.installed_version)"
 
-pretty() {
+script() {
   local current=$1
   shift
-  for v in "$@"; do
+  for v in $@; do
     if [ "$v" = "$current" ]; then
       echo "$v (*)"
     else
@@ -35,11 +35,11 @@ pretty() {
   done
 }
 
-script() {
+pretty() {
   local current="$1"
   shift
   local versions=""
-  for v in "$@"; do
+  for v in $@; do
     if [ "$v" != "$current" ]; then
       versions="${versions} $v"
     fi
@@ -62,7 +62,7 @@ do
 done
 shift $((OPTIND-1))
 
-if [[ $is_pretty -eq 0 ]]; then
+if [[ $is_pretty -eq 1 ]]; then
   pretty "$installed_version" "$app_versions"
 else
   script "$installed_version" "$app_versions"
