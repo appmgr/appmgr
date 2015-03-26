@@ -27,7 +27,6 @@ pretty() {
   local current=$1
   shift
   local all="$*"
-  echo "BALLE"
   for v in $all; do
     if [ "$v" = "$current" ]; then
       echo "$v (*)"
@@ -38,7 +37,6 @@ pretty() {
 }
 
 script() {
-  echo "SCRIPT"
   local current="$1"
   shift
   local versions=""
