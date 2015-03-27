@@ -10,6 +10,6 @@ Vcs-Browser: https://github.com/trygvis/appmgr
 
 Package: appmgr
 Architecture: all
-Depends: ${misc:Depends}, xmlstarlet, procps, unzip
+Depends: ${misc:Depends}, curl, xmlstarlet, procps, unzip
 Description: Utilities for managing a set of apps
  Utilities for starting, stopping and managing applications on a server
