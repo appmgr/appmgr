@@ -1,3 +1,16 @@
+appmgr (0.5.3+1) trusty; urgency=medium
+
+  [ Erlend Hamnaberg ]
+  * Fix permissions
+
+  [ Alfred Lysebraate ]
+  * Using -s as script flag. Fixing marking current version
+
+  [ Erlend Hamnaberg ]
+  * Add curl as dependency
+
+ -- Erlend Hamnaberg <erlend@hamnaberg.net>  Fri, 27 Mar 2015 12:59:07 +0000
+
 appmgr (0.5.2+1) trusty; urgency=medium
 
   [ Erlend Hamnaberg ]
