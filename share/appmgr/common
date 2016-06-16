@@ -145,18 +145,18 @@ grep_path() {
   local regex="$1"; shift
   local path="$1"; shift
 
-  find `echo $path | tr : " "` -type f -perm +0111 2>/dev/null | (egrep "$regex" || exit 0)
-#  IFS=:
-#  for x in $path
-#  do
-#    ls $x/* 2>/dev/null | while read f
-#    do
-#      if [[ $f =~ $regex ]]
-#      then
-#        echo $f
-#      fi
-#    done
-#  done
+  IFS=':' read -r -a ps <<< "$path"
+  for p in "${ps[@]}"
+  do
+    files=($p/*)
+    for f in "${files[@]}"
+    do
+      if [[ $f =~ $regex && -x $f ]]
+      then
+        echo $f
+      fi
+    done
+  done
 }
 
 # TODO: set ulimit

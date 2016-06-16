@@ -9,7 +9,7 @@ usage_text() {
     sort -n
   echo ""
   echo "Available plumbing commands:"
-  grep_path "/app-.*$" "$APPMGR_HOME/lib/exec" | \
+  grep_path "/app-.*$" "$APPMGR_HOME/lib/appmgr" | \
     sed "s,^.*/app-,    ," | \
     sort -n
 }
@@ -32,7 +32,7 @@ APPMGR_HOME=`cd "$APPMGR_HOME" && pwd`
 
 echo_debug=no
 newpath=""
-while getopts ":hC:D:" opt
+while getopts ":hC:D" opt
 do
   case $opt in
     h)
