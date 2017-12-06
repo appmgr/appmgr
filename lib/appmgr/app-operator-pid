@@ -177,10 +177,15 @@ command_stop() {
       ;;
   esac
 
-  echo -n "Sending TERM to $PID, waiting for shutdown"
+  local stop_timeout=$(app-conf get app.stop_timeout)
+  if [[ ! $stop_timeout =~ [0-9] ]]
+  then
+    stop_timeout=10
+  fi
+  echo -n "Sending TERM to $PID, waiting for shutdown for a maximum of $stop_timeout seconds"
   kill -TERM "$PID"
 
-  for ((i=1; i<10; i++))
+  for ((i=1; i<$stop_timeout; i++))
   do
     if [[ $(do_status) != running ]]
     then
