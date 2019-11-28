@@ -45,7 +45,7 @@ get_file() {
 get_http() {
   curl -n -o "$file" "$url" -D curl.tmp
 
-  exit=$(grep "^HTTP/[0-9]\.[0-9] 200 .*" curl.tmp >/dev/null; echo $?)
+  exit=$(grep -E "^HTTP/[0-9](\.[0-9])? 200 .*" curl.tmp >/dev/null; echo $?)
   head=$(head -n 1 curl.tmp)
   rm -f curl.tmp
   if [ "$exit" != 0 ]

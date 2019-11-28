@@ -33,6 +33,9 @@ Support configurable signal to send on shutdown::
 Tests for app.pid_management=launcher::
     Missing.
 
+Tests for app.stop_timeout::
+    Missing.
+
 APPMGR
 ------
 
